@@ -5,22 +5,25 @@
 #include "drivers_singleton.hpp"
 #include "DriveTrainController.h"
 #include "TurretController.h"
+#include "ShooterController.h"
+
 
 namespace ThornBots {
     //Don't ask me why. Timers only work when global. #Certified taproot Moment
-    static tap::arch::PeriodicMilliTimer driveTrainMotorsTimer(2);
-    static tap::arch::PeriodicMilliTimer turretMotorsTimer(2);
+    static tap::arch::PeriodicMilliTimer motorsTimer(2);
     static tap::arch::PeriodicMilliTimer IMUTimer(2);
     static tap::arch::PeriodicMilliTimer updateInputTimer(2);
 
     class RobotController {
         public: //Public Variables
             static constexpr double PI = 3.14159;
-            static constexpr double MAX_SPEED = 5000;
-            static constexpr double FAST_BEYBLADE_FACTOR = 0.7;
-            static constexpr double SLOW_BEYBLADE_FACTOR = 0.35;
+            static constexpr double MAX_SPEED = 7000; //controller //7000
+            static constexpr double SLOW_SPEED = 1000;
+            static constexpr double MED_SPEED = 4000;
+            static constexpr double FAST_SPEED = 7000;
+            static constexpr double FAST_BEYBLADE_FACTOR = 0.55 * 10000 / MAX_SPEED; //0.7
+            static constexpr double SLOW_BEYBLADE_FACTOR = 0.3 * 10000 / MAX_SPEED; //0.35
             static constexpr double TURNING_CONSTANT = 0.5;
-            static constexpr double PITCH_CONSTANT = -10.0;
             static constexpr double dt = 0.002;
             constexpr static double YAW_TURNING_PROPORTIONAL = -0.02;
             // static constexpr double 
@@ -28,30 +31,33 @@ namespace ThornBots {
             tap::Drivers *drivers;
             ThornBots::DriveTrainController *driveTrainController;
             ThornBots::TurretController *turretController;
+            ThornBots::ShooterController *shooterController;
             double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
             double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
             double wheelValue = 0;
             double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0;
             tap::communication::serial::Remote::SwitchState leftSwitchState, rightSwitchState = tap::communication::serial::Remote::SwitchState::MID;
             bool useKeyboardMouse = false;
-            double desiredYawAngleWorld, driveTrainEncoder = 0.0;
+            double yawEncoderCache = 0;
+            double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
+            double stickAccumulator = 0, targetYawAngleWorld = 0, targetDTVelocityWorld = 0;
+            bool robotDisabled = false;
+
         public: //Public Methods
-            RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
+            RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController, ThornBots::ShooterController* shooterController);
 
             void initialize();
 
             void update();
 
             void stopRobot();
+            void disableRobot();
+            void enableRobot();
 
-            /*
-            * Checks if it needs to switch. Would rename, but lots of things to change.
-            */
             bool toggleKeyboardAndMouse();
 
         private: //Private Methods
-            void updateControllerVariables();
-            void updateKeyboardVariables();
+            void updateAllInputVariables();
 
             /*
             * Returns the angle (in radians) x and y form with 0 being straight ahead. atan2(x/y).

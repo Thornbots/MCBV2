@@ -16,22 +16,28 @@ namespace ThornBots{
         //Nothing needs to be done to PID controllers
     }
 
+    static double TRANS_ACCEL_LIM = 60, ROT_ACCEL_LIM = 12;
+    double pastX = 0, pastY = 0, pastR, errX, errY, errR, errMag, errorAngle;
     void DriveTrainController::moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle) {
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
-        adjustMotorSpeedWithTurnSpeed(turnSpeed);
-    }
 
-    void DriveTrainController::followTurret(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
-        //TODO: Check that this works
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
-
-        pidControllerDTFollowsT.runControllerDerivateError(driveTrainAngleFromTurret, 1); //TODO: TUNE THE PID CONSTANTS!!!
-        double turnSpeed = ((double)pidController.getOutput());
+        errX = translationSpeed*cos(translationAngle)-pastX;
+        errY = translationSpeed*sin(translationAngle)-pastY;
+        errMag = sqrt(errY*errY+errX*errX);
+        if(errMag > TRANS_ACCEL_LIM)
+            errMag = TRANS_ACCEL_LIM;
+        errorAngle = atan2(errY, errX);
+        pastX += errMag*cos(errorAngle);
+        pastY += errMag*sin(errorAngle);
+        convertTranslationSpeedToMotorSpeeds(sqrt(pastX*pastX+pastY*pastY), atan2(pastY, pastX));
         
-        adjustMotorSpeedWithTurnSpeed(turnSpeed);
+        errR = turnSpeed-pastR;
+        errR = errR > ROT_ACCEL_LIM ? ROT_ACCEL_LIM : errR < -ROT_ACCEL_LIM ? -ROT_ACCEL_LIM : errR;
+        pastR += errR;
+        adjustMotorSpeedWithTurnSpeed(pastR);
     }
 
     void DriveTrainController::setMotorSpeeds() {
+        if (robotDisabled) return stopMotors();
         drivers->canRxHandler.pollCanData();
         motorOneRPM = motor_one.getShaftRPM();
         motorTwoRPM = motor_two.getShaftRPM();
@@ -59,10 +65,18 @@ namespace ThornBots{
     }
 
     void DriveTrainController::stopMotors() {
-        motorOneSpeed = 0;
-        motorTwoSpeed = 0;
-        motorThreeSpeed = 0;
-        motorFourSpeed = 0;
+        motor_one.setDesiredOutput(0);
+        motor_two.setDesiredOutput(0);
+        motor_three.setDesiredOutput(0);
+        motor_four.setDesiredOutput(0);
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
+    }
+
+    void DriveTrainController::disable(){
+        robotDisabled = true;
+    }
+    void DriveTrainController::enable(){
+        robotDisabled = false;
     }
 
     void DriveTrainController::convertTranslationSpeedToMotorSpeeds(double translationSpeed, double translationAngle) {

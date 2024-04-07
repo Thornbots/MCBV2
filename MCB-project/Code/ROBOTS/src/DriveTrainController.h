@@ -10,8 +10,8 @@ namespace ThornBots{
     class DriveTrainController{
         public: //Public Variables
             constexpr static double PI = 3.14159; //Everyone likes Pi!
-            constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
-            constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret = {500, 0.5, 0, 0, 6000, 1, 0, 1, 0, 0, 0 }; //TODO: Tune this profile
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0 };
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret = {500, 0.5, 0, 0, 18000, 1, 0, 1, 0, 0, 0 }; //TODO: Tune this profile
         private: //Private Variables
             tap::Drivers *drivers;
             tap::motor::DjiMotor motor_one = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
@@ -20,6 +20,7 @@ namespace ThornBots{
             tap::motor::DjiMotor motor_four = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "ID4", 0, 0);
             tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
             tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
+            bool robotDisabled = false;
 
         public: //Public Methods
             DriveTrainController(tap::Drivers* driver);
@@ -40,16 +41,6 @@ namespace ThornBots{
             void moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle);
 
             /*
-            * Call this function when you want the drivetrain to be independent of the Turret.
-            * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
-            * This will allow the drivetrain to translate with the left stick, and the right stick is for the turret.
-            * This function should be called when the right switch is in the Down state.
-            * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
-            * and right stick will control pitch and yaw of the turret.
-            */
-            void followTurret(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret);
-
-            /*
             * Call this function to convert the desired RPM for all of motors in the DriveTrainController to a voltage level which
             * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
             * Should be placed inside of the main loop, and called periodically, every 
@@ -60,6 +51,8 @@ namespace ThornBots{
             * Call this function to set all DriveTrain motors to 0 desired RPM. CALL setMotorSpeeds() FOR THIS TO WORK
             */
             void stopMotors();
+            void disable();
+            void enable();
 
         private: //Private Methods
             /*
