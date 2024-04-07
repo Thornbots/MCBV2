@@ -1,0 +1,106 @@
+@startuml
+class RobotModule {
+    DriveTrainModule* driveTrainModule
+    GimbalModule* gimbalModule
+    public void initialize()
+    public void update()
+    public void emergencyStop()
+}
+Core -Down->RobotModule
+
+class DriveTrainModule {
+    public void initialize()
+    public void moveDriveTrain(double turnSpeed, double public translationSpeed, double translationAngle)
+    public void followGimbal(double translationSpeed, double translationAngle, double drivetrainAngleFromGimbal)
+    public void stopMotors()
+    public void setMotorSpeeds()
+    private void convertTranslationSpeedToMotorSpeeds(double magnitude, double angle)
+    private void adjustMotorSpeedsWithTurnSpeed(doule turnSpeed)
+}
+RobotModule -Down->DriveTrainModule
+
+class GimbalModule {
+    public void initialize()
+    public void update()
+    public void emergencyStop()
+    public void followDriveTrain(double angleError)
+    public void gimbalMove(double desiredYawAngle, double desiredPitchAngle, drivetrainRPM, yawAngleRelativeWorld, double yawRPM, double dt)
+    public void reZeroYaw()
+}
+RobotModule -Down->GimbalModule
+
+class ShooterModule {
+    public void initialize()
+    public void update()
+    public void emergencyStop()
+    public void spinFlywheels(double flywyheelMagnitude)
+    public void spinIndexer(double indexerMagnitude)
+    public void moveReloadDoor(bool wantOpen)
+}
+RobotModule -Down->ShooterModule
+
+class CommunicationModule {
+    public void initialize()
+    public void update()
+    public struct* getInterperetedData()
+}
+RobotModule -Down> CommunicationModule
+
+interface Communicator {
+    public void readInput()
+    public double translateMagnitude [0 1]
+    double translateAngle
+    double drivetrainRotate
+    double gimbalYawAngleDesired
+    double gimbalPitchAngleDesired
+    double gimbalIndexMagnitude
+    double gimbalFlywheelMagnitude
+    double gimbalReloadMagnitude
+}
+KeyboardCommunicator -Up-|> Communicator
+ControllerCommunicator -Up-|> Communicator
+CommunicationModule .Down.>Communicator
+
+class KeyboardCommunicator {
+}
+
+class ControllerCommunicator {
+}
+
+class Core {
+    public enum robotType
+}
+
+class YawController {
+    getYawMotorVoltage()
+}
+GimbalModule -Down-> YawController
+
+class PitchController {
+    getPitchMotorVoltage()
+}
+GimbalModule -Down-> PitchController
+
+class JetsonCommunication {
+    void update()
+    struct* getMsg()
+}
+
+class DriveTrainConstants {
+}
+DriveTrainModule .Down.>DriveTrainConstants
+
+class GimbalConstants {
+}
+GimbalModule .Down.> GimbalConstants
+
+class RobotConstants {
+}
+RobotModule .Right.> RobotConstants
+
+class ShooterConstants {
+}
+ShooterModule .Down.> ShooterConstants
+
+RobotModule -Down-> JetsonCommunication
+@enduml
