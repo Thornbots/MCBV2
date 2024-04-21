@@ -5,6 +5,7 @@
 namespace ThornBots
 {
 
+double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
 double yawEncoderValue, IMUAngle = 0.0;
 /*
  * Constructor for RobotController
@@ -31,6 +32,7 @@ void RobotController::initialize()
     driveTrainController->initialize();
     turretController->initialize();
     shooterController->initialize();
+    drivers->refSerial.initialize();
     modm::delay_ms(
         2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
     // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's
@@ -41,6 +43,9 @@ void RobotController::update()
 {
 
     drivers->canRxHandler.pollCanData();
+    
+    drivers->refSerial.updateSerial();
+
     updateAllInputVariables();
 
     toggleKeyboardAndMouse();
@@ -269,8 +274,19 @@ void RobotController::updateWithMouseKeyboard()
 {
     if (updateInputTimer.execute())
     {
+
+        tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
+        uint8_t level = robotData.robotLevel;
+        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit17ID1);
+
+        currentHeat = turretData.heat17ID1;
+        maxHeat = turretData.heatLimit17ID1;
+        theHeatRatio = heatRatio;
+        theLevel = level;
+
         //shooting
-        if(drivers->remote.getMouseL()){
+        if(drivers->remote.getMouseL()&&heatRatio<0.5){
             shooterController->setIndexer(0.8);
             shooterController->enableShooting();
         } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
