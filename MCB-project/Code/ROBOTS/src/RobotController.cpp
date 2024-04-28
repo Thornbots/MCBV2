@@ -249,7 +249,7 @@ void RobotController::updateWithController()
         
         if(wheelValue < -0.5){
             shooterController->enableShooting();
-            shooterController->setIndexer(0.5);
+            shooterController->setIndexer(0.5); //was 0.5
         } else {
             if(wheelValue > 0.5){
                 shooterController->disableShooting();
@@ -263,7 +263,7 @@ void RobotController::updateWithController()
             driveTrainEncoder + leftStickAngle - 3 * PI / 4);
         turretController->turretMove(
             targetYawAngleWorld,
-            0.1 * PI * right_stick_vert - 0.5 * PI,
+            0.1 * PI * right_stick_vert - 0.48 * PI,  //was - 0.5 * PI
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,
@@ -304,7 +304,7 @@ void RobotController::updateWithMouseKeyboard()
 
         //shooting
         if(drivers->remote.getMouseL()&&heatRatio<0.5){
-            shooterController->setIndexer(0.8);
+            shooterController->setIndexer(0.5); //was 0.8
             shooterController->enableShooting();
         } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
             shooterController->disableShooting();
