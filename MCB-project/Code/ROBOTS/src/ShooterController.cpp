@@ -66,11 +66,11 @@ namespace ThornBots {
 
     int ShooterController::getIndexerVoltage() {
         if (robotDisabled) return 0;
-        if(shootingSafety){
+       // if(shootingSafety){
             return indexerVoltage;
-        }else{
-            return 0;
-        }
+        //}else{
+         //   return 0;
+        //}
     }
 
     void ShooterController::setIndexer(double val) {
