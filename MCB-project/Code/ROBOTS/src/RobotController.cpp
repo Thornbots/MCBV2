@@ -228,6 +228,7 @@ void RobotController::updateWithController()
                         break;
                     case (tap::communication::serial::Remote::SwitchState::DOWN):
                         yawEncoderCache = 3 * PI / 4;
+                        // no break intentional so if in this case it also runs what is below 
                     case (tap::communication::serial::Remote::SwitchState::UP):
                         // Left switch is down, and right is up. So driveTrainFollows Turret
                         targetYawAngleWorld =
@@ -245,46 +246,45 @@ void RobotController::updateWithController()
                 stopRobot();
                 break;
         }
-    }
-    /*
-    if(wheelValue < -0.5){
-        shooterController->enableShooting();
-        shooterController->setIndexer(0.5);
-    } else {
-        if(wheelValue > 0.5){
-            shooterController->disableShooting();
-        }
-        shooterController->setIndexer(0);
-    }*/
-    targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
-    driveTrainController->moveDriveTrain(
-        targetDTVelocityWorld,
-        (leftStickMagnitude * MAX_SPEED),
-        driveTrainEncoder + leftStickAngle - 3 * PI / 4);
-    turretController->turretMove(
-        targetYawAngleWorld,
-        0.1 * PI * right_stick_vert - 0.5 * PI,
-        driveTrainRPM,
-        yawAngleRelativeWorld,
-        yawRPM,
-        dt);
-
-
-    tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
-    auto& turretData = robotData.turret;
-    uint8_t level = robotData.robotLevel;
-    double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit17ID1);
-
-    currentHeat = turretData.heat17ID1;
-    maxHeat = turretData.heatLimit17ID1;
-    theHeatRatio = heatRatio;
-    theLevel = level;
         
-    //shooterController->enableShooting();
-    shooterController->setIndexer(theLevel/10.0);
-    shooterController->setMotorSpeeds();
+        if(wheelValue < -0.5){
+            shooterController->enableShooting();
+            shooterController->setIndexer(0.5);
+        } else {
+            if(wheelValue > 0.5){
+                shooterController->disableShooting();
+            }
+            shooterController->setIndexer(0);
+        }
+        targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+        driveTrainController->moveDriveTrain(
+            targetDTVelocityWorld,
+            (leftStickMagnitude * MAX_SPEED),
+            driveTrainEncoder + leftStickAngle - 3 * PI / 4);
+        turretController->turretMove(
+            targetYawAngleWorld,
+            0.1 * PI * right_stick_vert - 0.5 * PI,
+            driveTrainRPM,
+            yawAngleRelativeWorld,
+            yawRPM,
+            dt);
 
 
+        tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        auto& turretData = robotData.turret;
+        uint8_t level = robotData.robotLevel;
+        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit17ID1);
+
+        currentHeat = turretData.heat17ID1;
+        maxHeat = turretData.heatLimit17ID1;
+        theHeatRatio = heatRatio;
+        theLevel = level;
+            
+        //shooterController->enableShooting();
+        //shooterController->setIndexer(theLevel/10.0);
+        //shooterController->setMotorSpeeds();
+
+    }
 }
 
 void RobotController::updateWithMouseKeyboard()
