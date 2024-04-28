@@ -33,6 +33,7 @@ void RobotController::initialize()
     turretController->initialize();
     shooterController->initialize();
     drivers->refSerial.initialize();
+
     modm::delay_ms(
         2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
     // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's
@@ -270,7 +271,7 @@ void RobotController::updateWithController()
 
 
     tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
-    tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
+    auto& turretData = robotData.turret;
     uint8_t level = robotData.robotLevel;
     double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit17ID1);
 
