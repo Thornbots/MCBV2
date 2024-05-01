@@ -151,7 +151,7 @@ void RobotController::updateAllInputVariables()
     yawRPM = PI / 180 * drivers->bmi088.getGz();
     yawAngleRelativeWorld = PI / 180 * drivers->bmi088.getYaw();
 
-    wheelValue = drivers->remote.getWheel();
+    wheelValue = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::WHEEL);
 
 }
 
@@ -246,8 +246,17 @@ void RobotController::updateWithController()
                 stopRobot();
                 break;
         }
+        tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
+        uint8_t level = robotData.robotLevel;
+        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit);
+
+        currentHeat = turretData.heat17ID1;
+        maxHeat = turretData.heatLimit;
+        theHeatRatio = heatRatio;
+        theLevel = level;
         
-        if(wheelValue < -0.5){
+        if(wheelValue < -0.5 && currentHeat < 10){
             shooterController->enableShooting();
             shooterController->setIndexer(0.5); //was 0.5
         } else {
@@ -269,16 +278,17 @@ void RobotController::updateWithController()
             yawRPM,
             dt);
 
+        //idk if this should still work
+        // tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        // auto& turretData = robotData.turret;
+        // uint8_t level = robotData.robotLevel;
+        // //turretData.h
+        // double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit);
 
-        tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
-        auto& turretData = robotData.turret;
-        uint8_t level = robotData.robotLevel;
-        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit17ID1);
-
-        currentHeat = turretData.heat17ID1;
-        maxHeat = turretData.heatLimit17ID1;
-        theHeatRatio = heatRatio;
-        theLevel = level;
+        // currentHeat = turretData.heat17ID1;
+        // maxHeat = turretData.heatLimit;
+        // theHeatRatio = heatRatio;
+        // theLevel = level;
             
         //shooterController->enableShooting();
         //shooterController->setIndexer(theLevel/10.0);
@@ -295,10 +305,10 @@ void RobotController::updateWithMouseKeyboard()
         tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
         uint8_t level = robotData.robotLevel;
-        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit17ID1);
+        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit);
 
         currentHeat = turretData.heat17ID1;
-        maxHeat = turretData.heatLimit17ID1;
+        maxHeat = turretData.heatLimit;
         theHeatRatio = heatRatio;
         theLevel = level;
 

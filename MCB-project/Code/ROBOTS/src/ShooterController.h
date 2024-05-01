@@ -11,7 +11,7 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
     class ShooterController {
         public: //Public Variables
-            constexpr static double PI = 3.14159;
+            //constexpr static double PI = 3.14159;
             constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
             constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
             constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = { 40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0 };

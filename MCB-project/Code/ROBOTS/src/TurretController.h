@@ -12,7 +12,7 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer turretControllerTimer(2);
     class TurretController {
         public: //Public Variables
-            constexpr static double PI = 3.14159;
+            //constexpr static double PI = 3.14159;
             constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
             constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000; //Should be the voltage of the battery. Unless the motor maxes out below that. //TODO: Check the datasheets
         
