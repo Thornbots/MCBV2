@@ -38,6 +38,8 @@ void RobotController::initialize()
         2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
     // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's
     // reading correctly, ect)
+    imuOffset = turretController->getYawEncoderValue();
+    targetYawAngleWorld += yawAngleRelativeWorld;
 }
 
 void RobotController::update()
@@ -149,7 +151,7 @@ void RobotController::updateAllInputVariables()
     driveTrainRPM = 0;  // TODO: get this. Either power from DT motors, using yaw encoder and IMU,
                         // or something else
     yawRPM = PI / 180 * drivers->bmi088.getGz();
-    yawAngleRelativeWorld = PI / 180 * drivers->bmi088.getYaw();
+    yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw() - imuOffset, 2*PI);
 
     wheelValue = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::WHEEL);
 

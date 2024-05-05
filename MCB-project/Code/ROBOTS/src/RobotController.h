@@ -35,7 +35,7 @@ namespace ThornBots {
             double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
             double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
             double wheelValue = 0;
-            double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0;
+            double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
             tap::communication::serial::Remote::SwitchState leftSwitchState, rightSwitchState = tap::communication::serial::Remote::SwitchState::MID;
             bool useKeyboardMouse = false;
             double yawEncoderCache = 0;
