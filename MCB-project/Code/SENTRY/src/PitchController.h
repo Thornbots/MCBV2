@@ -29,7 +29,7 @@ namespace ThornBots {
         // Physical constants
         const double KB = 0.716;               // V-rad/s
         const double RA = 8.705;               // ohm
-        const double RATIO = 1;                // unitless
+        const double RATIO = 2;                // unitless
         const double VOLT_MAX = 22.2;                   //V
         const double VELO_MAX = VOLT_MAX/(KB*RATIO);    //rad/s
         const double ACCEL_MAX = 40.0;                //rad/s

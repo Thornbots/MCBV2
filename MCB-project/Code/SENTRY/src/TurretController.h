@@ -12,7 +12,6 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer turretControllerTimer(2);
     class TurretController {
         public: //Public Variables
-            constexpr static double PI = 3.14159;
             constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
             constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000; //Should be the voltage of the battery. Unless the motor maxes out below that. //TODO: Check the datasheets
          
@@ -20,7 +19,7 @@ namespace ThornBots {
             tap::Drivers* drivers;
             //TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
             tap::motor::DjiMotor motor_Yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0);
-            tap::motor::DjiMotor motor_Pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Pitch", 0, 0);
+            tap::motor::DjiMotor motor_Pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, true, "Pitch", 0, 0);
          
             ThornBots::ModeledTurretController yawController = ModeledTurretController();
             ThornBots::PitchController pitchController = PitchController();

@@ -6,7 +6,8 @@ namespace ThornBots {
         //TODO: Complete this
     }
     void ShooterController::initialize() {
-        motor_Indexer.initialize();
+        motor_Indexer1.initialize();
+        motor_Indexer2.initialize();
         motor_Flywheel1.initialize();
         motor_Flywheel2.initialize();
         drivers->pwm.init(); //For the servo we will be using
@@ -23,8 +24,11 @@ namespace ThornBots {
 
     void ShooterController::setMotorSpeeds() {
         updateSpeeds();
-        indexPIDController.runControllerDerivateError(indexerVoltage - motor_Indexer.getShaftRPM(), 1);
-        motor_Indexer.setDesiredOutput(static_cast<int32_t>(indexPIDController.getOutput()));
+        indexPIDController1.runControllerDerivateError(indexerVoltage - motor_Indexer1.getShaftRPM(), 1);
+        motor_Indexer1.setDesiredOutput(static_cast<int32_t>(indexPIDController1.getOutput()));
+
+        indexPIDController2.runControllerDerivateError(indexerVoltage - motor_Indexer2.getShaftRPM(), 1);
+        motor_Indexer2.setDesiredOutput(static_cast<int32_t>(indexPIDController2.getOutput()));
 
         flywheelPIDController1.runControllerDerivateError(flyWheelVoltage - motor_Flywheel1.getShaftRPM(), 1);
         motor_Flywheel1.setDesiredOutput(static_cast<int32_t>(flywheelPIDController1.getOutput()));
@@ -35,7 +39,9 @@ namespace ThornBots {
 
     void ShooterController::stopMotors() {
              //indexPIDController.runControllerDerivateError(0 - motor_Indexer.getShaftRPM(), 1);
-        motor_Indexer.setDesiredOutput(0);//static_cast<int32_t>(indexPIDController.getOutput()));
+        motor_Indexer1.setDesiredOutput(0);//static_cast<int32_t>(indexPIDController.getOutput()));
+
+        motor_Indexer2.setDesiredOutput(0);//static_cast<int32_t>(indexPIDController.getOutput()));
 
        // flywheelPIDController1.runControllerDerivateError(0 - motor_Flywheel1.getShaftRPM(), 1);
         motor_Flywheel1.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController1.getOutput()));

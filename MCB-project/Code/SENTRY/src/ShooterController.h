@@ -11,20 +11,22 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
     class ShooterController {
         public: //Public Variables
-            constexpr static double PI = 3.14159;
             constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
             constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
             constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
-            constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = { 20, 0, 0, 0, 8000, 1, 0, 1, 0, 0, 0 };
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = { 5, 0, 0, 0, 8000, 1, 0, 1, 0, 10, 0 };
         private: //Private Variables
             tap::Drivers* drivers;
             //TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-             tap::motor::DjiMotor motor_Indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS2, false, "Right Flywheel", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS2, true, "Left Flywheel", 0, 0);
+            tap::motor::DjiMotor motor_Indexer1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "Left Indexer", 0, 0);
+            tap::motor::DjiMotor motor_Indexer2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS2, true, "Right Indexer", 0, 0);
+
+            tap::motor::DjiMotor motor_Flywheel1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS2, false, "Top Flywheel", 0, 0);
+            tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS2, false, "Bottom Flywheel", 0, 0);
              tap::algorithms::SmoothPid flywheelPIDController1 = tap::algorithms::SmoothPid(pid_conf_flywheel);
             tap::algorithms::SmoothPid flywheelPIDController2 = tap::algorithms::SmoothPid(pid_conf_flywheel);
-            tap::algorithms::SmoothPid indexPIDController = tap::algorithms::SmoothPid(pid_conf_index);
+            tap::algorithms::SmoothPid indexPIDController1 = tap::algorithms::SmoothPid(pid_conf_index);
+            tap::algorithms::SmoothPid indexPIDController2 = tap::algorithms::SmoothPid(pid_conf_index);
 
             double flyWheelVoltage, indexerVoltage = 0.0;
 

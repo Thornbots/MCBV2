@@ -38,6 +38,8 @@ void RobotController::initialize()
         2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
     // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's
     // reading correctly, ect)
+    ///imuOffset = turretController->getYawEncoderValue();
+    targetYawAngleWorld += yawAngleRelativeWorld;
 }
 
 void RobotController::update()
@@ -149,7 +151,7 @@ void RobotController::updateAllInputVariables()
     driveTrainRPM = 0;  // TODO: get this. Either power from DT motors, using yaw encoder and IMU,
                         // or something else
     yawRPM = PI / 180 * drivers->bmi088.getGz();
-    yawAngleRelativeWorld = PI / 180 * drivers->bmi088.getYaw();
+    yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw(), 2*PI);
 
     wheelValue = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::WHEEL);
 
@@ -256,12 +258,14 @@ void RobotController::updateWithController()
         theHeatRatio = heatRatio;
         theLevel = level;
         
-        if(wheelValue < -0.5 && currentHeat < 10){
+        if(wheelValue < -0.5){
             shooterController->enableShooting();
-            shooterController->setIndexer(0.5); //was 0.5
+            shooterController->setIndexer(1.0); //was 0.5
         } else {
             if(wheelValue > 0.5){
                 shooterController->disableShooting();
+                shooterController->setIndexer(-0.1);
+
             }
             shooterController->setIndexer(0);
         }
@@ -269,10 +273,10 @@ void RobotController::updateWithController()
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
             (leftStickMagnitude * MAX_SPEED),
-            driveTrainEncoder + leftStickAngle - 3 * PI / 4);
+            driveTrainEncoder + leftStickAngle);
         turretController->turretMove(
             targetYawAngleWorld,
-            0.1 * PI * right_stick_vert - 0.48 * PI,  //was - 0.5 * PI
+            0.1 * PI * right_stick_vert + 0.07*PI,// + PI,  //was - 0.5 * PI
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,
@@ -399,7 +403,7 @@ void RobotController::updateWithMouseKeyboard()
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
             moveMagnitude,
-            driveTrainEncoder + moveAngle - 3 * PI / 4); //driveTrainEncoder + moveAngle - 3 * PI / 4);
+            driveTrainEncoder + moveAngle); //driveTrainEncoder + moveAngle - 3 * PI / 4);
             //also try targetYawAngleWorld, yawEncoderCache
 
 
@@ -419,7 +423,7 @@ void RobotController::updateWithMouseKeyboard()
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
         turretController->turretMove(
             targetYawAngleWorld,
-            (accumulatedMouseY) - 0.5 * PI,
+            (accumulatedMouseY) + 0.07*PI,// + PI,
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,

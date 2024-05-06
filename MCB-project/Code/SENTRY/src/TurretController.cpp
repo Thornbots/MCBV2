@@ -47,7 +47,7 @@ namespace ThornBots {
 
     int TurretController::getPitchVoltage(double targetAngle, double dt) {
         if (robotDisabled) return 0;
-        return 1000*pitchController.calculate(getPitchEncoderValue(), getPitchVel(), targetAngle, dt);
+        return 1000*pitchController.calculate(getPitchEncoderValue()/2, getPitchVel()/2, targetAngle, dt);
     }
 
     void TurretController::disable(){
