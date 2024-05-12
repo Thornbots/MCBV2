@@ -13,20 +13,26 @@ namespace ThornBots {
         public: //Public Variables
             //constexpr static double PI = 3.14159;
             constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
-            constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
-            constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = { 40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0 };
+            constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 11000; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = { 20, 0, 0, 0, 13000, 1, 0, 1, 0, 0, 0 };
             constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = { 5, 0, 0, 0, 8000, 1, 0, 1, 0, 10, 0 };
         private: //Private Variables
             tap::Drivers* drivers;
             //TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-            tap::motor::DjiMotor motor_Indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0);
-            tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
+            tap::motor::DjiMotor motor_Indexer = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0);
+            tap::motor::DjiMotor motor_LowerFeeder = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS2, true, "Lower Feeder", 0, 0);
+            tap::motor::DjiMotor motor_UpperFeeder = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "Upper Feeder", 0, 0);
+
+            tap::motor::DjiMotor motor_Flywheel1 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0);
+            tap::motor::DjiMotor motor_Flywheel2 = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
             tap::algorithms::SmoothPid flywheelPIDController1 = tap::algorithms::SmoothPid(pid_conf_flywheel);
             tap::algorithms::SmoothPid flywheelPIDController2 = tap::algorithms::SmoothPid(pid_conf_flywheel);
             tap::algorithms::SmoothPid indexPIDController = tap::algorithms::SmoothPid(pid_conf_index);
+            tap::algorithms::SmoothPid lowerFeederPIDController = tap::algorithms::SmoothPid(pid_conf_index);
+            tap::algorithms::SmoothPid upperFeederPIDController = tap::algorithms::SmoothPid(pid_conf_index);
 
-            double flyWheelVoltage, indexerVoltage = 0.0;
+
+            double flyWheelVoltage, indexerVoltage = 0.0, feederVoltage = 0.0;
 
 
             bool shootingSafety = false;
@@ -69,6 +75,8 @@ namespace ThornBots {
             
             void setIndexer(double val);
 
+            void setFeeder(double val);
+
             /*
             * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.
             * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the 
@@ -81,5 +89,6 @@ namespace ThornBots {
       
             int getFlywheelVoltage();
             int getIndexerVoltage();
+            int getFeederVoltage();
     };
 }

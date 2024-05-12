@@ -9,7 +9,8 @@ namespace ThornBots {
         motor_Indexer.initialize();
         motor_Flywheel1.initialize();
         motor_Flywheel2.initialize();
-
+        motor_LowerFeeder.initialize();
+        motor_UpperFeeder.initialize();
         drivers->pwm.init(); //For the servo we will be using
 
         //Nothing needs to be done to drivers
@@ -19,6 +20,7 @@ namespace ThornBots {
         if(shooterControllerTimer.execute()) {
             indexerVoltage = getIndexerVoltage();
             flyWheelVoltage = getFlywheelVoltage();
+            feederVoltage = getFeederVoltage();
         }
     }
 
@@ -32,6 +34,12 @@ namespace ThornBots {
 
         flywheelPIDController2.runControllerDerivateError(flyWheelVoltage - motor_Flywheel2.getShaftRPM(), 1);
         motor_Flywheel2.setDesiredOutput(static_cast<int32_t>(flywheelPIDController2.getOutput()));
+
+        lowerFeederPIDController.runControllerDerivateError(feederVoltage - motor_LowerFeeder.getShaftRPM(), 1);
+        motor_LowerFeeder.setDesiredOutput(static_cast<int32_t>(lowerFeederPIDController.getOutput()));
+
+        upperFeederPIDController.runControllerDerivateError(feederVoltage - motor_UpperFeeder.getShaftRPM(), 1);
+        motor_UpperFeeder.setDesiredOutput(static_cast<int32_t>(upperFeederPIDController.getOutput()));
     }
 
     void ShooterController::stopMotors() {
@@ -43,6 +51,10 @@ namespace ThornBots {
 
        // flywheelPIDController2.runControllerDerivateError(0 - motor_Flywheel2.getShaftRPM(), 1);
         motor_Flywheel2.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController2.getOutput()));
+
+        motor_LowerFeeder.setDesiredOutput(0);
+
+        motor_UpperFeeder.setDesiredOutput(0);
 
         drivers->djiMotorTxHandler.encodeAndSendCanData();
         //TODO: Add the other motors
@@ -67,16 +79,22 @@ namespace ThornBots {
 
     int ShooterController::getIndexerVoltage() {
         if (robotDisabled) return 0;
-       // if(shootingSafety){
             return indexerVoltage;
-        //}else{
-         //   return 0;
-        //}
+
     }
+    int ShooterController::getFeederVoltage() {
+        if (robotDisabled) return 0;
+            return feederVoltage;
+
+    }    
 
     void ShooterController::setIndexer(double val) {
         indexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
         
+    }
+
+    void ShooterController::setFeeder(double val){
+        feederVoltage = val*INDEXER_MOTOR_MAX_SPEED;
     }
 
     void ShooterController::disable(){
