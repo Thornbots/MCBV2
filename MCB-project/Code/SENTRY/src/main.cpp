@@ -17,6 +17,7 @@ int main() {
 
     robotController->initialize();
     while(1) {
+
         if(RunTimer.execute()) { //Calling this function every 10 us at max
             robotController->update();
         }

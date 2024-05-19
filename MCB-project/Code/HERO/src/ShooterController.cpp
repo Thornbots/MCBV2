@@ -12,15 +12,20 @@ namespace ThornBots {
         motor_LowerFeeder.initialize();
         motor_UpperFeeder.initialize();
         drivers->pwm.init(); //For the servo we will be using
+        pin::configure(modm::platform::Gpio::InputType::Floating);
+
 
         //Nothing needs to be done to drivers
         //Nothing needs to be done to the controllers
     }
     void ShooterController::updateSpeeds(){
         if(shooterControllerTimer.execute()) {
+            beamState = readSwitch();
             indexerVoltage = getIndexerVoltage();
             flyWheelVoltage = getFlywheelVoltage();
-            feederVoltage = getFeederVoltage();
+            lowerFeederVoltage = getLowerFeederVoltage();
+            upperFeederVoltage = getUpperFeederVoltage();
+
         }
     }
 
@@ -35,10 +40,10 @@ namespace ThornBots {
         flywheelPIDController2.runControllerDerivateError(flyWheelVoltage - motor_Flywheel2.getShaftRPM(), 1);
         motor_Flywheel2.setDesiredOutput(static_cast<int32_t>(flywheelPIDController2.getOutput()));
 
-        lowerFeederPIDController.runControllerDerivateError(feederVoltage - motor_LowerFeeder.getShaftRPM(), 1);
+        lowerFeederPIDController.runControllerDerivateError(lowerFeederVoltage - motor_LowerFeeder.getShaftRPM(), 1);
         motor_LowerFeeder.setDesiredOutput(static_cast<int32_t>(lowerFeederPIDController.getOutput()));
 
-        upperFeederPIDController.runControllerDerivateError(feederVoltage - motor_UpperFeeder.getShaftRPM(), 1);
+        upperFeederPIDController.runControllerDerivateError(upperFeederVoltage - motor_UpperFeeder.getShaftRPM(), 1);
         motor_UpperFeeder.setDesiredOutput(static_cast<int32_t>(upperFeederPIDController.getOutput()));
     }
 
@@ -59,7 +64,10 @@ namespace ThornBots {
         drivers->djiMotorTxHandler.encodeAndSendCanData();
         //TODO: Add the other motors
     }
-
+    bool ShooterController::readSwitch() {
+        // return drivers->digital.read(rxPin);
+        return pin::read();
+    }
     void ShooterController::enableShooting() {
         this->shootingSafety = true;
     }
@@ -82,19 +90,56 @@ namespace ThornBots {
             return indexerVoltage;
 
     }
-    int ShooterController::getFeederVoltage() {
+    int ShooterController::getLowerFeederVoltage() {
         if (robotDisabled) return 0;
-            return feederVoltage;
+            return lowerFeederVoltage;
 
     }    
+    int ShooterController::getUpperFeederVoltage() {
+        if (robotDisabled) return 0;
+            return upperFeederVoltage;
+
+    } 
+
+
+    void ShooterController::index(IndexCommand * cmd){
+        switch(*cmd){
+            case UNJAM:
+                setAllIndex(0, -0.1, -0.1);
+                break;
+            case RAPID:
+                setAllIndex(1, 1, 1);
+                break;
+            case SINGLE:
+                if(readSwitch()){
+                    setAllIndex(0.3, 0, 0);
+                    *cmd = IDLE;
+
+                }else{                    
+                    setAllIndex(0.3, 0.3, 0.3);
+                }
+                break;
+            default:
+                if(readSwitch())
+                    setAllIndex(0.3, 0.3, 0.3); 
+                else                    
+                    setAllIndex(0, 0, 0);
+                break;
+
+        }
+    }
+
 
     void ShooterController::setIndexer(double val) {
         indexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
         
     }
 
-    void ShooterController::setFeeder(double val){
-        feederVoltage = val*INDEXER_MOTOR_MAX_SPEED;
+    void ShooterController::setLowerFeeder(double val){
+        lowerFeederVoltage = val*INDEXER_MOTOR_MAX_SPEED;
+    }
+   void ShooterController::setUpperFeeder(double val){
+        upperFeederVoltage = val*INDEXER_MOTOR_MAX_SPEED;
     }
 
     void ShooterController::disable(){

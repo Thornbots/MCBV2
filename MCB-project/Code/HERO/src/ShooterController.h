@@ -9,8 +9,10 @@
 
 namespace ThornBots {
     static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
+    enum IndexCommand{ IDLE, UNJAM, SINGLE, RAPID };
     class ShooterController {
         public: //Public Variables
+
             //constexpr static double PI = 3.14159;
             constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177; //With the 2006, this should give 20Hz
             constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 11000; //We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
@@ -31,10 +33,11 @@ namespace ThornBots {
             tap::algorithms::SmoothPid lowerFeederPIDController = tap::algorithms::SmoothPid(pid_conf_index);
             tap::algorithms::SmoothPid upperFeederPIDController = tap::algorithms::SmoothPid(pid_conf_index);
 
+            using pin = Board::DigitalInPinB12;
 
-            double flyWheelVoltage, indexerVoltage = 0.0, feederVoltage = 0.0;
+            double flyWheelVoltage, indexerVoltage = 0.0, lowerFeederVoltage = 0.0, upperFeederVoltage = 0.0;
 
-
+            bool beamState = true;
             bool shootingSafety = false;
             bool robotDisabled = false;
 
@@ -71,11 +74,12 @@ namespace ThornBots {
             * This function is not intended to be used for control when the driver is manually aiming/deciding to shoot or not.
             */
             void enableShooting();
-
+            void index(IndexCommand * cmd);
             
             void setIndexer(double val);
 
-            void setFeeder(double val);
+            void setLowerFeeder(double val);
+            void setUpperFeeder(double val);
 
             /*
             * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.
@@ -89,6 +93,13 @@ namespace ThornBots {
       
             int getFlywheelVoltage();
             int getIndexerVoltage();
-            int getFeederVoltage();
+            int getLowerFeederVoltage();
+            int getUpperFeederVoltage();
+            inline void setAllIndex(double upper, double lower, double index){
+                setIndexer(index);
+                setUpperFeeder(upper);
+                setLowerFeeder(lower);
+            }
+            bool readSwitch();
     };
 }

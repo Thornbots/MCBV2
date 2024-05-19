@@ -7,6 +7,7 @@ namespace ThornBots
 
 double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
 double yawEncoderValue, IMUAngle = 0.0;
+IndexCommand indexCommand = IDLE;
 /*
  * Constructor for RobotController
  */
@@ -258,17 +259,34 @@ void RobotController::updateWithController()
         theHeatRatio = heatRatio;
         theLevel = level;
         
-        if(wheelValue < -0.5 && currentHeat < 10){
+
+        if(wheelValue < -0.8)
+            indexCommand = RAPID;
+        else if(wheelValue < -0.3)
+            indexCommand = SINGLE;
+        else if(wheelValue > 0.3)
+            indexCommand = UNJAM;
+        else if(indexCommand != SINGLE)
+            indexCommand = IDLE;
+
+        if(indexCommand == RAPID || indexCommand == SINGLE)
             shooterController->enableShooting();
-            shooterController->setIndexer(0.2); //was 0.5
-            shooterController->setFeeder(0.2);
-        } else {
-            if(wheelValue > 0.5){
-                shooterController->disableShooting();
-            }
-            shooterController->setIndexer(0);
-            shooterController->setFeeder(0);
-        }
+        else if(indexCommand == UNJAM)
+            shooterController->disableShooting();
+
+        shooterController->index(&indexCommand);
+        
+        // if(wheelValue < -0.5 && currentHeat < 10){
+        //     shooterController->enableShooting();
+        //     shooterController->setIndexer(0.2); //was 0.5
+        //     shooterController->setFeeder(0.2);
+        // } else {
+        //     if(wheelValue > 0.5){
+        //         shooterController->disableShooting();
+        //     }
+        //     shooterController->setIndexer(0);
+        //     shooterController->setFeeder(0);
+        // }
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,

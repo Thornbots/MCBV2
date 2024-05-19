@@ -18,6 +18,7 @@ namespace ThornBots {
     void ShooterController::updateSpeeds(){
         if(shooterControllerTimer.execute()) {
             indexerVoltage = getIndexerVoltage();
+            testIndexerVoltage = getTestIndexerVoltage();
             flyWheelVoltage = getFlywheelVoltage();
         }
     }
@@ -27,7 +28,7 @@ namespace ThornBots {
         indexPIDController1.runControllerDerivateError(indexerVoltage - motor_Indexer1.getShaftRPM(), 1);
         motor_Indexer1.setDesiredOutput(static_cast<int32_t>(indexPIDController1.getOutput()));
 
-        indexPIDController2.runControllerDerivateError(indexerVoltage - motor_Indexer2.getShaftRPM(), 1);
+        indexPIDController2.runControllerDerivateError(testIndexerVoltage - motor_Indexer2.getShaftRPM(), 1);
         motor_Indexer2.setDesiredOutput(static_cast<int32_t>(indexPIDController2.getOutput()));
 
         flywheelPIDController1.runControllerDerivateError(flyWheelVoltage - motor_Flywheel1.getShaftRPM(), 1);
@@ -78,10 +79,18 @@ namespace ThornBots {
             return 0;
         }
     }
+      int ShooterController::getTestIndexerVoltage() {
+        if (robotDisabled) return 0;
+        return testIndexerVoltage;
+
+    }
 
     void ShooterController::setIndexer(double val) {
         indexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
         
+    }
+    void ShooterController::setTestIndexer(double val){
+        testIndexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
     }
 
     void ShooterController::disable(){

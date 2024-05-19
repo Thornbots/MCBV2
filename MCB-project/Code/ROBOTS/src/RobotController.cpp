@@ -250,22 +250,23 @@ void RobotController::updateWithController()
         }
         tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
-        uint8_t level = robotData.robotLevel;
-        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit);
-
-        currentHeat = turretData.heat17ID1;
-        maxHeat = turretData.heatLimit;
-        theHeatRatio = heatRatio;
-        theLevel = level;
-        
-        if(wheelValue < -0.5 && currentHeat < 10){
+        double frequency = 15, latency = 0.4, remaining = turretData.heatLimit - turretData.heat17ID1;
+        // Check if the firing rate should be limited
+        if ((10.0 * frequency - turretData.coolingRate) * latency > remaining) {
+            // Set the firing speed to C/10 Hz
+            frequency = turretData.coolingRate / 10.0;
+        }    
+        if (frequency > 15)
+            frequency = 15;
+        if(wheelValue < -0.5){
             shooterController->enableShooting();
-            shooterController->setIndexer(0.5); //was 0.5
+            shooterController->setIndexer(frequency/20.0); //was 0.5
         } else {
             if(wheelValue > 0.5){
                 shooterController->disableShooting();
-            }
-            shooterController->setIndexer(0);
+                shooterController->setIndexer(-0.1);
+            } else 
+                shooterController->setIndexer(0);
         }
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
         driveTrainController->moveDriveTrain(

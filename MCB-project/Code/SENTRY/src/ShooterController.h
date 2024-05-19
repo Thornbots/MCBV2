@@ -28,7 +28,7 @@ namespace ThornBots {
             tap::algorithms::SmoothPid indexPIDController1 = tap::algorithms::SmoothPid(pid_conf_index);
             tap::algorithms::SmoothPid indexPIDController2 = tap::algorithms::SmoothPid(pid_conf_index);
 
-            double flyWheelVoltage, indexerVoltage = 0.0;
+            double flyWheelVoltage, indexerVoltage = 0.0, testIndexerVoltage = 0.0;
 
 
             bool shootingSafety = false;
@@ -71,6 +71,8 @@ namespace ThornBots {
             
             void setIndexer(double val);
 
+            void setTestIndexer(double val);
+
             /*
             * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.
             * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the 
@@ -83,5 +85,6 @@ namespace ThornBots {
       
             int getFlywheelVoltage();
             int getIndexerVoltage();
+            int getTestIndexerVoltage();
     };
 }

@@ -10,7 +10,7 @@ namespace ThornBots{
     class DriveTrainController{
         public: //Public Variables
             //constexpr static double PI = 3.14159; //Everyone likes Pi!
-            constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0 };
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 0.001, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0 };
             constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret = {500, 0.5, 0, 0, 18000, 1, 0, 1, 0, 0, 0 }; //TODO: Tune this profile
         private: //Private Variables
             tap::Drivers *drivers;
