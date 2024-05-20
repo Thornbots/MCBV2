@@ -10,7 +10,7 @@ namespace ThornBots{
     class DriveTrainController{
         public: //Public Variables
             //constexpr static double PI = 3.14159; //Everyone likes Pi!
-            constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 0.001, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0 };
+            constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt = { 20, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0 };
             constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret = {500, 0.5, 0, 0, 18000, 1, 0, 1, 0, 0, 0 }; //TODO: Tune this profile
         private: //Private Variables
             tap::Drivers *drivers;
@@ -21,6 +21,10 @@ namespace ThornBots{
             tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
             tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
             bool robotDisabled = false;
+            
+            double higherLimitIncrease = 40; //in watts, 40 watts over the current limit given by the ref system
+            double regularLimitIncrease = 0; //in watts, 0 watts over the current limit given by the ref system
+            double limitIncrease = regularLimitIncrease; //in watts
 
         public: //Public Methods
             DriveTrainController(tap::Drivers* driver);
@@ -53,6 +57,9 @@ namespace ThornBots{
             void stopMotors();
             void disable();
             void enable();
+
+            void setHigherPowerLimit();
+            void setRegularPowerLimit();
 
         private: //Private Methods
             /*

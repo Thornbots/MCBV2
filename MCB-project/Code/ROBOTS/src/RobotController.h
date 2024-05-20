@@ -18,10 +18,10 @@ namespace ThornBots {
         public: //Public Variables
             //static constexpr double PI = 3.14159;
             // static constexpr double MAX_SPEED = 7000; //controller //7000
-            static constexpr double MAX_SPEED = 7000; //controller //7000
+            static constexpr double MAX_SPEED = 10000; //controller //7000
             static constexpr double SLOW_SPEED = 1000;
-            static constexpr double MED_SPEED = 4000;
-            static constexpr double FAST_SPEED = 7000;
+            static constexpr double MED_SPEED = 10000;
+            static constexpr double FAST_SPEED = 10000; //will allow power limit to be 50% higher
             static constexpr double FAST_BEYBLADE_FACTOR = 0.55 * 10000 / MAX_SPEED; //0.7
             static constexpr double SLOW_BEYBLADE_FACTOR = 0.3 * 10000 / MAX_SPEED; //0.35
             static constexpr double TURNING_CONSTANT = 0.5;

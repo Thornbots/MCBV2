@@ -16,7 +16,7 @@ void DriveTrainController::initialize()
     // Nothing needs to be done to PID controllers
 }
 
-static double TRANS_ACCEL_LIM = 60, ROT_ACCEL_LIM = 12;
+static double TRANS_ACCEL_LIM = 360, ROT_ACCEL_LIM = 72;
 double pastX = 0, pastY = 0, pastR, errX, errY, errR, errMag, errorAngle;
 void DriveTrainController::moveDriveTrain(
     double turnSpeed,
@@ -67,14 +67,15 @@ void DriveTrainController::moveDriveTrain(
 //     can signal
 // }
 double voltMax = 24; //Volts
-double ra = 0.194;  //ohms //was 1.03
-double kb = 0.39; //volt-rad/s
+double ra = 0.194-0.01;  //ohms //was 1.03 or 0.194
+double kb = 0.35/19.2; //volt-rad/s  //0.39
 double powerLimit = 0;
-void DriveTrainController::setMotorSpeeds()
-{
+double veloPower = 0.42; //magic number representing loss from high rpm
+double idlePowerDraw = 3; //watts, measured
+void DriveTrainController::setMotorSpeeds(){
     if (robotDisabled) return stopMotors();
     drivers->canRxHandler.pollCanData();
-    powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
+    powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit + limitIncrease;
     motorOneRPM = motor_one.getShaftRPM();
     motorTwoRPM = motor_two.getShaftRPM();
     motorThreeRPM = motor_three.getShaftRPM();
@@ -107,23 +108,23 @@ void DriveTrainController::setMotorSpeeds()
     double I4sourcet = I4t;// - w4 * kb / ra;
 
     // Calculate total power requested
-    double totalPowerRequested = (I1sourcet * I1sourcet * ra) + (I2sourcet * I2sourcet * ra) +
-                                 (I3sourcet * I3sourcet * ra) + (I4sourcet * I4sourcet * ra);
+    double totalPowerRequested = 0.8*((I1sourcet * I1sourcet * ra) + (I2sourcet * I2sourcet * ra) +
+                                 (I3sourcet * I3sourcet * ra) + (I4sourcet * I4sourcet * ra)) + veloPower*(abs(w1) + abs(w2) + abs(w3) + abs(w4));
 
     // Scale currents if power limit is exceeded
-    if (totalPowerRequested + 4 > powerLimit)
+    if (totalPowerRequested + idlePowerDraw > powerLimit)
     {
-        double scale = powerLimit / (totalPowerRequested + 4) ;
+        double scale = powerLimit / (totalPowerRequested + idlePowerDraw) ;
         I1t *= scale;
         I2t *= scale;
         I3t *= scale;
         I4t *= scale;
     }
 
-    motor_one.setDesiredOutput(static_cast<int32_t>(I1t*819.2*1000));
-    motor_two.setDesiredOutput(static_cast<int32_t>(I2t*819.2*1000));
-    motor_three.setDesiredOutput(static_cast<int32_t>(I3t*819.2*1000));
-    motor_four.setDesiredOutput(static_cast<int32_t>(I4t*819.2*1000));
+    motor_one.setDesiredOutput(static_cast<int32_t>(I1t*819.2));
+    motor_two.setDesiredOutput(static_cast<int32_t>(I2t*819.2));
+    motor_three.setDesiredOutput(static_cast<int32_t>(I3t*819.2));
+    motor_four.setDesiredOutput(static_cast<int32_t>(I4t*819.2));
 
     drivers->djiMotorTxHandler
         .encodeAndSendCanData();  // Processes these motor speed changes into CAN signal
@@ -158,4 +159,13 @@ void DriveTrainController::adjustMotorSpeedWithTurnSpeed(double turnSpeed)
     motorThreeSpeed += turnSpeed;
     motorFourSpeed -= turnSpeed;
 }
+
+void DriveTrainController::setHigherPowerLimit() {
+    limitIncrease = higherLimitIncrease;
+}
+
+void DriveTrainController::setRegularPowerLimit() {
+    limitIncrease = regularLimitIncrease;
+}
+
 }  // namespace ThornBots

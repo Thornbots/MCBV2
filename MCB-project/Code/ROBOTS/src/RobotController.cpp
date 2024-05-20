@@ -388,12 +388,16 @@ void RobotController::updateWithMouseKeyboard()
         double moveAngle = getAngle(moveHorizonal, moveVertical);
         double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
 
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL))  // slow
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL)) { // slow
             moveMagnitude *= SLOW_SPEED;
-        else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT))  // fast
+            driveTrainController->setRegularPowerLimit();
+        } else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT)){  // fast
             moveMagnitude *= FAST_SPEED;
-        else   // medium
+            driveTrainController->setHigherPowerLimit();
+        } else  { // medium
             moveMagnitude *= MED_SPEED;
+            driveTrainController->setRegularPowerLimit();
+        }
     
         driveTrainEncoder = turretController->getYawEncoderValue();
         yawEncoderCache = driveTrainEncoder;
