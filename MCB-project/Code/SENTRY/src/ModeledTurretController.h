@@ -39,7 +39,8 @@ namespace ThornBots {
         // Feedforward constants
         const double A_SCALE = 0.9;//0.8            // unitless
         const double KSTATIC = (UK * RA) / (KT * RATIO);  // A
-        const double KV = KB * RATIO;          // V-s/rad
+        // const double KV = KB * RATIO;          // V-s/rad
+        const double KV = 0;          // V-s/rad
         const double KA = J / (KT * RATIO);    // A-s^2/rad
         const double KVISC = C / (KT * RATIO); // A-s/rad
 

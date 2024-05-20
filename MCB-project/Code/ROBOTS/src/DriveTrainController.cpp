@@ -67,7 +67,7 @@ void DriveTrainController::moveDriveTrain(
 //     can signal
 // }
 double voltMax = 24; //Volts
-double ra = 1.03;  //ohms
+double ra = 0.194;  //ohms //was 1.03
 double kb = 0.39; //volt-rad/s
 double powerLimit = 0;
 void DriveTrainController::setMotorSpeeds()
@@ -86,13 +86,13 @@ void DriveTrainController::setMotorSpeeds()
     double w4 = motorFourRPM * (2 * M_PI / 60);   // Convert RPM to rad/s
 
     pidController.runControllerDerivateError(motorOneSpeed - motorOneRPM, 1);
-    double I1t = pidController.getOutput();
+    double I1t = pidController.getOutput()/819.2;
     pidController.runControllerDerivateError(motorTwoSpeed - motorTwoRPM, 1);
-    double I2t = pidController.getOutput();
+    double I2t = pidController.getOutput()/819.2;
     pidController.runControllerDerivateError(motorThreeSpeed - motorThreeRPM, 1);
-    double I3t = pidController.getOutput();
+    double I3t = pidController.getOutput()/819.2;
     pidController.runControllerDerivateError(motorFourSpeed - motorFourRPM, 1);
-    double I4t = pidController.getOutput();
+    double I4t = pidController.getOutput()/819.2;
 
     // Saturation check
     I1t = std::min(std::max(I1t, -abs(voltMax - kb * w1) / ra), abs(voltMax - kb * w1) / ra);
@@ -111,19 +111,19 @@ void DriveTrainController::setMotorSpeeds()
                                  (I3sourcet * I3sourcet * ra) + (I4sourcet * I4sourcet * ra);
 
     // Scale currents if power limit is exceeded
-    if (totalPowerRequested > powerLimit)
+    if (totalPowerRequested + 4 > powerLimit)
     {
-        double scale = powerLimit / totalPowerRequested;
+        double scale = powerLimit / (totalPowerRequested + 4) ;
         I1t *= scale;
         I2t *= scale;
         I3t *= scale;
         I4t *= scale;
     }
 
-    motor_one.setDesiredOutput(static_cast<int32_t>(I1t*1000));
-    motor_two.setDesiredOutput(static_cast<int32_t>(I2t*1000));
-    motor_three.setDesiredOutput(static_cast<int32_t>(I3t*1000));
-    motor_four.setDesiredOutput(static_cast<int32_t>(I4t*1000));
+    motor_one.setDesiredOutput(static_cast<int32_t>(I1t*819.2*1000));
+    motor_two.setDesiredOutput(static_cast<int32_t>(I2t*819.2*1000));
+    motor_three.setDesiredOutput(static_cast<int32_t>(I3t*819.2*1000));
+    motor_four.setDesiredOutput(static_cast<int32_t>(I4t*819.2*1000));
 
     drivers->djiMotorTxHandler
         .encodeAndSendCanData();  // Processes these motor speed changes into CAN signal

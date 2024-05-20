@@ -17,6 +17,7 @@ namespace ThornBots {
     class RobotController {
         public: //Public Variables
             //static constexpr double PI = 3.14159;
+            // static constexpr double MAX_SPEED = 7000; //controller //7000
             static constexpr double MAX_SPEED = 7000; //controller //7000
             static constexpr double SLOW_SPEED = 1000;
             static constexpr double MED_SPEED = 4000;

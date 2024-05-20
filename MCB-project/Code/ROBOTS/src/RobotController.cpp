@@ -249,6 +249,7 @@ void RobotController::updateWithController()
                 break;
         }
         tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        // drivers->refSerial.
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
         double frequency = 15, latency = 0.4, remaining = turretData.heatLimit - turretData.heat17ID1;
         // Check if the firing rate should be limited
@@ -260,7 +261,7 @@ void RobotController::updateWithController()
             frequency = 15;
         if(wheelValue < -0.5){
             shooterController->enableShooting();
-            shooterController->setIndexer(frequency/20.0); //was 0.5
+            shooterController->setIndexer(frequency/20.0);
         } else {
             if(wheelValue > 0.5){
                 shooterController->disableShooting();
@@ -295,7 +296,6 @@ void RobotController::updateWithController()
             
         //shooterController->enableShooting();
         //shooterController->setIndexer(theLevel/10.0);
-        //shooterController->setMotorSpeeds();
 
     }
 }
@@ -325,7 +325,6 @@ void RobotController::updateWithMouseKeyboard()
         } else {
             shooterController->setIndexer(0);
         }
-        shooterController->setMotorSpeeds();
 
         //beyblade
         static bool rHasBeenReleased = true; //r sets fast 

@@ -47,6 +47,7 @@ void RobotController::update()
 
     drivers->canRxHandler.pollCanData();
     
+    drivers->refSerial.updateSerial();
 
     updateAllInputVariables();
 
@@ -201,6 +202,8 @@ void RobotController::updateWithController()
         switch (leftSwitchState)
         {
             case (tap::communication::serial::Remote::SwitchState::UP):
+                // replace with auto mode: wait until start and then start beyblading
+
                 // Left Switch is up. So need to beyblade at fast speed, and let right stick control
                 // turret yaw and pitch
                 targetYawAngleWorld += temp;
@@ -247,31 +250,37 @@ void RobotController::updateWithController()
                 stopRobot();
                 break;
         }
-        
         tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
-        
-        uint8_t level = robotData.robotLevel;
-        double heatRatio = (((double)turretData.heat17ID1+turretData.heat17ID2)/turretData.heatLimit);
-        //drivers->refSerial.getRefSerialReceivingData();
-        currentHeat = turretData.heat17ID1;
-        maxHeat = turretData.heatLimit;
-        theHeatRatio = heatRatio;
-        theLevel = level;
-
-        if(wheelValue < -0.5 && heatRatio < 0.7){
+        double frequency1 = 15, frequency2 = 15, latency = 0.4, remaining1 = turretData.heatLimit - turretData.heat17ID1, remaining2 = turretData.heatLimit - turretData.heat17ID2;
+        // Check if the firing rate should be limited
+        if ((10.0 * frequency1 - turretData.coolingRate) * latency > remaining1) {
+            // Set the firing speed to C/10 Hz
+            frequency1 = turretData.coolingRate / 10.0;
+        }    
+        if ((10.0 * frequency2 - turretData.coolingRate) * latency > remaining2) {
+            // Set the firing speed to C/10 Hz
+            frequency2 = turretData.coolingRate / 10.0;
+        }    
+        if (frequency1 > 15)
+            frequency1 = 15;
+        if (frequency2 > 15)
+            frequency2 = 15;
+        if(wheelValue < -0.5){
             shooterController->enableShooting();
-            shooterController->setIndexer(1.0); //was 0.5
-            shooterController->setTestIndexer(1.0);
+            shooterController->setIndexer1(frequency1/20.0); 
+            shooterController->setIndexer2(frequency2/20.0); 
         } else {
             if(wheelValue > 0.5){
                 shooterController->disableShooting();
-                shooterController->setIndexer(-0.1);
-
-            }
-            shooterController->setIndexer(0);
-            shooterController->setTestIndexer(0);
+                shooterController->setIndexers(-0.1);
+            } else 
+                shooterController->setIndexers(0);
         }
+        
+        shooterController->setIndexer2((robotData.allRobotHp.red.standard4)/400.0); 
+
+
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
@@ -299,7 +308,6 @@ void RobotController::updateWithController()
             
         //shooterController->enableShooting();
         //shooterController->setIndexer(theLevel/10.0);
-        //shooterController->setMotorSpeeds();
 
     }
 }
@@ -311,25 +319,33 @@ void RobotController::updateWithMouseKeyboard()
 
         tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
-        uint8_t level = robotData.robotLevel;
-        double heatRatio = (((double)turretData.heat17ID1+turretData.heat17ID2)/turretData.heatLimit);
-
-        currentHeat = turretData.heat17ID1;
-        maxHeat = turretData.heatLimit;
-        theHeatRatio = heatRatio;
-        theLevel = level;
-        shooterController->setTestIndexer(theHeatRatio);
-        //shooting
-        if(drivers->remote.getMouseL()){
-            shooterController->setIndexer(0.5); //was 0.8
+        double frequency1 = 15, frequency2 = 15, latency = 50, remaining1 = turretData.heatLimit - (turretData.heat17ID1+10), remaining2 = turretData.heatLimit - (turretData.heat17ID2+10);
+        // Check if the firing rate should be limited
+        if ((10.0 * frequency1 - turretData.coolingRate) * latency > remaining1) {
+            // Set the firing speed to C/10 Hz
+            frequency1 = turretData.coolingRate / 10.0;
+        }    
+        if ((10.0 * frequency2 - turretData.coolingRate) * latency > remaining2) {
+            // Set the firing speed to C/10 Hz
+            frequency2 = turretData.coolingRate / 10.0;
+        }    
+        if (frequency1 > 15)
+            frequency1 = 15;
+        if (frequency2 > 15)
+            frequency2 = 15;
+        if(wheelValue < -0.5){
             shooterController->enableShooting();
-        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
-            shooterController->disableShooting();
-            shooterController->setIndexer(-0.1);
+            shooterController->setIndexer1(frequency1/20.0); 
+            shooterController->setIndexer2(frequency2/20.0); 
         } else {
-            shooterController->setIndexer(0);
+            if(wheelValue > 0.5){
+                shooterController->disableShooting();
+                shooterController->setIndexers(-0.1);
+            } else 
+                shooterController->setIndexers(0);
         }
-        shooterController->setMotorSpeeds();
+        
+        shooterController->setIndexer2(0); 
 
         //beyblade
         static bool rHasBeenReleased = true; //r sets fast 

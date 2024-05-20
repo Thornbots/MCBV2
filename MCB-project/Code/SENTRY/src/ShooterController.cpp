@@ -17,18 +17,19 @@ namespace ThornBots {
     }
     void ShooterController::updateSpeeds(){
         if(shooterControllerTimer.execute()) {
-            indexerVoltage = getIndexerVoltage();
-            testIndexerVoltage = getTestIndexerVoltage();
+            indexer1Voltage = getIndexer1Voltage();
+            indexer2Voltage = getIndexer2Voltage();
+            // testIndexerVoltage = getTestIndexerVoltage();
             flyWheelVoltage = getFlywheelVoltage();
         }
     }
 
     void ShooterController::setMotorSpeeds() {
         updateSpeeds();
-        indexPIDController1.runControllerDerivateError(indexerVoltage - motor_Indexer1.getShaftRPM(), 1);
+        indexPIDController1.runControllerDerivateError(indexer1Voltage - motor_Indexer1.getShaftRPM(), 1);
         motor_Indexer1.setDesiredOutput(static_cast<int32_t>(indexPIDController1.getOutput()));
 
-        indexPIDController2.runControllerDerivateError(testIndexerVoltage - motor_Indexer2.getShaftRPM(), 1);
+        indexPIDController2.runControllerDerivateError(indexer2Voltage - motor_Indexer2.getShaftRPM(), 1); //was testIndexerVoltage
         motor_Indexer2.setDesiredOutput(static_cast<int32_t>(indexPIDController2.getOutput()));
 
         flywheelPIDController1.runControllerDerivateError(flyWheelVoltage - motor_Flywheel1.getShaftRPM(), 1);
@@ -71,26 +72,32 @@ namespace ThornBots {
         }
     }
 
-    int ShooterController::getIndexerVoltage() {
+    int ShooterController::getIndexer1Voltage() {
         if (robotDisabled) return 0;
         if(shootingSafety){
-            return indexerVoltage;
+            return indexer1Voltage;
         }else{
             return 0;
         }
     }
-      int ShooterController::getTestIndexerVoltage() {
+      int ShooterController::getIndexer2Voltage() {
         if (robotDisabled) return 0;
-        return testIndexerVoltage;
-
+        if(shootingSafety){
+            return indexer2Voltage;
+        }else{
+            return 0;
+        }
     }
 
-    void ShooterController::setIndexer(double val) {
-        indexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
-        
+    void ShooterController::setIndexer1(double val) {
+        indexer1Voltage = val*INDEXER_MOTOR_MAX_SPEED;
     }
-    void ShooterController::setTestIndexer(double val){
-        testIndexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
+    void ShooterController::setIndexer2(double val){
+        indexer2Voltage = val*INDEXER_MOTOR_MAX_SPEED;
+    }
+    void ShooterController::setIndexers(double val){
+        indexer1Voltage = val*INDEXER_MOTOR_MAX_SPEED;
+        indexer2Voltage = val*INDEXER_MOTOR_MAX_SPEED;
     }
 
     void ShooterController::disable(){

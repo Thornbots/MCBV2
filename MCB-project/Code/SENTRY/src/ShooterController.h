@@ -28,7 +28,7 @@ namespace ThornBots {
             tap::algorithms::SmoothPid indexPIDController1 = tap::algorithms::SmoothPid(pid_conf_index);
             tap::algorithms::SmoothPid indexPIDController2 = tap::algorithms::SmoothPid(pid_conf_index);
 
-            double flyWheelVoltage, indexerVoltage = 0.0, testIndexerVoltage = 0.0;
+            double flyWheelVoltage, indexer1Voltage = 0.0, indexer2Voltage = 0.0;
 
 
             bool shootingSafety = false;
@@ -69,9 +69,9 @@ namespace ThornBots {
             void enableShooting();
 
             
-            void setIndexer(double val);
-
-            void setTestIndexer(double val);
+            void setIndexer1(double val);
+            void setIndexer2(double val);
+            void setIndexers(double val);
 
             /*
             * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.
@@ -84,7 +84,7 @@ namespace ThornBots {
         private: //Private Methods
       
             int getFlywheelVoltage();
-            int getIndexerVoltage();
-            int getTestIndexerVoltage();
+            int getIndexer1Voltage();
+            int getIndexer2Voltage();
     };
 }
