@@ -260,11 +260,11 @@ void RobotController::updateWithController()
         theLevel = level;
         
 
-        if(wheelValue < -0.8)
+        if(wheelValue < -0.5)
             indexCommand = RAPID;
-        else if(wheelValue < -0.3)
+        else if(wheelValue < -0.2)
             indexCommand = SINGLE;
-        else if(wheelValue > 0.3)
+        else if(wheelValue > 0.2)
             indexCommand = UNJAM;
         else if(indexCommand != SINGLE)
             indexCommand = IDLE;
@@ -326,25 +326,53 @@ void RobotController::updateWithMouseKeyboard()
 
         tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
-        uint8_t level = robotData.robotLevel;
-        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit);
+        // uint8_t level = robotData.robotLevel;
+        double heatRemaining = turretData.heatLimit-turretData.heat42;
 
-        currentHeat = turretData.heat17ID1;
-        maxHeat = turretData.heatLimit;
-        theHeatRatio = heatRatio;
-        theLevel = level;
 
         //shooting
-        if(drivers->remote.getMouseL()&&heatRatio<0.5){
-            shooterController->setIndexer(0.5); //was 0.8
-            shooterController->enableShooting();
-        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
-            shooterController->disableShooting();
-            shooterController->setIndexer(-0.1);
-        } else {
-            shooterController->setIndexer(0);
+        // if(drivers->remote.getMouseL()&&heatRatio<0.5){
+        //     shooterController->setIndexer(0.5); //was 0.8
+        //     shooterController->enableShooting();
+        // } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
+        //     shooterController->disableShooting();
+        //     shooterController->setIndexer(-0.1);
+        // } else {
+        //     shooterController->setIndexer(0);
+        // }
+        // shooterController->setMotorSpeeds();
+        static bool vHasBeenReleased = true;
+        static bool mouseLHasBeenReleased = true;
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::V)&&vHasBeenReleased) { 
+            vHasBeenReleased = false;
+            indexCommand = RAPID;
+        } else if(drivers->remote.getMouseL()&&heatRemaining>100&&mouseLHasBeenReleased) {
+            mouseLHasBeenReleased = false;
+            indexCommand = SINGLE;
+        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)) {
+            indexCommand = UNJAM;
+        } else if(indexCommand != SINGLE && indexCommand != RAPID) {
+            indexCommand = IDLE;
         }
-        shooterController->setMotorSpeeds();
+
+        if(!drivers->remote.keyPressed(tap::communication::serial::Remote::Key::V)){
+            vHasBeenReleased = true;
+        }
+        if(indexCommand==RAPID && vHasBeenReleased)
+            indexCommand = IDLE;
+            
+        if(!drivers->remote.getMouseL())
+            mouseLHasBeenReleased = true;
+
+
+        if(indexCommand == RAPID || indexCommand == SINGLE)
+            shooterController->enableShooting();
+        else if(indexCommand == UNJAM)
+            shooterController->disableShooting();
+
+        shooterController->index(&indexCommand);
+        
 
         //beyblade
         static bool rHasBeenReleased = true; //r sets fast 
@@ -408,20 +436,23 @@ void RobotController::updateWithMouseKeyboard()
         double moveAngle = getAngle(moveHorizonal, moveVertical);
         double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
 
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL))  // slow
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL)) { // slow
             moveMagnitude *= SLOW_SPEED;
-        else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT))  // fast
+            driveTrainController->setRegularPowerLimit();
+        } else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT)){  // fast
             moveMagnitude *= FAST_SPEED;
-        else   // medium
+            driveTrainController->setHigherPowerLimit();
+        } else  { // medium
             moveMagnitude *= MED_SPEED;
-    
+            driveTrainController->setRegularPowerLimit();
+        }
         driveTrainEncoder = turretController->getYawEncoderValue();
         yawEncoderCache = driveTrainEncoder;
 
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
             moveMagnitude,
-            driveTrainEncoder + moveAngle - 3 * PI / 4); //driveTrainEncoder + moveAngle - 3 * PI / 4);
+            driveTrainEncoder + moveAngle + PI / 6); //driveTrainEncoder + moveAngle - 3 * PI / 4);
             //also try targetYawAngleWorld, yawEncoderCache
 
 
@@ -433,19 +464,20 @@ void RobotController::updateWithMouseKeyboard()
         static double accumulatedMouseY=0;
         accumulatedMouseY+=mouseY / 10000.0;
 
-        if(accumulatedMouseY>0.4) accumulatedMouseY=0.4;
-        if(accumulatedMouseY<-0.3) accumulatedMouseY=-0.3;
+        if(accumulatedMouseY>0.08) accumulatedMouseY=0.08;  //how far down
+        if(accumulatedMouseY<-0.4) accumulatedMouseY=-0.4; //how far up
 
         targetYawAngleWorld -= mouseX / 10000.0;
 
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
         turretController->turretMove(
             targetYawAngleWorld,
-            (accumulatedMouseY) - 0.5 * PI,
+            (accumulatedMouseY) - 0.9 * PI,
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,
             dt);
+        
 
         
     }

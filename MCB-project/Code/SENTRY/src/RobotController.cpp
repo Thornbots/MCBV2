@@ -53,6 +53,10 @@ void RobotController::update()
 
     toggleKeyboardAndMouse();
 
+    
+    // to know if match has started
+    bool matchHasStarted = drivers->refSerial.getGameData().gameStage==tap::communication::serial::RefSerial::Rx::GameStage::IN_GAME;
+
 
     if(drivers->remote.isConnected())
         enableRobot();

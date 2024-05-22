@@ -16,26 +16,27 @@ void DriveTrainController::initialize()
     // Nothing needs to be done to PID controllers
 }
 
-static double TRANS_ACCEL_LIM = 360, ROT_ACCEL_LIM = 72;
-double pastX = 0, pastY = 0, pastR, errX, errY, errR, errMag, errorAngle;
+// static double TRANS_ACCEL_LIM = 360, ROT_ACCEL_LIM = 72;
+// double pastX = 0, pastY = 0, pastR, errX, errY, errR, errMag, errorAngle;
 void DriveTrainController::moveDriveTrain(
     double turnSpeed,
     double translationSpeed,
     double translationAngle)
 {
-    errX = translationSpeed * cos(translationAngle) - pastX;
-    errY = translationSpeed * sin(translationAngle) - pastY;
-    errMag = sqrt(errY * errY + errX * errX);
-    if (errMag > TRANS_ACCEL_LIM) errMag = TRANS_ACCEL_LIM;
-    errorAngle = atan2(errY, errX);
-    pastX += errMag * cos(errorAngle);
-    pastY += errMag * sin(errorAngle);
-    convertTranslationSpeedToMotorSpeeds(sqrt(pastX * pastX + pastY * pastY), atan2(pastY, pastX));
-
-    errR = turnSpeed - pastR;
-    errR = errR > ROT_ACCEL_LIM ? ROT_ACCEL_LIM : errR < -ROT_ACCEL_LIM ? -ROT_ACCEL_LIM : errR;
-    pastR += errR;
-    adjustMotorSpeedWithTurnSpeed(pastR);
+    double angularOffset = (motor_one.getShaftRPM()+motor_three.getShaftRPM())/2/14000.0;
+    // errX = translationSpeed * cos(translationAngle) - pastX;
+    // errY = translationSpeed * sin(translationAngle) - pastY;
+    // errMag = sqrt(errY * errY + errX * errX);
+    // if (errMag > TRANS_ACCEL_LIM) errMag = TRANS_ACCEL_LIM;
+    // errorAngle = atan2(errY, errX);
+    // pastX += errMag * cos(errorAngle);
+    // pastY += errMag * sin(errorAngle);
+    // convertTranslationSpeedToMotorSpeeds(sqrt(pastX * pastX + pastY * pastY), atan2(pastY, pastX));
+    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle+angularOffset);
+    // errR = turnSpeed - pastR;
+    // errR = errR > ROT_ACCEL_LIM ? ROT_ACCEL_LIM : errR < -ROT_ACCEL_LIM ? -ROT_ACCEL_LIM : errR;
+    // pastR += errR;
+    adjustMotorSpeedWithTurnSpeed(turnSpeed);
 }
 
 // void DriveTrainController::setMotorSpeeds() {
@@ -75,7 +76,10 @@ double idlePowerDraw = 3; //watts, measured
 void DriveTrainController::setMotorSpeeds(){
     if (robotDisabled) return stopMotors();
     drivers->canRxHandler.pollCanData();
-    powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit + limitIncrease;
+    powerLimit = 100;
+    if(drivers->refSerial.getRefSerialReceivingData()) //check for uart disconnected
+        powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
+    powerLimit += limitIncrease;
     motorOneRPM = motor_one.getShaftRPM();
     motorTwoRPM = motor_two.getShaftRPM();
     motorThreeRPM = motor_three.getShaftRPM();
@@ -161,7 +165,10 @@ void DriveTrainController::adjustMotorSpeedWithTurnSpeed(double turnSpeed)
 }
 
 void DriveTrainController::setHigherPowerLimit() {
-    limitIncrease = higherLimitIncrease;
+    if(drivers->refSerial.getRobotData().chassis.powerBuffer>minBuffer)
+        limitIncrease = higherLimitIncrease;
+    else
+        setRegularPowerLimit();
 }
 
 void DriveTrainController::setRegularPowerLimit() {

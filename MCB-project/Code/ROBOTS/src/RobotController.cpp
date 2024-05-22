@@ -257,7 +257,7 @@ void RobotController::updateWithController()
             // Set the firing speed to C/10 Hz
             frequency = turretData.coolingRate / 10.0;
         }    
-        if (frequency > 15)
+        if (frequency > 15 || !drivers->refSerial.getRefSerialReceivingData())
             frequency = 15;
         if(wheelValue < -0.5){
             shooterController->enableShooting();
@@ -280,6 +280,7 @@ void RobotController::updateWithController()
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,
+            temp/dt,
             dt);
 
         //idk if this should still work
@@ -420,7 +421,7 @@ void RobotController::updateWithMouseKeyboard()
         if(accumulatedMouseY>0.4) accumulatedMouseY=0.4;
         if(accumulatedMouseY<-0.3) accumulatedMouseY=-0.3;
 
-        targetYawAngleWorld -= mouseX / 10000.0;
+        targetYawAngleWorld -= mouseX / 15000.0;
 
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
         turretController->turretMove(
@@ -429,6 +430,7 @@ void RobotController::updateWithMouseKeyboard()
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,
+            -mouseX / 15000.0 / dt,
             dt);
 
         

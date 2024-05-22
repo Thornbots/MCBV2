@@ -22,9 +22,11 @@ namespace ThornBots{
             tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
             bool robotDisabled = false;
             
-            double higherLimitIncrease = 40; //in watts, 40 watts over the current limit given by the ref system
-            double regularLimitIncrease = 0; //in watts, 0 watts over the current limit given by the ref system
+            double higherLimitIncrease = 40; //in watts, however many watts over the current limit given by the ref system
+            double regularLimitIncrease = 0; //in watts, should be zero
             double limitIncrease = regularLimitIncrease; //in watts
+
+            double minBuffer = 10; //in joules, how much should remain unused in the buffer (disables limitIncrease if the buffer is less than this)
 
         public: //Public Methods
             DriveTrainController(tap::Drivers* driver);

@@ -12,10 +12,10 @@ namespace ThornBots {
         //Nothing needs to be done to the controllers
     }
 
-    void TurretController::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double dt) {
+    void TurretController::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double inputVel, double dt) {
         if(turretControllerTimer.execute()) {
             pitchMotorVoltage = getPitchVoltage(desiredPitchAngle, dt);
-            yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, dt);
+            yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, inputVel, dt);
             
         }
         //TODO: Add flywheels, indexer, and servo
@@ -39,9 +39,9 @@ namespace ThornBots {
         //TODO
     }
 
-    int TurretController::getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt) {
+    int TurretController::getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double inputVel, double dt) {
         if (robotDisabled) return 0;
-        return 1000 * yawController.calculate(yawAngleRelativeWorld, yawRPM, 0, desiredAngleWorld, dt); //1000 to convert to mV which taproot wants. DTrpm is 0, can calculate and pass in the future
+        return 1000 * yawController.calculate(yawAngleRelativeWorld, yawRPM, 0, desiredAngleWorld, inputVel, dt); //1000 to convert to mV which taproot wants. DTrpm is 0, can calculate and pass in the future
     }
 
     int TurretController::getPitchVoltage(double targetAngle, double dt) {

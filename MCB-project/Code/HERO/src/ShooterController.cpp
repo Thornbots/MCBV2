@@ -103,25 +103,62 @@ namespace ThornBots {
 
 
     void ShooterController::index(IndexCommand * cmd){
+        static bool isRapidStart = true; //if we need to do the calculations
+
         switch(*cmd){
             case UNJAM:
+                isRapidStart = true;
                 setAllIndex(0, -0.1, -0.1);
                 break;
             case RAPID:
-                setAllIndex(1, 1, 1);
+                static double latency = 0; //TODO: change this later
+                static double burstFireRate = 5; //5 hertz always
+                static int coolingRate, heatRemaining = 0;
+                static int numberOfShots = 0;
+                static double startIndexerPosition = 0;
+                if(isRapidStart){
+                    tap::communication::serial::RefSerialData::Rx::TurretData turretData = drivers->refSerial.getRobotData().turret;
+                    coolingRate = turretData.coolingRate;
+                    heatRemaining = turretData.heatLimit-turretData.heat42;
+                    numberOfShots = heatRemaining/100; // int division rounds down
+                    numberOfShots = std::floor((numberOfShots/burstFireRate*coolingRate + heatRemaining) / 100);
+                    numberOfShots = std::min(numberOfShots, (int) turretData.bulletsRemaining42);
+                    startIndexerPosition = motor_Indexer.getEncoderUnwrapped();
+                    isRapidStart = false;
+                } else {
+                    double indexerPosition = motor_Indexer.getEncoderUnwrapped();
+                    double traveledDistance = indexerPosition - startIndexerPosition;
+                    
+                    if(traveledDistance>(8192*36*(numberOfShots-1)/5)){
+                        isRapidStart = true;
+                        setAllIndex(0, 0, 0);
+                        *cmd = IDLE;
+                        break;
+                    }
+                }
+
+                setAllIndex(1, 1, 0.12);
                 break;
             case SINGLE:
-                if(readSwitch()){
-                    setAllIndex(0.3, 0, 0);
+                isRapidStart = true;
+                if(drivers->refSerial.getRobotData().turret.bulletsRemaining42<1){
+                    // if we don't have ammo to shoot, don't shoot
                     *cmd = IDLE;
+                    // no break intentional, want it to do idle
+                } else {
+                    if(readSwitch()){
+                        setAllIndex(0.3, 0, 0);
+                        *cmd = IDLE;
 
-                }else{                    
-                    setAllIndex(0.3, 0.3, 0.3);
+                    }else{                    
+                        setAllIndex(0.2, 0.1, 0.02);
+                    }
+                    break;
                 }
-                break;
-            default:
+            default: //case IDLE
+                isRapidStart = true;
                 if(readSwitch())
-                    setAllIndex(0.3, 0.3, 0.3); 
+                    setAllIndex(0.2, 0.1, 0.12); 
                 else                    
                     setAllIndex(0, 0, 0);
                 break;
