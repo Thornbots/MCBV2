@@ -93,4 +93,5 @@
             100
         ]
     },
+    "ros.distro": "humble",
 }

@@ -1,0 +1,119 @@
+@startuml
+class RobotModule {
+    DriveTrainModule* driveTrainModule
+    GimbalModule* gimbalModule
+    public void initialize()
+    public void update()
+    public void emergencyStop()
+}
+
+class DriveTrainModule {
+    public void initialize()
+    public void moveDriveTrain(double turnSpeed, double public translationSpeed, double translationAngle)
+    public void followGimbal(double translationSpeed, double translationAngle, double drivetrainAngleFromGimbal)
+    public void stopMotors()
+    public void setMotorSpeeds()
+    private void convertTranslationSpeedToMotorSpeeds(double magnitude, double angle)
+    private void adjustMotorSpeedsWithTurnSpeed(doule turnSpeed)
+}
+
+class GimbalModule {
+    public void initialize()
+    public void update()
+    public void emergencyStop()
+    public void followDriveTrain(double angleError)
+    public void gimbalMove(double desiredYawAngle, double desiredPitchAngle, drivetrainRPM, yawAngleRelativeWorld, double yawRPM, double dt)
+    public void reZeroYaw()
+}
+
+class ShooterModule {
+    public void initialize()
+    public void update()
+    public void emergencyStop()
+    public void spinFlywheels(double flywyheelMagnitude)
+    public void spinIndexer(double indexerMagnitude)
+    public void moveReloadDoor(bool wantOpen)
+}
+
+class CommunicationModule {
+    public void initialize()
+    public void update()
+    public struct* getInterperetedData()
+}
+
+interface CommunicatorInterface {
+    public void readInput()
+    public double translateMagnitude [0 1]
+    double translateAngle
+    double drivetrainRotate
+    double gimbalYawAngleDesired
+    double gimbalPitchAngleDesired
+    double gimbalIndexMagnitude
+    double gimbalFlywheelMagnitude
+    double gimbalReloadMagnitude
+}
+
+class KeyboardCommunicator {
+}
+
+class ControllerCommunicator {
+}
+
+class Core {
+    public enum robotType
+}
+
+class YawController {
+    getYawMotorVoltage()
+}
+
+class PitchController {
+    getPitchMotorVoltage()
+}
+
+class JetsonCommunication {
+    void update()
+    struct* getMsg()
+}
+
+class DriveTrainConstants {
+}
+
+class GimbalConstants {
+}
+
+class RobotConstants {
+}
+
+class ShooterConstants {
+}
+
+Core -Down->RobotModule
+
+RobotModule -Down->DriveTrainModule
+
+RobotModule -Down->GimbalModule
+
+RobotModule -Down->ShooterModule
+
+RobotModule -Down> CommunicationModule
+
+KeyboardCommunicator -Up-|> CommunicatorInterface
+ControllerCommunicator -Up-|> CommunicatorInterface
+CommunicationModule .Down.>CommunicatorInterface
+
+
+GimbalModule -Down-> YawController
+
+GimbalModule -Down-> PitchController
+
+DriveTrainModule .Down.>DriveTrainConstants
+
+GimbalModule .Down.> GimbalConstants
+RobotModule .Right.> RobotConstants
+
+
+ShooterModule .Down.> ShooterConstants
+
+CommunicationModule -Down-> JetsonCommunication
+@enduml

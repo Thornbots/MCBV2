@@ -13,11 +13,11 @@
 #include <cmath>
 
 namespace ThornBots {
-    ModeledTurretController::ModeledTurretController() {
+    YawController::YawController() {
 
     }
 
-    double ModeledTurretController::calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double inputVelocity, double deltaT) {
+    double YawController::calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double deltaT) {
         double positionError = targetPosition-currentPosition;
         while (positionError > M_PI){
             positionError -= M_TWOPI;

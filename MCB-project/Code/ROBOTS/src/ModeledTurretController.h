@@ -11,11 +11,11 @@
 #include <cmath>
 
 namespace ThornBots {
-    class ModeledTurretController {
+    class YawController {
     public:
-        ModeledTurretController();
-        ~ModeledTurretController();
-        double calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double inputVelocity, double deltaT);
+        YawController();
+        ~YawController();
+        double calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double deltaT);
         
     private:
         //START getters and setters

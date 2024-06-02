@@ -24,7 +24,7 @@ namespace ThornBots {
 
         /*
         * This function will call setMotorSpeeds with sendMotorTimeout.execute() as the parameter to DriveTrain 
-        * and Turret Controller.
+        * and Turret ControllerInput.
         */
         void stopRobot();
 

@@ -21,7 +21,7 @@ namespace ThornBots {
             tap::motor::DjiMotor motor_Yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0);
             tap::motor::DjiMotor motor_Pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, true, "Pitch", 0, 0);
          
-            ThornBots::ModeledTurretController yawController = ModeledTurretController();
+            ThornBots::YawController yawController = YawController();
             ThornBots::PitchController pitchController = PitchController();
 
             double pitchMotorVoltage, yawMotorVoltage;

@@ -63,7 +63,7 @@ namespace ThornBots {
             /*
             * Call this function (any number of times) in order to ALLOW shooting. This does NOT mean that the turret WILL shoot.
             * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the
-            * communicatons received from the Jetson.
+            * communicatons received from the JetsonInput.
             * This function is not intended to be used for control when the driver is manually aiming/deciding to shoot or not.
             */
             void enableShooting();
@@ -76,7 +76,7 @@ namespace ThornBots {
             /*
             * Call this function (any number of times) in order to DISALLOW shooting. This does NOT mean that the turret WON'T shoot.
             * The idea of this function is to allow implementation of AI auto-shooting easily, by "giving control" of the turret to the 
-            * communications received from the Jetson.
+            * communications received from the JetsonInput.
             * This function is not intended to be used for conrtol when the driver is manually aiming/deciding to shoot or not.
             */
             void disableShooting();

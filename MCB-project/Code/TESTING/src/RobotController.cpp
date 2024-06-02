@@ -28,7 +28,7 @@ namespace ThornBots {
         keyboardAndMouseEnabled = false;
 
         if (keyboardAndMouseEnabled) {
-            // We are using Keyboard and Mouse controls
+            // We are using KeyboardInput and Mouse controls
             // TODO : Make this work
 
             if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W)) {
