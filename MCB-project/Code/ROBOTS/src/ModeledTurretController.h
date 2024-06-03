@@ -15,7 +15,7 @@ namespace ThornBots {
     public:
         YawController();
         ~YawController();
-        double calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double deltaT);
+        double calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double inputVelocity, double deltaT);
         
     private:
         //START getters and setters

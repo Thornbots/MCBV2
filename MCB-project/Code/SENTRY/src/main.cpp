@@ -12,11 +12,14 @@ int main() {
     ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
     ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
     ThornBots::ShooterController *shooterController = new ThornBots::ShooterController(drivers);
+    ThornBots::JetsonCommunication *jetsonCommunication = new ThornBots::JetsonCommunication(drivers);
 
-    ThornBots::RobotController *robotController = new ThornBots::RobotController(drivers, driveTrainController, turretController, shooterController);
+    ThornBots::RobotController *robotController = new ThornBots::RobotController(drivers, driveTrainController, turretController, shooterController , jetsonCommunication);
 
     robotController->initialize();
+    bool led_state = true;
     while(1) {
+
 
         if(RunTimer.execute()) { //Calling this function every 10 us at max
             robotController->update();

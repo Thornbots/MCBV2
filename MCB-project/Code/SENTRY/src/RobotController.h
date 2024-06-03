@@ -31,7 +31,7 @@ namespace ThornBots {
             ThornBots::DriveTrainController *driveTrainController;
             ThornBots::TurretController *turretController;
             ThornBots::ShooterController *shooterController;
-            ThornBots::JetsonCommunication jetsonCommunication;
+            ThornBots::JetsonCommunication *jetsonCommunication;
             double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
             double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
             double wheelValue = 0;
@@ -40,16 +40,18 @@ namespace ThornBots {
             bool useKeyboardMouse = false;
             double yawEncoderCache = 0;
             double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
-            double stickAccumulator = 0, targetYawAngleWorld = PI, targetDTVelocityWorld = 0;
+            double stickAccumulator = 0, targetYawAngleWorld = PI, targetPitchAngleWorld = 0.3, targetDTVelocityWorld = 0;  //changed targetYawAngleWorld from 0 to PI
             bool robotDisabled = false;
             
         public: //Public Methods
-            RobotController(tap::Drivers* driver,
-                            ThornBots::DriveTrainController* driveTrainController,
-                            ThornBots::TurretController* turretController,
-                            ThornBots::ShooterController* shooterController);
-            RobotController()=default;
-            
+            RobotController(
+                tap::Drivers* driver,
+                ThornBots::DriveTrainController* driveTrainController,
+                ThornBots::TurretController* turretController,
+                ThornBots::ShooterController* shooterController,
+                ThornBots::JetsonCommunication* JetsonCommunication
+            );
+
             void initialize();
 
             void update();
@@ -73,6 +75,7 @@ namespace ThornBots {
 
             double getMagnitude(double x, double y);
 
+            void updateWithJetson();
             void updateWithController();
             void updateWithMouseKeyboard();
 

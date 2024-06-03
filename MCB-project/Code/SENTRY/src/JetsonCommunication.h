@@ -1,54 +1,67 @@
 #pragma once
-
 #include "drivers_singleton.hpp"
-namespace ThornBots {
+#include "tap/communication/serial/dji_serial.hpp"
+#include "tap/communication/serial/uart.hpp"
 
 struct cord_msg;
 
-class JetsonCommunication
+namespace tap
 {
-private:
-    bool hasBeenRead = false;
-    src::Drivers* drivers;
+class Drivers;
+}
 
-public:
-    struct cord_msg
-    {
-        float yaw;
-        float pitch;
-        bool shoot;
+namespace ThornBots {
+class JetsonCommunication: public tap::communication::serial::DJISerial{
+    private:
+        bool hasBeenRead = false;
+        // src::Drivers* drivers;
+        bool led_state = false;
+
+
+    public:
+        // using tap::communication::serial::DJISerial::DJISerial;
+
+        JetsonCommunication(
+            tap::Drivers *drivers,
+            tap::communication::serial::Uart::UartPort port=tap::communication::serial::Uart::Uart1,
+            bool isRxCRCEnforcementEnabled = true):
+             DJISerial(drivers,port,isRxCRCEnforcementEnabled){};
+
+        struct cord_msg
+        {
+            float theta=0; // rad
+            float omega=0; // rad
+            float confidence; // 0.0 to 1.0
+            float panel_dist; // meters
+        };
+
+
+        /*
+        run this to read from the uart queue buffer to get the coordinates of the panal
+        */
+        void messageReceiveCallback(const ReceivedSerialMessage &completeMessage)
+        {
+            message = (cord_msg*)completeMessage.data;
+            hasBeenRead = false;
+            drivers->leds.set(tap::gpio::Leds::Blue, true);
+            led_state = !led_state;
+        };
+
+        cord_msg* getMsg(){
+            if (hasBeenRead) return &empty_msg;
+            drivers->leds.set(tap::gpio::Leds::Blue, false);
+            hasBeenRead = true;
+            return message;
+        };
+
+        // void sendToJetson(uint8_t){
+
+
+        // }
+
+    private:
+        cord_msg *message;
+        cord_msg empty_msg = {0.0,0.0,0.0,0.0};
     };
 
-    inline bool hasRead() { return hasBeenRead; }
-    inline void iReadData() { hasBeenRead = true; }
-
-    JetsonCommunication(src::Drivers* drivers)
-        : drivers(drivers),
-          message({0, 0, 0}),
-          hasBeenRead(false)
-    {
-        drivers->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
-    };
-    JetsonCommunication()=default;
-
-    ~JetsonCommunication() = default;
-
-    /*
-    run this to read from the uart queue buffer to get the coordinates of the panal
-    */
-    int update()
-    {
-        int read_len = drivers->uart.read(
-            tap::communication::serial::Uart::UartPort::Uart1,
-            (uint8_t*)&this->message,
-            sizeof(cord_msg));
-
-        return read_len == 0 ? -1 : read_len;
-    };
-
-    cord_msg* getMsg(){return &message;};
-
-private:
-    cord_msg message;
-};
 }
