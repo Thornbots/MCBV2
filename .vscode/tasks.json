@@ -22,7 +22,7 @@
             "presentation": {
                 "panel": "new"
             },
-            "command": "pipenv run scons run",
+            "command": "pipenv run scons run robot=SENTRY",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -90,7 +90,7 @@
             "presentation": {
                 "panel": "new"
             },
-            "command": "pipenv run scons build profile=debug profiling=true",
+            "command": "pipenv run scons build profile=debug profiling=true robot=SENTRY",
             "group": "build",
             "problemMatcher": [],
             "options": {
@@ -103,7 +103,7 @@
             "presentation": {
                 "panel": "new"
             },
-            "command": "pipenv run scons run profile=debug",
+            "command": "pipenv run scons run profile=debug robot=SENTRY",
             "group": "build",
             "problemMatcher": [],
             "options": {

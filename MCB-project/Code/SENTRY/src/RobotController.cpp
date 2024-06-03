@@ -89,11 +89,7 @@ void RobotController::update()
 
     if(robotDisabled) 
         return;
-    int useJetson = 0;
-    if (useJetson){
-        updateWithJetson();
-    }
-    else if (useKeyboardMouse)
+    if (useKeyboardMouse)
     {
         //shooterController->enableShooting(); 
         updateWithMouseKeyboard();
@@ -225,19 +221,27 @@ void RobotController::updateWithJetson()
 {
     ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
-    constexpr float omega_scaled = 1.5;
-    constexpr float theta_scaled = 1.5;
+    constexpr float omega_scaled = 1;
+    constexpr float theta_scaled = 1;
 
     targetYawAngleWorld += msg->omega*omega_scaled;
     targetDTVelocityWorld = 0;
     yawEncoderCache = driveTrainEncoder;
 
+    constexpr double yaw_min = PI*5/6;
+    constexpr double yaw_max = PI*7/6;
+    targetYawAngleWorld = std::clamp(targetYawAngleWorld,yaw_min,yaw_max);//TODO: remove
     targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+
+    targetPitchAngleWorld += msg->theta*theta_scaled;
+    constexpr double min = 0.02;
+    constexpr double max = 0.523;
+    targetPitchAngleWorld = std::clamp(targetPitchAngleWorld,min,max);
 
 
     turretController->turretMove(
         targetYawAngleWorld,
-        msg->theta*theta_scaled,
+        targetPitchAngleWorld,
         driveTrainRPM,
         yawAngleRelativeWorld,
         yawRPM,
@@ -286,6 +290,8 @@ void RobotController::updateWithController()
                         break;
                         }
                     case (tap::communication::serial::Remote::SwitchState::DOWN):
+                        updateWithJetson();//TODO: idk get better system
+                        return;
                         yawEncoderCache = 3 * PI / 4;
                         // no break intentional so if in this case it also runs what is below 
                     case (tap::communication::serial::Remote::SwitchState::UP):
@@ -335,33 +341,19 @@ void RobotController::updateWithController()
         
         shooterController->setIndexer2((robotData.allRobotHp.red.standard4)/400.0); 
 
-
-        ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
-        // constexpr float omega_scaled = 10.5;
-        // constexpr float theta_scaled = 2.5;
-        targetPitchAngleWorld += msg->theta;
-        constexpr double min = 0.02;
-        constexpr double max = 0.523;
-        targetPitchAngleWorld = std::clamp(targetPitchAngleWorld,min,max);
-
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
 
-        // === debug ===
-        // constexpr int msg_len = 14;
-        // char buf[msg_len];
-        // sprintf(buf,"theta: %1.1f\n",(float)(targetPitchAngleWorld));
-        // uint8_t* print_msg = reinterpret_cast<uint8_t*>(buf);
-        // drivers->uart.write(tap::communication::serial::Uart::Uart1, print_msg, msg_len);
-        // =============
-
+        constexpr double yaw_min = PI*5/6;
+        constexpr double yaw_max = PI*7/6;
+        targetYawAngleWorld = std::clamp(targetYawAngleWorld,yaw_min,yaw_max);//TODO: remove
+        
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
             (leftStickMagnitude * MAX_SPEED),
             driveTrainEncoder + leftStickAngle);
         turretController->turretMove(
             targetYawAngleWorld,
-            // 0.1 * PI * right_stick_vert + 0.07*PI,// + PI,  //was - 0.5 * PI
-            targetPitchAngleWorld,
+            0.1 * PI * right_stick_vert + 0.07*PI,// + PI,  //was - 0.5 * PI
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,
