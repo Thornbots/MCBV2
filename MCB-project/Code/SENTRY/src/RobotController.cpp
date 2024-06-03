@@ -1,4 +1,5 @@
 #include "RobotController.h"
+#include <bits/stdc++.h>
 
 #include <cmath>
 
@@ -14,12 +15,19 @@ RobotController::RobotController(
     tap::Drivers* driver,
     ThornBots::DriveTrainController* driveTrainController,
     ThornBots::TurretController* turretController,
-    ThornBots::ShooterController* shooterController)
+    ThornBots::ShooterController* shooterController,
+    ThornBots::JetsonCommunication* jetsonCommunication):
+        drivers(driver),
+        driveTrainController(driveTrainController),
+        turretController(turretController),
+        shooterController(shooterController),
+        jetsonCommunication(jetsonCommunication)
 {
-    this->drivers = driver;
-    this->driveTrainController = driveTrainController;
-    this->turretController = turretController;
-    this->shooterController = shooterController;
+    // this->drivers = driver;
+    // this->driveTrainController = driveTrainController;
+    // this->turretController = turretController;
+    // this->shooterController = shooterController;
+    // this->jetsonCommunication = jetsonCommunication;
 }
 
 void RobotController::initialize()
@@ -33,6 +41,8 @@ void RobotController::initialize()
     turretController->initialize();
     shooterController->initialize();
     drivers->refSerial.initialize();
+    jetsonCommunication->initialize();
+    drivers->leds.init();
 
     modm::delay_ms(
         2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
@@ -49,6 +59,19 @@ void RobotController::update()
     
     drivers->refSerial.updateSerial();
 
+    // === blinky led code ===
+    static int led_timmer = 500;
+    if (led_timmer<=0){
+        static bool led_state = false;
+        drivers->leds.set(tap::gpio::Leds::Green, led_state);
+        led_state = !led_state;
+        led_timmer = 500;
+    }
+    led_timmer--;
+    // =======================
+
+    jetsonCommunication->updateSerial();
+
     updateAllInputVariables();
 
     toggleKeyboardAndMouse();
@@ -64,17 +87,19 @@ void RobotController::update()
         disableRobot();
         
 
-    if (useKeyboardMouse)
+    if(robotDisabled) 
+        return;
+    int useJetson = 0;
+    if (useJetson){
+        updateWithJetson();
+    }
+    else if (useKeyboardMouse)
     {
-        if(robotDisabled) 
-            return;
         //shooterController->enableShooting(); 
         updateWithMouseKeyboard();
     }
     else
     {
-        if(robotDisabled) 
-            return;
         //shooterController->enableShooting();
         updateWithController();
     }
@@ -196,11 +221,35 @@ bool RobotController::toggleKeyboardAndMouse()
     return useKeyboardMouse;
 }
 
+void RobotController::updateWithJetson()
+{
+    ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
+
+    constexpr float omega_scaled = 1.5;
+    constexpr float theta_scaled = 1.5;
+
+    targetYawAngleWorld += msg->omega*omega_scaled;
+    targetDTVelocityWorld = 0;
+    yawEncoderCache = driveTrainEncoder;
+
+    targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+
+
+    turretController->turretMove(
+        targetYawAngleWorld,
+        msg->theta*theta_scaled,
+        driveTrainRPM,
+        yawAngleRelativeWorld,
+        yawRPM,
+        dt);
+
+}
+
 void RobotController::updateWithController()
 {
     if (updateInputTimer.execute())
     {
-        double temp = right_stick_horz * YAW_TURNING_PROPORTIONAL;
+        double right_stick_scaled = right_stick_horz * YAW_TURNING_PROPORTIONAL;
         driveTrainEncoder = turretController->getYawEncoderValue();
 
         switch (leftSwitchState)
@@ -210,12 +259,12 @@ void RobotController::updateWithController()
 
                 // Left Switch is up. So need to beyblade at fast speed, and let right stick control
                 // turret yaw and pitch
-                targetYawAngleWorld += temp;
+                targetYawAngleWorld += right_stick_scaled;
                 targetDTVelocityWorld = (FAST_BEYBLADE_FACTOR * MAX_SPEED);
                 yawEncoderCache = driveTrainEncoder;
                 break;
             case (tap::communication::serial::Remote::SwitchState::MID):
-                targetYawAngleWorld += temp;
+                targetYawAngleWorld += right_stick_scaled;
                 targetDTVelocityWorld = (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
                 yawEncoderCache = driveTrainEncoder;
                 // Left Switch is mid. So need to beyblade at slow speed, and let right stick
@@ -229,11 +278,13 @@ void RobotController::updateWithController()
                     case (tap::communication::serial::Remote::SwitchState::MID):
                         // Left switch is down, and right is mid. So move turret independently of
                         // drivetrain
-                        targetYawAngleWorld += temp;
+                        {
+                        targetYawAngleWorld += right_stick_scaled;
                         targetDTVelocityWorld = 0;
                         yawEncoderCache = driveTrainEncoder;
 
                         break;
+                        }
                     case (tap::communication::serial::Remote::SwitchState::DOWN):
                         yawEncoderCache = 3 * PI / 4;
                         // no break intentional so if in this case it also runs what is below 
@@ -285,14 +336,32 @@ void RobotController::updateWithController()
         shooterController->setIndexer2((robotData.allRobotHp.red.standard4)/400.0); 
 
 
+        ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
+        // constexpr float omega_scaled = 10.5;
+        // constexpr float theta_scaled = 2.5;
+        targetPitchAngleWorld += msg->theta;
+        constexpr double min = 0.02;
+        constexpr double max = 0.523;
+        targetPitchAngleWorld = std::clamp(targetPitchAngleWorld,min,max);
+
         targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+
+        // === debug ===
+        // constexpr int msg_len = 14;
+        // char buf[msg_len];
+        // sprintf(buf,"theta: %1.1f\n",(float)(targetPitchAngleWorld));
+        // uint8_t* print_msg = reinterpret_cast<uint8_t*>(buf);
+        // drivers->uart.write(tap::communication::serial::Uart::Uart1, print_msg, msg_len);
+        // =============
+
         driveTrainController->moveDriveTrain(
             targetDTVelocityWorld,
             (leftStickMagnitude * MAX_SPEED),
             driveTrainEncoder + leftStickAngle);
         turretController->turretMove(
             targetYawAngleWorld,
-            0.1 * PI * right_stick_vert + 0.07*PI,// + PI,  //was - 0.5 * PI
+            // 0.1 * PI * right_stick_vert + 0.07*PI,// + PI,  //was - 0.5 * PI
+            targetPitchAngleWorld,
             driveTrainRPM,
             yawAngleRelativeWorld,
             yawRPM,
