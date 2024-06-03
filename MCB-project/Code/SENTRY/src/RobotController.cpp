@@ -484,61 +484,12 @@ void RobotController::updateWithMouseKeyboard()
         driveTrainEncoder = turretController->getYawEncoderValue();
         yawEncoderCache = driveTrainEncoder;
 
-        driveTrainController->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle); 
+        driveTrainController->moveDriveTrain(
+            targetDTVelocityWorld,
+            moveMagnitude,
+            driveTrainEncoder + moveAngle); //driveTrainEncoder + moveAngle - 3 * PI / 4);
+            //also try targetYawAngleWorld, yawEncoderCache
 
-        static int mouseXOffset = drivers->remote.getMouseX(), mouseYOffset = drivers->remote.getMouseY();
-        static bool shoot = false;
-        static double targetPitch = 0, targetYaw = 0;
-
-        int mouseX = drivers->remote.getMouseX() - mouseXOffset, mouseY = drivers->remote.getMouseY() - mouseYOffset;
-
-        // if(drivers->remote.getMouseL()){
-        //     shoot = true;
-
-        // if(drivers->remote.getMouseR()){
-        //      if(!jetsonCommunication.hasRead()) {                                
-        //         jetsonCommunication.iReadData();
-        //         //Need to add the angle from the jetsonCommunicator to our current angle and tell our turret to go to that ()
-        //         targetPitch = turretController->getPitchEncoderValue() - 0.5 * PI  + jetsonCommunication.getMsg()->pitch;
-        //         targetYaw = turretController->getYawEncoderValue() + jetsonCommunication.getMsg()->yaw;
-                
-        //     }
-        //     shoot = jetsonCommunication.getMsg()->shoot;
-        // } else {
-        //     shoot = drivers->remote.getMouseL();
-        //     targetPitch += mouseY / 10000.0;
-        //     targetYaw -= mouseX / 10000.0;
-        // }
-         if(drivers->remote.getMouseL()){
-            shooterController->setIndexer(0.8);
-            shooterController->enableShooting();
-        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
-            shooterController->disableShooting();
-            shooterController->setIndexer(-0.1);
-        } else {
-            shooterController->setIndexer(0);
-        }
-        shooterController->setMotorSpeeds();
-
-        targetPitch += mouseY / 10000.0;
-        targetYaw -= mouseX / 10000.0;
-
-
-        if(targetPitch > 0.4) targetPitch=0.4;
-        if(targetPitch < -0.3) targetPitch=-0.3;
-        targetYaw = fmod(targetYaw, 2 * PI);
-
-
-        // if(shoot){ 
-        //     shooterController->setIndexer(0.8);
-        //     shooterController->enableShooting();
-        // } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
-        //     shooterController->disableShooting();
-        //     shooterController->setIndexer(-0.1);
-        // } else {
-        //     shooterController->setIndexer(0);
-        // }
-        //shooterController->setMotorSpeeds();
         // mouse
         static int mouseXOffset = drivers->remote.getMouseX();
         static int mouseYOffset = drivers->remote.getMouseY();
