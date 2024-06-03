@@ -17,7 +17,7 @@ namespace ThornBots {
 
     }
 
-    double YawController::calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double deltaT) {
+    double YawController::calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double inputVelocity, double deltaT) {
         double positionError = targetPosition-currentPosition;
         while (positionError > M_PI){
             positionError -= M_TWOPI;
