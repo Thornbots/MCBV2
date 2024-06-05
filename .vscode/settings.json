@@ -70,7 +70,20 @@
         "variant": "cpp",
         "SConstruct": "python",
         "SConscript": "python",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "bit": "cpp",
+        "cfenv": "cpp",
+        "charconv": "cpp",
+        "codecvt": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "coroutine": "cpp",
+        "future": "cpp",
+        "numbers": "cpp",
+        "ranges": "cpp",
+        "shared_mutex": "cpp",
+        "span": "cpp",
+        "stop_token": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.default.includePath": [

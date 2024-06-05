@@ -22,18 +22,17 @@ IndentWidth: 4
 # public, private, protected are 4 spaces to the left of a class indent
 AccessModifierOffset: -4
 
-ColumnLimit: 100
+ColumnLimit: 150
 
-# Always break before braces.
-BreakBeforeBraces: Allman
+NamespaceIndentation: All
 
 # If false, the function's arguments will be on different lines if they don't
 # fit on one line.
-BinPackArguments: false
+BinPackArguments: true
 
 # If false, a function declaration’s or function definition’s parameters
 # will either all be on the same line or will have one line each.
-BinPackParameters: false
+BinPackParameters: true
 
 # Use at your own risk (diabled).
 ExperimentalAutoDetectBinPacking: false
@@ -45,7 +44,7 @@ AllowAllParametersOfDeclarationOnNextLine: false
 # If true, horizontally aligns arguments after an open bracket.
 # This applies to round brackets (parentheses), angle brackets and square
 # brackets.
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: true
 
 # If true, horizontally align operands of binary and ternary expressions.
 AlignOperands: true
