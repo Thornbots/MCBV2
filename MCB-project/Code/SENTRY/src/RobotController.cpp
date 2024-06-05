@@ -1,5 +1,7 @@
 #include "RobotController.h"
 #include <bits/stdc++.h>
+#include <stdio.h>
+#include "Print.hpp"
 
 #include <cmath>
 
@@ -23,6 +25,7 @@ RobotController::RobotController(
         shooterController(shooterController),
         jetsonCommunication(jetsonCommunication)
 {
+    
     // this->drivers = driver;
     // this->driveTrainController = driveTrainController;
     // this->turretController = turretController;
@@ -60,12 +63,12 @@ void RobotController::update()
     drivers->refSerial.updateSerial();
 
     // === blinky led code ===
-    static int led_timmer = 500;
+    static int led_timmer = 0;
     if (led_timmer<=0){
         static bool led_state = false;
         drivers->leds.set(tap::gpio::Leds::Green, led_state);
         led_state = !led_state;
-        led_timmer = 500;
+        led_timmer = 800;
     }
     led_timmer--;
     // =======================
@@ -221,10 +224,10 @@ void RobotController::updateWithJetson()
 {
     ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
-    constexpr float omega_scaled = 1;
+    constexpr float phi_scaled = 1;
     constexpr float theta_scaled = 1;
 
-    targetYawAngleWorld += msg->omega*omega_scaled;
+    targetYawAngleWorld += msg->phi*phi_scaled;
     targetDTVelocityWorld = 0;
     yawEncoderCache = driveTrainEncoder;
 
