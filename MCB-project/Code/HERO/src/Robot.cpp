@@ -158,8 +158,10 @@ namespace ThornBots {
                 shooterSubsystem->single();
             else if (wheelValue > 0.2)
                 shooterSubsystem->unjam();
+            else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID)
+                shooterSubsystem->idle();
 
-                        // will go back to idle from any of these states
+            // will go back to idle from any of these states
 
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, (leftStickMagnitude * MAX_SPEED), driveTrainEncoder + leftStickAngle);
@@ -171,14 +173,14 @@ namespace ThornBots {
 
     void Robot::updateWithMouseKeyboard() {
         if (updateInputTimer.execute()) {
-            if (keyJustPressed(Remote::Key::V)) {
+            if (drivers->remote.keyPressed(Remote::Key::V)) {
                 shooterSubsystem->rapid();
             } else if (drivers->remote.getMouseL() && mouseLHasBeenReleased) {
                 mouseLHasBeenReleased = false;
                 shooterSubsystem->single();
             } else if (drivers->remote.keyPressed(Remote::Key::Z)) {
                 shooterSubsystem->unjam();
-            } else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::IDLE && !drivers->remote.keyPressed(Remote::Key::V)) {
+            } else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID) {
                 shooterSubsystem->idle();
             }
 
