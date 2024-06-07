@@ -29,10 +29,10 @@ class JetsonCommunication: public tap::communication::serial::DJISerial{
 
         struct cord_msg
         {
+            float r=0; // meters
             float theta=0; // rad
-            float omega=0; // rad
-            float confidence; // 0.0 to 1.0
-            float panel_dist; // meters
+            float phi=0; // rad
+            float confidence=0; // 0.0 to 1.0
         };
 
 

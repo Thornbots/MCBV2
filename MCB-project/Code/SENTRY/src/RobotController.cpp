@@ -1,4 +1,7 @@
 #include "RobotController.h"
+#include <bits/stdc++.h>
+#include <stdio.h>
+#include "Print.hpp"
 
 #include <cmath>
 
@@ -6,25 +9,30 @@
 
 namespace ThornBots {
 
-    double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
-    double yawEncoderValue, IMUAngle = 0.0;
-    /*
-     * Constructor for RobotController
-     */
-    RobotController::RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController,
-                                     ThornBots::TurretController* turretController, ThornBots::ShooterController* shooterController,
-                                     ThornBots::JetsonCommunication* jetsonCommunication)
-        : drivers(driver),
-          driveTrainController(driveTrainController),
-          turretController(turretController),
-          shooterController(shooterController),
-          jetsonCommunication(jetsonCommunication) {
-        // this->drivers = driver;
-        // this->driveTrainController = driveTrainController;
-        // this->turretController = turretController;
-        // this->shooterController = shooterController;
-        // this->jetsonCommunication = jetsonCommunication;
-    }
+double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
+double yawEncoderValue, IMUAngle = 0.0;
+/*
+ * Constructor for RobotController
+ */
+RobotController::RobotController(
+    tap::Drivers* driver,
+    ThornBots::DriveTrainController* driveTrainController,
+    ThornBots::TurretController* turretController,
+    ThornBots::ShooterController* shooterController,
+    ThornBots::JetsonCommunication* jetsonCommunication):
+        drivers(driver),
+        driveTrainController(driveTrainController),
+        turretController(turretController),
+        shooterController(shooterController),
+        jetsonCommunication(jetsonCommunication)
+{
+    
+    // this->drivers = driver;
+    // this->driveTrainController = driveTrainController;
+    // this->turretController = turretController;
+    // this->shooterController = shooterController;
+    // this->jetsonCommunication = jetsonCommunication;
+}
 
     void RobotController::initialize() {
         Board::initialize();
@@ -51,16 +59,16 @@ namespace ThornBots {
 
         drivers->refSerial.updateSerial();
 
-        // === blinky led code ===
-        static int led_timmer = 500;
-        if (led_timmer <= 0) {
-            static bool led_state = false;
-            drivers->leds.set(tap::gpio::Leds::Green, led_state);
-            led_state = !led_state;
-            led_timmer = 500;
-        }
-        led_timmer--;
-        // =======================
+    // === blinky led code ===
+    static int led_timmer = 0;
+    if (led_timmer<=0){
+        static bool led_state = false;
+        drivers->leds.set(tap::gpio::Leds::Green, led_state);
+        led_state = !led_state;
+        led_timmer = 800;
+    }
+    led_timmer--;
+    // =======================
 
         jetsonCommunication->updateSerial();
 
@@ -181,12 +189,12 @@ namespace ThornBots {
     void RobotController::updateWithJetson() {
         ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
-        constexpr float omega_scaled = 1;
-        constexpr float theta_scaled = 1;
+    constexpr float phi_scaled = 1;
+    constexpr float theta_scaled = 1;
 
-        targetYawAngleWorld += msg->omega * omega_scaled;
-        targetDTVelocityWorld = 0;
-        yawEncoderCache = driveTrainEncoder;
+    targetYawAngleWorld += msg->phi*phi_scaled;
+    targetDTVelocityWorld = 0;
+    yawEncoderCache = driveTrainEncoder;
 
         constexpr double yaw_min = PI * 5 / 6;
         constexpr double yaw_max = PI * 7 / 6;
