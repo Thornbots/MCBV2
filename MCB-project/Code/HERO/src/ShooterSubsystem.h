@@ -53,7 +53,6 @@ namespace ThornBots {
 
         IndexCommand cmd = IDLE;
 
-
     public:  // Public Methods
         ShooterSubsystem(tap::Drivers* driver);
         ~ShooterSubsystem() {}  // Intentionally left blank
@@ -85,7 +84,7 @@ namespace ThornBots {
         inline void disable() { this->robotDisabled = true; }
 
         inline void rapid() { cmd = RAPID; }
-        inline void single() {cmd = SINGLE; }
+        inline void single() { cmd = SINGLE; }
         inline void unjam() { cmd = UNJAM; }
         inline void idle() { cmd = IDLE; }
 
