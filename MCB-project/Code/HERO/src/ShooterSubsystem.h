@@ -8,10 +8,11 @@
 
 namespace ThornBots {
     static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
-    enum IndexCommand { IDLE, UNJAM, SINGLE, RAPID };
     class ShooterSubsystem {
     public:  // Public Variables
         // constexpr static double PI = 3.14159;
+        enum IndexCommand { IDLE, UNJAM, SINGLE, RAPID };
+
         constexpr static int INDEXER_MOTOR_MAX_SPEED = 18000;   // With the 2006, this should give 20Hz
         constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 11000;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
         constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {20, 0, 0, 0, 13000, 1, 0, 1, 0, 0, 0};
@@ -50,6 +51,9 @@ namespace ThornBots {
         int numberOfShots;
         bool isRapidStart = true;  // if we need to do the calculations
 
+        IndexCommand cmd = IDLE;
+
+
     public:  // Public Methods
         ShooterSubsystem(tap::Drivers* driver);
         ~ShooterSubsystem() {}  // Intentionally left blank
@@ -80,7 +84,12 @@ namespace ThornBots {
         inline void enable() { this->robotDisabled = false; }
         inline void disable() { this->robotDisabled = true; }
 
-        void index(IndexCommand* cmd);
+        inline void rapid() { cmd = RAPID; }
+        inline void single() {cmd = SINGLE; }
+        inline void unjam() { cmd = UNJAM; }
+        inline void idle() { cmd = IDLE; }
+
+        inline IndexCommand getCommand() { return cmd; }
 
         void setIndexer(double val);
 
@@ -97,6 +106,8 @@ namespace ThornBots {
             setUpperFeeder(upper);
             setLowerFeeder(lower);
         }
+        void index();
+
         bool readSwitch();
     };
 }  // namespace ThornBots

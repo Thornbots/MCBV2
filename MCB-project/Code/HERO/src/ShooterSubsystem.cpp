@@ -20,6 +20,7 @@ namespace ThornBots {
     void ShooterSubsystem::updateSpeeds() {
         if (shooterControllerTimer.execute()) {
             beamState = readSwitch();
+            index();
             indexerVoltage = getIndexerVoltage();
             flyWheelVoltage = getFlywheelVoltage();
             lowerFeederVoltage = getLowerFeederVoltage();
@@ -86,18 +87,18 @@ namespace ThornBots {
         return upperFeederVoltage;
     }
 
-    void ShooterSubsystem::index(IndexCommand* cmd) {
+    void ShooterSubsystem::index() {
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = drivers->refSerial.getRobotData().turret;
         double latency = 0;        // TODO: change this later
         double burstFireRate = 5;  // 5 hertz always
         int coolingRate = turretData.coolingRate, heatRemaining = turretData.heatLimit - turretData.heat42;
 
-        switch (*cmd) {
+        switch (cmd) {
             case UNJAM:
                 disableShooting();
                 isRapidStart = true;
                 setAllIndex(0, -0.1, -0.1);
-                *cmd = IDLE;
+                idle();
                 break;
 
             case RAPID:
@@ -116,7 +117,7 @@ namespace ThornBots {
                     if (traveledDistance > (8192 * 36 * (numberOfShots - 1) / 5)) {
                         isRapidStart = true;
                         setAllIndex(0, 0, 0);
-                        *cmd = IDLE;
+                        idle();
                         break;
                     }
                 }
@@ -130,12 +131,12 @@ namespace ThornBots {
                 if (drivers->refSerial.getRefSerialReceivingData() && (turretData.bulletsRemaining42 < 1 || heatRemaining < 100)) {
                     // if we don't have ammo to shoot, don't shoot. also make sure we are actually connected to the ref system
                     // this serves as a failsafe
-                    *cmd = IDLE;
+                    idle();
                     // no break intentional, want it to do idle
                 } else {
                     if (readSwitch()) {
                         setAllIndex(0.3, 0, 0);
-                        *cmd = IDLE;
+                        idle();
 
                     } else {
                         setAllIndex(0.2, 0.1, 0.02);
