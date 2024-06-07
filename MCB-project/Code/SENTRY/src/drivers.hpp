@@ -22,19 +22,17 @@
 
 #include "tap/drivers.hpp"
 
-namespace src
-{
-class Drivers : public tap::Drivers
-{
-    friend class DriversSingleton;
+namespace src {
+    class Drivers : public tap::Drivers {
+        friend class DriversSingleton;
 
 #ifdef ENV_UNIT_TESTS
-public:
+    public:
 #endif
-    Drivers() : tap::Drivers() {}
+        Drivers() : tap::Drivers() {}
 
-public:
-};  // class Drivers
+    public:
+    };  // class Drivers
 
 }  // namespace src
 

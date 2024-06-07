@@ -2,7 +2,6 @@
 
 namespace ThornBots {
     static double motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
-
     DrivetrainSubsystem::DrivetrainSubsystem(tap::Drivers* driver) { this->drivers = driver; }
 
     void DrivetrainSubsystem::initialize() {
@@ -17,7 +16,7 @@ namespace ThornBots {
     void DrivetrainSubsystem::moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle) {
         double angularOffset = (motor_one.getShaftRPM() + motor_three.getShaftRPM()) / 2 / 14000.0;
 
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle + angularOffset - 3 * PI / 4);
+        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle + angularOffset);
 
         adjustMotorSpeedWithTurnSpeed(turnSpeed);
     }
@@ -29,7 +28,6 @@ namespace ThornBots {
         double powerLimit = DEFAULT_LIMIT;                   // failsafe
         if (drivers->refSerial.getRefSerialReceivingData())  // check for uart disconnected
             powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
-        powerLimit += limitIncrease;  // add limit increase
 
         // shaft rpms measured from encoders
         motorOneRPM = motor_one.getShaftRPM();
@@ -90,14 +88,4 @@ namespace ThornBots {
         motorThreeSpeed += turnSpeed;
         motorFourSpeed -= turnSpeed;
     }
-
-    void DrivetrainSubsystem::setHigherPowerLimit() {
-        if (drivers->refSerial.getRobotData().chassis.powerBuffer > MIN_BUFFER)
-            limitIncrease = HIGH_LIM_INC;
-        else
-            setRegularPowerLimit();
-    }
-
-    void DrivetrainSubsystem::setRegularPowerLimit() { limitIncrease = REG_LIM_INC; }
-
 }  // namespace ThornBots

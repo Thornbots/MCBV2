@@ -21,21 +21,19 @@
 
 #include "drivers_singleton.hpp"
 
-namespace src
-{
-/**
- * Class that allows one to construct a Drivers instance because of frienship
- * with the Drivers class.
- */
-class DriversSingleton
-{
-public:
-    static src::Drivers drivers;
-};  // class DriversSingleton
+namespace src {
+    /**
+     * Class that allows one to construct a Drivers instance because of frienship
+     * with the Drivers class.
+     */
+    class DriversSingleton {
+    public:
+        static src::Drivers drivers;
+    };  // class DriversSingleton
 
-src::Drivers DriversSingleton::drivers;
+    src::Drivers DriversSingleton::drivers;
 
-src::Drivers *DoNotUse_getDrivers() { return &DriversSingleton::drivers; }
+    src::Drivers *DoNotUse_getDrivers() { return &DriversSingleton::drivers; }
 }  // namespace src
 
 #endif

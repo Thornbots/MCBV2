@@ -18,17 +18,15 @@ namespace ThornBots {
         tap::motor::DjiMotor motor_one =
             tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS1, true, "ID1", 0, 0);
         tap::motor::DjiMotor motor_two =
-            tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "ID2", 0, 0);
-        tap::motor::DjiMotor motor_three =
-            tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1, true, "ID3", 0, 0);
+            tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR2, tap::can::CanBus::CAN_BUS1, false, "PURDON'T!", 0, 0);
+        tap::motor::DjiMotor motor_three = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS1,
+                                                                true, "Put the possum in his room", 0, 0);
         tap::motor::DjiMotor motor_four =
             tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS1, false, "ID4", 0, 0);
         tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
         tap::algorithms::SmoothPid pidControllerDTFollowsT = tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
-
-        double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 0;
-
         bool robotDisabled = false;
+        double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0;
 
         const double HIGH_LIM_INC = 40;      // in watts, however many watts over the current limit given by the ref system
         const double REG_LIM_INC = 0;        // in watts, should be zero
@@ -39,7 +37,7 @@ namespace ThornBots {
         const double VOLT_MAX = 24;      // Volts
         const double RA = 0.194 - 0.01;  // ohms //was 1.03 or 0.194
         const double KB = 0.35 / 19.2;   // volt-rad/s  //0.39
-        const double VELO_LOSS = 0.42;   // magic number representing loss from high rpm
+        const double VELO_LOSS = 0.43;   // magic number representing loss from high rpm
         const double IDLE_DRAW = 3;      // watts, measured
         const double DEFAULT_LIMIT = 100;
 
@@ -62,7 +60,7 @@ namespace ThornBots {
         void moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle);
 
         /*
-         * Call this function to convert the desired RPM for all of motors in the DrivetrainSubsystem to a voltage level which
+         * Call this function to convert the desired RPM for all of motors in the DriveTrainController to a voltage level which
          * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
          * Should be placed inside of the main loop, and called periodically, every
          */
@@ -72,6 +70,7 @@ namespace ThornBots {
          * Call this function to set all DriveTrain motors to 0 desired RPM. CALL setMotorSpeeds() FOR THIS TO WORK
          */
         void stopMotors();
+
         inline void disable() { robotDisabled = true; }
         inline void enable() { robotDisabled = false; }
 

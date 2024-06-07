@@ -1,38 +1,38 @@
 #pragma once
 
-#include "tap/algorithms/smooth_pid.hpp"
 #include <cmath>
-#include "drivers_singleton.hpp"
+
+#include "tap/algorithms/smooth_pid.hpp"
 
 #include "DriveTrainController.h"
 #include "TurretController.h"
+#include "drivers_singleton.hpp"
 
 namespace ThornBots {
-    class RobotController {
+    class Robot {
     public:
-        //Constructor
-        RobotController(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
-        //Destructor
-        ~RobotController();
+        // Constructor
+        Robot(tap::Drivers* m_driver, ThornBots::DrivetrainSubsystem* driveTrainController, ThornBots::GimbalSubsystem* turretController);
+        // Destructor
+        ~Robot();
 
         /*
-        * Main function for the RobotController class. This function will be called in the main.cpp file.
-        * This function will get and read our inputs and determinie what DriveTrainController and TurretController do
-        * based on the inputs.
-        */
+         * Main function for the Robot class. This function will be called in the main.cpp file.
+         * This function will get and read our inputs and determinie what DriveTrainController and TurretController do
+         * based on the inputs.
+         */
         void update();
 
         /*
-        * This function will call setMotorSpeeds with sendMotorTimeout.execute() as the parameter to DriveTrain 
-        * and Turret ControllerInput.
-        */
+         * This function will call setMotorSpeeds with sendMotorTimeout.execute() as the parameter to DriveTrain
+         * and Turret ControllerInput.
+         */
         void stopRobot();
 
     private:
-        //Variables
-        static constexpr double MAXIMUM_BEYBLADE_FACTOR = 0.7; //Change this to change the maximum factor of speed of the beyblading from: [0, 1]
-        static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
-        static constexpr double PI = 3.14159;
+        // Variables
+        static constexpr double MAXIMUM_BEYBLADE_FACTOR = 0.7;  // Change this to change the maximum factor of speed of the beyblading from: [0, 1]
+        static constexpr int MAX_SPEED = 6000;                  // The abs(maximum speed) we want the drivetrain motors to go to
 
         double beybladeFactor = 0;
         bool keyboardAndMouseEnabled = false;
@@ -55,37 +55,36 @@ namespace ThornBots {
         double left_stick_horz = 0.0;
 
         tap::Drivers* drivers;
-        ThornBots::DriveTrainController *driveTrainController;
-        ThornBots::TurretController *turretController;
+        ThornBots::DrivetrainSubsystem* drivetrainSubsystem;
+        ThornBots::GimbalSubsystem* gimbalSubsystem;
 
-        //temp to be deleted
+        // temp to be deleted
         float temp_yaw_angle = 0.0;
 
-
-        //Functions
+        // Functions
 
         /*
-        * This function will find relation of a point to the orgin and return the angle in radians. Furthermore
-        * it will set the 0 reference angle to the front of the drivetrain.
-        */
+         * This function will find relation of a point to the orgin and return the angle in radians. Furthermore
+         * it will set the 0 reference angle to the front of the drivetrain.
+         */
         double getAngle(double xPosition, double yPosition);
-        
+
         /**
-        * Reads inputs from the keyboard and mouse and checks to see if KBM(keyboard and Mouse) mode should
-        * be enabled or not. It requires the pressing of CTRL + SHIFT + R to enable KBM mode.
-        */
+         * Reads inputs from the keyboard and mouse and checks to see if KBM(keyboard and Mouse) mode should
+         * be enabled or not. It requires the pressing of CTRL + SHIFT + R to enable KBM mode.
+         */
         bool toggleKeyboardAndMouse();
 
         /*
-        * Reads the state of the left switch on the remote and sets leftSwitchValue to 2 if the switch is up,
-        * 1 if the switch is in the middle, and 0 if the switch is down.
-        */
+         * Reads the state of the left switch on the remote and sets leftSwitchValue to 2 if the switch is up,
+         * 1 if the switch is in the middle, and 0 if the switch is down.
+         */
         void findLeftSwitchState();
 
         /*
-        * Reads the state of the right switch on the remote and sets rightSwitchValue to 2 if the switch is up,
-        * 1 if the switch is in the middle, and 0 if the switch is down.
-        */
+         * Reads the state of the right switch on the remote and sets rightSwitchValue to 2 if the switch is up,
+         * 1 if the switch is in the middle, and 0 if the switch is down.
+         */
         void findRightSwitchState();
     };
-}
+}  // namespace ThornBots

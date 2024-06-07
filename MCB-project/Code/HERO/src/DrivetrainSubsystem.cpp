@@ -2,7 +2,6 @@
 
 namespace ThornBots {
     static double motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
-
     DrivetrainSubsystem::DrivetrainSubsystem(tap::Drivers* driver) { this->drivers = driver; }
 
     void DrivetrainSubsystem::initialize() {
@@ -15,9 +14,9 @@ namespace ThornBots {
     }
 
     void DrivetrainSubsystem::moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle) {
-        double angularOffset = (motor_one.getShaftRPM() + motor_three.getShaftRPM()) / 2 / 14000.0;
+        double angularOffset = 0;  //(motor_one.getShaftRPM()+motor_three.getShaftRPM())/2/14000.0;
 
-        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle + angularOffset - 3 * PI / 4);
+        convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle + angularOffset + PI / 6);
 
         adjustMotorSpeedWithTurnSpeed(turnSpeed);
     }
@@ -99,5 +98,4 @@ namespace ThornBots {
     }
 
     void DrivetrainSubsystem::setRegularPowerLimit() { limitIncrease = REG_LIM_INC; }
-
 }  // namespace ThornBots

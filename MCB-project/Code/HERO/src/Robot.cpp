@@ -6,15 +6,16 @@ namespace ThornBots {
 
     double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
     double yawEncoderValue, IMUAngle = 0.0;
+    IndexCommand indexCommand = IDLE;
     /*
      * Constructor for Robot
      */
-    Robot::Robot(tap::Drivers* driver, DrivetrainSubsystem* driveTrainSubsystem, GimbalSubsystem* gimbalSubsystem,
-                 ShooterSubsystem* shooterSubsystem) {
+    Robot::Robot(tap::Drivers* driver, ThornBots::DrivetrainSubsystem* driveTrainController, ThornBots::GimbalSubsystem* turretController,
+                 ThornBots::ShooterSubsystem* shooterController) {
         this->drivers = driver;
-        this->drivetrainSubsystem = driveTrainSubsystem;
-        this->gimbalSubsystem = gimbalSubsystem;
-        this->shooterSubsystem = shooterSubsystem;
+        this->drivetrainSubsystem = driveTrainController;
+        this->gimbalSubsystem = turretController;
+        this->shooterSubsystem = shooterController;
     }
 
     void Robot::initialize() {
@@ -37,9 +38,11 @@ namespace ThornBots {
 
     void Robot::update() {
         drivers->canRxHandler.pollCanData();
+
         drivers->refSerial.updateSerial();
 
         updateAllInputVariables();
+
         toggleKeyboardAndMouse();
 
         if (drivers->remote.isConnected())
@@ -47,20 +50,19 @@ namespace ThornBots {
         else
             disableRobot();
 
-        if (robotDisabled) return;
-
-        if (useKeyboardMouse)
+        if (useKeyboardMouse) {
+            if (robotDisabled) return;
             updateWithMouseKeyboard();
-        else
+        } else {
+            if (robotDisabled) return;
             updateWithController();
+        }
 
         if (motorsTimer.execute()) {
             drivetrainSubsystem->setMotorSpeeds();
             gimbalSubsystem->setMotorSpeeds();
             shooterSubsystem->setMotorSpeeds();
         }
-
-        // into can signal
     }
 
     void Robot::updateAllInputVariables() {
@@ -68,6 +70,7 @@ namespace ThornBots {
         if (IMUTimer.execute()) {
             drivers->bmi088.periodicIMUUpdate();
         }
+
         // START Updating stick values
         // Actually Reading from remote
         rightSwitchState = drivers->remote.getSwitch(Remote::Switch::RIGHT_SWITCH);
@@ -85,8 +88,8 @@ namespace ThornBots {
 
         driveTrainRPM = 0;  // TODO: get this. Either power from DT motors, using yaw encoder and IMU,
                             // or something else
-        yawRPM = PI / 180 * drivers->bmi088.getGz();
-        yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw() - imuOffset, 2 * PI);
+        yawRPM = PI / 180 * drivers->bmi088.getGx();
+        yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getRoll() - imuOffset, 2 * PI);
 
         wheelValue = drivers->remote.getChannel(Remote::Channel::WHEEL);
     }
@@ -97,6 +100,7 @@ namespace ThornBots {
 
         return useKeyboardMouse;
     }
+
     void Robot::updateWithController() {
         if (updateInputTimer.execute()) {
             double temp = right_stick_horz * YAW_TURNING_PROPORTIONAL;
@@ -130,7 +134,7 @@ namespace ThornBots {
 
                             break;
                         case (Remote::SwitchState::DOWN):
-                            yawEncoderCache = 3 * PI / 4;
+                            yawEncoderCache = -PI / 6;
                             // no break intentional so if in this case it also runs what is below
                         case (Remote::SwitchState::UP):
                             // Left switch is down, and right is up. So driveTrainFollows Turret
@@ -149,32 +153,42 @@ namespace ThornBots {
                     break;
             }
 
-            if (wheelValue < -0.5) {
-                shooterSubsystem->shoot(15);
-            } else if (wheelValue > 0.5) {
-                shooterSubsystem->unjam();
-            } else {
-                shooterSubsystem->idle();
-            }
+            if (wheelValue < -0.5)
+                indexCommand = RAPID;
+            else if (wheelValue < -0.2)
+                indexCommand = SINGLE;
+            else if (wheelValue > 0.2)
+                indexCommand = UNJAM;
+
+            // will go back to idle from any of these states
+            shooterSubsystem->index(&indexCommand);
 
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, (leftStickMagnitude * MAX_SPEED), driveTrainEncoder + leftStickAngle);
             gimbalSubsystem->turretMove(targetYawAngleWorld,
-                                        0.1 * PI * right_stick_vert,  // was - 0.5 * PI
-                                        driveTrainRPM, yawAngleRelativeWorld, yawRPM, temp / dt, dt);
+                                        -0.1 * PI * right_stick_vert,  // was - 0.5 * PI
+                                        driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
         }
     }
 
     void Robot::updateWithMouseKeyboard() {
         if (updateInputTimer.execute()) {
-            // shooting
-            if (drivers->remote.getMouseL()) {
-                shooterSubsystem->shoot(10);
+            if (keyJustPressed(Remote::Key::V)) {
+                indexCommand = RAPID;
+            } else if (drivers->remote.getMouseL() && mouseLHasBeenReleased) {
+                mouseLHasBeenReleased = false;
+                indexCommand = SINGLE;
             } else if (drivers->remote.keyPressed(Remote::Key::Z)) {
-                shooterSubsystem->unjam();
-            } else {
-                shooterSubsystem->idle();
+                indexCommand = UNJAM;
+            } else if (indexCommand == RAPID && !drivers->remote.keyPressed(Remote::Key::V)) {
+                indexCommand = IDLE;
             }
+
+            if (!drivers->remote.getMouseL()) mouseLHasBeenReleased = true;
+
+            shooterSubsystem->index(&indexCommand);
+
+            // beyblade
 
             if (keyJustPressed(Remote::Key::R)) currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
 
@@ -216,11 +230,12 @@ namespace ThornBots {
                 moveMagnitude *= MED_SPEED;
                 drivetrainSubsystem->setRegularPowerLimit();
             }
-
             driveTrainEncoder = gimbalSubsystem->getYawEncoderValue();
             yawEncoderCache = driveTrainEncoder;
 
-            drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle);
+            drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, moveMagnitude,
+                                                driveTrainEncoder + moveAngle);  // driveTrainEncoder + moveAngle - 3 * PI / 4);
+            // also try targetYawAngleWorld, yawEncoderCache
 
             // mouse
             static int mouseXOffset = drivers->remote.getMouseX();
@@ -230,14 +245,13 @@ namespace ThornBots {
             static double accumulatedMouseY = 0;
             accumulatedMouseY += mouseY / 10000.0;
 
-            if (accumulatedMouseY > 0.4) accumulatedMouseY = 0.4;
-            if (accumulatedMouseY < -0.3) accumulatedMouseY = -0.3;
+            if (accumulatedMouseY > 0.08) accumulatedMouseY = 0.08;  // how far down
+            if (accumulatedMouseY < -0.4) accumulatedMouseY = -0.4;  // how far up
 
-            targetYawAngleWorld -= mouseX / 15000.0;
+            targetYawAngleWorld -= mouseX / 10000.0;
 
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
-            gimbalSubsystem->turretMove(targetYawAngleWorld, accumulatedMouseY, driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / 15000.0 / dt,
-                                        dt);
+            gimbalSubsystem->turretMove(targetYawAngleWorld, (accumulatedMouseY), driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
         }
     }
 }  // namespace ThornBots

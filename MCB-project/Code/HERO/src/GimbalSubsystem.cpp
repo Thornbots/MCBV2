@@ -1,34 +1,32 @@
-#include "TurretController.h"
+#include "GimbalSubsystem.h"
 
 namespace ThornBots {
-    TurretController::TurretController(tap::Drivers* driver) {
+    GimbalSubsystem::GimbalSubsystem(tap::Drivers* driver) {
         this->drivers = driver;
         //TODO: Complete this
     }
-    void TurretController::initialize() {
+    void GimbalSubsystem::initialize() {
         motor_Pitch.initialize();
         motor_Yaw.initialize();
-
         //Nothing needs to be done to drivers
         //Nothing needs to be done to the controllers
     }
 
-    void TurretController::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double dt) {
+    void GimbalSubsystem::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double dt) {
         if(turretControllerTimer.execute()) {
-            pitchMotorVoltage = getPitchVoltage(desiredPitchAngle, dt);
+            pitchMotorVoltage = getPitchVoltage(desiredPitchAngle - 0.9 * PI, dt);
             yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, dt);
             
         }
         //TODO: Add flywheels, indexer, and servo
     }
 
-    void TurretController::setMotorSpeeds() {
+    void GimbalSubsystem::setMotorSpeeds() {
         motor_Pitch.setDesiredOutput(pitchMotorVoltage);
         motor_Yaw.setDesiredOutput(yawMotorVoltage);
-
     }
 
-    void TurretController::stopMotors() {
+    void GimbalSubsystem::stopMotors() {
         motor_Pitch.setDesiredOutput(0);
         motor_Yaw.setDesiredOutput(0);
 
@@ -36,24 +34,26 @@ namespace ThornBots {
         //TODO: Add the other motors
     }
 
-    void TurretController::reZeroYaw() {
+
+    void GimbalSubsystem::reZeroYaw() {
         //TODO
     }
 
-    int TurretController::getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt) {
+    int GimbalSubsystem::getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt) {
         if (robotDisabled) return 0;
         return 1000 * yawController.calculate(yawAngleRelativeWorld, yawRPM, 0, desiredAngleWorld, dt); //1000 to convert to mV which taproot wants. DTrpm is 0, can calculate and pass in the future
     }
 
-    int TurretController::getPitchVoltage(double targetAngle, double dt) {
+    int GimbalSubsystem::getPitchVoltage(double targetAngle, double dt) {
         if (robotDisabled) return 0;
-        return 1000*pitchController.calculate(getPitchEncoderValue()/2, getPitchVel()/2, targetAngle, dt);
+        return 1000*pitchController.calculate(getPitchEncoderValue(), getPitchVel(), targetAngle, dt);
     }
 
-    void TurretController::disable(){
+
+    void GimbalSubsystem::disable(){
         robotDisabled = true;
     }
-    void TurretController::enable(){
+    void GimbalSubsystem::enable(){
         robotDisabled = false;
     }
 

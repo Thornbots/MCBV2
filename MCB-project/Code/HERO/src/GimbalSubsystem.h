@@ -5,12 +5,12 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "drivers_singleton.hpp"
-#include "ModeledTurretController.h"
+#include "YawController.h"
 #include "PitchController.h"
 
 namespace ThornBots {
     static tap::arch::PeriodicMilliTimer turretControllerTimer(2);
-    class TurretController {
+    class GimbalSubsystem {
         public: //Public Variables
             //constexpr static double PI = 3.14159;
             constexpr static int YAW_MOTOR_MAX_SPEED = 1000; //TODO: Make this value relevent
@@ -22,7 +22,7 @@ namespace ThornBots {
             tap::motor::DjiMotor motor_Yaw = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0);
             tap::motor::DjiMotor motor_Pitch = tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Pitch", 0, 0);
           
-            ThornBots::ModeledTurretController yawController = ModeledTurretController();
+            ThornBots::YawController yawController = YawController();
             ThornBots::PitchController pitchController = PitchController();
 
             double pitchMotorVoltage, yawMotorVoltage;
@@ -30,8 +30,8 @@ namespace ThornBots {
             bool robotDisabled = false;
 
         public: //Public Methods
-            TurretController(tap::Drivers* driver);
-            ~TurretController() {} //Intentionally left blank
+            GimbalSubsystem(tap::Drivers* driver);
+            ~GimbalSubsystem() {} //Intentionally left blank
 
             /*
             * Call this function once, outside of the main loop.
@@ -50,7 +50,7 @@ namespace ThornBots {
             void turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double dt);
 
             /*
-            * Call this function to convert the desired RPM for all of motors in the TurretController to a voltage level which
+            * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a voltage level which
             * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
             * Should be placed inside of the main loop, and called every time through the loop, ONCE
             */

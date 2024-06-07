@@ -9,7 +9,7 @@ static tap::arch::PeriodicMicroTimer RunTimer(10);  // Don't ask me why. This on
 
 int main() {
     src::Drivers *drivers = src::DoNotUse_getDrivers();
-    ThornBots::DriveTrainSubsystem *drivetrainSubsystem = new ThornBots::DriveTrainSubsystem(drivers);
+    ThornBots::DrivetrainSubsystem *drivetrainSubsystem = new ThornBots::DrivetrainSubsystem(drivers);
     ThornBots::GimbalSubsystem *gimbalSubsystem = new ThornBots::GimbalSubsystem(drivers);
     ThornBots::ShooterSubsystem *shooterSubsystem = new ThornBots::ShooterSubsystem(drivers);
 

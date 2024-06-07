@@ -1,7 +1,7 @@
-#include "RobotController.h"
-#include "TurretController.h"
-#include "ShooterController.h"
-#include "DriveTrainController.h"
+#include "Robot.h"
+#include "GimbalSubsystem.h"
+#include "ShooterSubsystem.h"
+#include "DrivetrainSubsystem.h"
 #include "drivers_singleton.hpp"
 
 src::Drivers *drivers;
@@ -9,16 +9,16 @@ static tap::arch::PeriodicMicroTimer RunTimer(10); //Don't ask me why. This only
 
 int main() {
     src::Drivers *drivers = src::DoNotUse_getDrivers();
-    ThornBots::DriveTrainController *driveTrainController = new ThornBots::DriveTrainController(drivers);
-    ThornBots::TurretController *turretController = new ThornBots::TurretController(drivers);
-    ThornBots::ShooterController *shooterController = new ThornBots::ShooterController(drivers);
+    ThornBots::DrivetrainSubsystem *drivetrainSubsystem = new ThornBots::DrivetrainSubsystem(drivers);
+    ThornBots::GimbalSubsystem *gimbalSubsystem = new ThornBots::GimbalSubsystem(drivers);
+    ThornBots::ShooterSubsystem *shooterSubsystem = new ThornBots::ShooterSubsystem(drivers);
 
-    ThornBots::RobotController *robotController = new ThornBots::RobotController(drivers, driveTrainController, turretController, shooterController);
+    ThornBots::Robot *robot = new ThornBots::Robot(drivers, drivetrainSubsystem, gimbalSubsystem, shooterSubsystem);
 
-    robotController->initialize();
+    robot->initialize();
     while(1) {
         if(RunTimer.execute()) { //Calling this function every 10 us at max
-            robotController->update();
+            robot->update();
         }
     }
 }
