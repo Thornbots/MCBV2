@@ -31,7 +31,8 @@
                 "MCB-project/taproot/modm/src",
                 "MCB-project/taproot/modm/ext/cmsis/core",
                 "MCB-project/taproot/modm/ext/cmsis/device",
-                "MCB-project/taproot/modm/ext/cmsis/dsp"        
+                "MCB-project/taproot/modm/ext/cmsis/dsp",
+                "MCB-project/Code/"
             ],
             "compilerPath": "arm-none-eabi-g++",
             "intelliSenseMode": "gcc-arm",
