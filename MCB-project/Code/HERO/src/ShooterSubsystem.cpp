@@ -87,6 +87,7 @@ namespace ThornBots {
         return upperFeederVoltage;
     }
 
+    //statics got moved to be private member variables in the header file as this is more consistent and better practice imho
     void ShooterSubsystem::index() {
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = drivers->refSerial.getRobotData().turret;
         double latency = 0;        // TODO: change this later
@@ -98,6 +99,7 @@ namespace ThornBots {
                 disableShooting();
                 isRapidStart = true;
                 setAllIndex(0, -0.1, -0.1);
+                //set state to idle for next time. If unjam is held this will do nothing
                 idle();
                 break;
 

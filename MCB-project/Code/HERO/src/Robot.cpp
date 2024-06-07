@@ -48,12 +48,12 @@ namespace ThornBots {
             enableRobot();
         else
             disableRobot();
+            
+        if (robotDisabled) return;
 
         if (useKeyboardMouse) {
-            if (robotDisabled) return;
             updateWithMouseKeyboard();
         } else {
-            if (robotDisabled) return;
             updateWithController();
         }
 
