@@ -152,14 +152,16 @@ namespace ThornBots {
                     break;
             }
 
-            if (wheelValue < -0.5)
-                shooterSubsystem->rapid();
-            else if (wheelValue < -0.2)
+            //no rapid with controller for ease of testing
+            // if (wheelValue < -0.5)
+            //     shooterSubsystem->rapid();
+            //else 
+            if (wheelValue < -0.2)
                 shooterSubsystem->single();
             else if (wheelValue > 0.2)
                 shooterSubsystem->unjam();
-            else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID)
-                shooterSubsystem->idle();
+            // else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID)
+            //     shooterSubsystem->idle();
 
             // will go back to idle from any of these states
 
