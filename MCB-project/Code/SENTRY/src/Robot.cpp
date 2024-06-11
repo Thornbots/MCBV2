@@ -145,10 +145,9 @@ namespace ThornBots {
             AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
             if(command.action != -1 && msg->confidence > 0.5){
                 targetYawAngleWorld = command.yaw;
-                targetPitchAngleWorld = command.pitch;
+                targetPitchAngleWorld = std::clamp(command.pitch, -0.3, 0.3);  // TODO: remove
+
             }
-
-
             if (leftSwitchState == Remote::SwitchState::UP) {
                 if (command.action == 1) {
                     shooterSubsystem->shoot(20);
@@ -209,10 +208,6 @@ namespace ThornBots {
             }
 
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
-
-            constexpr double yaw_min = PI * 5 / 6;
-            constexpr double yaw_max = PI * 7 / 6;
-            targetYawAngleWorld = std::clamp(targetYawAngleWorld, yaw_min, yaw_max);  // TODO: remove
 
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, (leftStickMagnitude * MAX_SPEED), driveTrainEncoder + leftStickAngle);
             gimbalSubsystem->turretMove(targetYawAngleWorld,
