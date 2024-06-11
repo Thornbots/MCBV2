@@ -8,6 +8,7 @@
 
 #include "Print.hpp"
 
+
 namespace ThornBots {
 
     double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
@@ -141,7 +142,7 @@ namespace ThornBots {
         if (cvTimer.execute()) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
-            GimbalCommand command = updateAim(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
+            AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
 
             targetYawAngleWorld = command.yaw;
             targetPitchAngleWorld = command.pitch;
