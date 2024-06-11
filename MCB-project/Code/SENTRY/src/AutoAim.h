@@ -22,9 +22,9 @@ namespace ThornBots {
             GimbalCommand command = {0, 0, 0, -1};
 
             // Add rotated offset vector of panel relative to RGB
-            double X_prime = x + 0.0175;
-            double Y_prime = y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);
-            double Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);
+            double X_prime = x + 0.0175;                                                     // left
+            double Y_prime = y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
+            double Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);  // forwards
 
             // Convert to cylindrical coordinates
             double r_prime, theta_prime, Z_double_prime;
@@ -71,9 +71,9 @@ namespace ThornBots {
         // Constants
         const double g = 9.81;           // gravitational acceleration
         const double J = 25.0;           // Shot velocity
-        const double l = 0.05;            // Combined camera + Jetson latency
+        const double l = 0.05;           // Combined camera + Jetson latency
         const double deltaTime = 0.033;  // Frame time
-        const double H = 0.35;            // Height rejection offset
+        const double H = 0.35;           // Height rejection offset
         std::vector<PanelData> panelData;
 
         void cartesianToCylindrical(double x, double y, double z, double& r, double& theta, double& Z_double_prime) {

@@ -145,7 +145,7 @@ namespace ThornBots {
             AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
             if(command.action != -1 && msg->confidence > 0.5){
                 targetYawAngleWorld = command.yaw;
-                targetPitchAngleWorld = std::clamp(command.pitch, -0.3, 0.3);  // TODO: remove
+                targetPitchAngleWorld = std::clamp(command.pitch, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove
 
             }
             if (leftSwitchState == Remote::SwitchState::UP) {
