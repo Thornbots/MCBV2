@@ -16,7 +16,7 @@ namespace ThornBots {
     void GimbalSubsystem::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld,
                                      double yawRPM, double dt) {
         if (turretControllerTimer.execute()) {
-            pitchMotorVoltage = getPitchVoltage(desiredPitchAngle + 0.07 * PI, dt);
+            pitchMotorVoltage = getPitchVoltage(desiredPitchAngle, dt);
             yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, dt);
         }
         // TODO: Add flywheels, indexer, and servo

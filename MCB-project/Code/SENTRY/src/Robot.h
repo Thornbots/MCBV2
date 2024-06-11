@@ -9,6 +9,7 @@
 #include "JetsonCommunication.h"
 #include "ShooterSubsystem.h"
 #include "drivers_singleton.hpp"
+#include "AutoAim.cpp"
 
 namespace ThornBots {
     using namespace tap::communication::serial;
@@ -16,6 +17,7 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer motorsTimer(2);
     static tap::arch::PeriodicMilliTimer IMUTimer(2);
     static tap::arch::PeriodicMilliTimer updateInputTimer(2);
+    static tap::arch::PeriodicMilliTimer cvTimer(30);
 
     enum Program { MANUAL, SPIN, SHOOT };
 

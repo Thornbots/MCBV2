@@ -123,8 +123,6 @@ namespace ThornBots {
 
         wheelValue = drivers->remote.getChannel(Remote::Channel::WHEEL);
 
-        matchHasStarted = drivers->refSerial.getGameData().gameStage == RefSerial::Rx::GameStage::IN_GAME;
-
         switch (rightSwitchState) {
             case Remote::SwitchState::UP:
                 currentProgram = SHOOT;
@@ -137,28 +135,29 @@ namespace ThornBots {
                 break;
         }
     }
-    // TODO make this
+
+    // haha shooty funny
     void Robot::updateWithCV() {
-        ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
+        if (cvTimer.execute()) {
+            ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
-        constexpr float phi_scaled = 1;
-        constexpr float theta_scaled = 1;
+            GimbalCommand command = updateAim(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
 
-        targetYawAngleWorld += msg->phi * phi_scaled;
-        targetDTVelocityWorld = 0;
-        yawEncoderCache = driveTrainEncoder;
+            targetYawAngleWorld = command.yaw;
+            targetPitchAngleWorld = command.pitch;
 
-        constexpr double yaw_min = PI * 5 / 6;
-        constexpr double yaw_max = PI * 7 / 6;
-        targetYawAngleWorld = std::clamp(targetYawAngleWorld, yaw_min, yaw_max);  // TODO: remove
-        targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
 
-        targetPitchAngleWorld += msg->theta * theta_scaled;
-        constexpr double min = 0.02;
-        constexpr double max = 0.523;
-        targetPitchAngleWorld = std::clamp(targetPitchAngleWorld, min, max);
-
+            if (leftSwitchState == Remote::SwitchState::UP) {
+                if (command.action == 1) {
+                    shooterSubsystem->shoot(20);
+                } else {
+                    shooterSubsystem->idle();
+                }
+            }
+            shooterSubsystem->disableShooting();
+        }
         gimbalSubsystem->turretMove(targetYawAngleWorld, targetPitchAngleWorld, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+
     }
     // literally just spin
     void Robot::updateWithSpin() { drivetrainSubsystem->moveDriveTrain(SLOW_BEYBLADE_FACTOR * MAX_SPEED, 0, 0); }
