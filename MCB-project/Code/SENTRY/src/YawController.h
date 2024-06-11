@@ -31,7 +31,7 @@ namespace ThornBots {
         const double KT = 0.35;                           // N-m/A
         const double RA = 1.03;                           // ohm
         const double RATIO = 2;                           // unitless
-        const double VOLT_MAX = 24;                       // V
+        const double VOLT_MAX = 4;                       // V
         const double VELO_MAX = VOLT_MAX / (KB * RATIO);  // rad/s
         // Position controller constants
         const double KP = 26;  // sec^-1

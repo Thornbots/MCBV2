@@ -143,9 +143,10 @@ namespace ThornBots {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
             AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
-
-            targetYawAngleWorld = command.yaw;
-            targetPitchAngleWorld = command.pitch;
+            if(command.action != -1 && msg->confidence > 0.5){
+                targetYawAngleWorld = command.yaw;
+                targetPitchAngleWorld = command.pitch;
+            }
 
 
             if (leftSwitchState == Remote::SwitchState::UP) {
