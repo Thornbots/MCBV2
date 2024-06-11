@@ -52,11 +52,11 @@ namespace ThornBots {
             double theta_triple_prime = theta_prime + dp_dt * deltaT_shot + d2p_dt2 * pow(deltaT_shot, 2) / 2;
 
             // Send this position and velocity to the turret controller
-            command.yaw = fmod(theta_triple_prime + current_yaw, 2 * 3.14159);
+            command.yaw = fmod(theta_triple_prime + current_yaw, M_2_PI);
             // lets not set yaw prime yet. This should make the controller less aggressive for now
 
             // Check if the yaw angle is within the threshold
-            if (abs(theta_triple_prime) < 5 * 3.14159 / 180) {
+            if (abs(theta_triple_prime) < 5 * M_PI / 180) {
                 // Enable shooting
                 command.action = 1;
             }
