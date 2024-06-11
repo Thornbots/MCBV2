@@ -79,7 +79,7 @@ namespace ThornBots {
                 updateWithController();
                 break;
             case SPIN:
-                updateWithSpin();
+                //updateWithSpin();
                 break;
             case SHOOT:
                 // updateWithSpin();

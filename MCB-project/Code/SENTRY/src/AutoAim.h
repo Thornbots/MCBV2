@@ -19,11 +19,11 @@ namespace ThornBots {
             int action;  //-1 ignore, 0 follow, 1 to fire
         };
         GimbalCommand update(double x, double y, double z, double current_pitch, double current_yaw) {
-            GimbalCommand command = {0, 0, 0, -1};
+            GimbalCommand command = {0, 0, 0, 0};
 
             // Add rotated offset vector of panel relative to RGB
-            double X_prime = x + 0.0175;                                                     // left
-            double Y_prime = y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
+            double X_prime = -x + 0.0175;                                                     // left
+            double Y_prime = -y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
             double Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);  // forwards
 
             // Convert to cylindrical coordinates
@@ -32,6 +32,7 @@ namespace ThornBots {
 
             // Check if the target is above the height rejection offset
             if (Z_double_prime > H) {
+                command.action = -1;
                 return command;
             }
 
