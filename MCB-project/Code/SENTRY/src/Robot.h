@@ -47,7 +47,7 @@ namespace ThornBots {
         // bool useKeyboardMouse = false;
         double yawEncoderCache = 0;
         double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
-        double stickAccumulator = 0, targetYawAngleWorld = PI, targetPitchAngleWorld = 0.3,
+        double stickAccumulator = 0, targetYawAngleWorld = PI, targetPitchAngleWorld = 0,
                targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
         bool robotDisabled = false, matchHasStarted;
 

@@ -143,7 +143,7 @@ namespace ThornBots {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
             AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
-            if(command.action != -1 && msg->confidence > 0.5){
+            if(command.action != -1 && msg->confidence > 0.1){
                 targetYawAngleWorld = command.yaw;
                 targetPitchAngleWorld = std::clamp(command.pitch, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove
 
@@ -154,8 +154,9 @@ namespace ThornBots {
                 } else {
                     shooterSubsystem->idle();
                 }
+            } else {
+                shooterSubsystem->disableShooting();
             }
-            shooterSubsystem->disableShooting();
         }
         gimbalSubsystem->turretMove(targetYawAngleWorld, targetPitchAngleWorld, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
 
