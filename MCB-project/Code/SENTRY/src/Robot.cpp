@@ -159,6 +159,8 @@ namespace ThornBots {
             }
         }
         gimbalSubsystem->turretMove(targetYawAngleWorld, targetPitchAngleWorld, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+        drivetrainSubsystem->moveDriveTrain(0, 0, 0);
+
 
     }
     // literally just spin
