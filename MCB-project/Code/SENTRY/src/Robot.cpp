@@ -138,7 +138,7 @@ namespace ThornBots {
 
     // haha shooty funny
     void Robot::updateWithCV() {
-        if (!jetsonCommunication->hasBeenRead) {
+        if (jetsonCommunication->newMessage()) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
             double yawOut = 0;
             double pitchOut = 0;
@@ -147,7 +147,7 @@ namespace ThornBots {
                            pitchOut, action);
 
             if (action != -1){// && msg->confidence > 0.1) {
-                targetYawAngleWorld = yawOut;
+                targetYawAngleWorld = std::clamp(yawOut, static_cast<double>(-0.6), static_cast<double>(0.6));
                 targetPitchAngleWorld = std::clamp(pitchOut, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove
             }
             if (leftSwitchState == Remote::SwitchState::UP) {
