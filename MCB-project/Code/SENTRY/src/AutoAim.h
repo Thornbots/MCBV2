@@ -15,8 +15,8 @@ namespace ThornBots {
 
         void update(double x, double y, double z, double current_pitch, double current_yaw, double& yawOut, double& pitchOut, int& action) {
             // Add rotated offset vector of panel relative to RGB
-            double X_prime = x + 0.0175;                                                     // left
-            double Y_prime = y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
+            double X_prime = -x + 0.0175;                                                     // left
+            double Y_prime = -y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
             double Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);  // forwards
 
             // Convert to cylindrical coordinates
@@ -45,7 +45,7 @@ namespace ThornBots {
             double theta_triple_prime = theta_prime;// + dp_dt * deltaT_shot + d2p_dt2 * pow(deltaT_shot, 2) / 2;
 
             // Send this position and velocity to the turret controller
-            yawOut = fmod(theta_triple_prime + current_yaw, M_TWOPI);
+            yawOut = theta_triple_prime + current_yaw;
             // lets not set yaw prime yet. This should make the controller less aggressive for now
 
             // Check if the yaw angle is within the threshold
@@ -70,7 +70,7 @@ namespace ThornBots {
 
         void cartesianToCylindrical(double x, double y, double z, double& r, double& theta, double& Z_double_prime) {
             r = sqrt(x * x + z * z);
-            theta = atan2(z, x);
+            theta = atan2(x, z);
             Z_double_prime = y;
         }
 
