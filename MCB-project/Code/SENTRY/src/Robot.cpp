@@ -147,8 +147,8 @@ namespace ThornBots {
                            pitchOut, action);
 
             if (action != -1){// && msg->confidence > 0.1) {
-                targetYawAngleWorld = std::clamp(yawOut, yawMin, yawMax);
-                targetPitchAngleWorld = std::clamp(pitchOut, pitchMin, pitchMax);  // TODO: remove
+                if(!isnan(yawOut)) targetYawAngleWorld = std::clamp(yawOut, yawMin, yawMax);
+                if(!isnan(pitchOut))targetPitchAngleWorld = std::clamp(pitchOut, pitchMin, pitchMax);  // TODO: remove
             }
             if (leftSwitchState == Remote::SwitchState::UP) {
                 if (action == 1) {
