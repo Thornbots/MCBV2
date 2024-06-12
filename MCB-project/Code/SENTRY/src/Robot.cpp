@@ -142,7 +142,7 @@ namespace ThornBots {
         if (cvTimer.execute()) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
-            AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue(), gimbalSubsystem->getYawEncoderValue());
+            AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue()/2, gimbalSubsystem->getYawEncoderValue());
             if(command.action != -1 && msg->confidence > 0.1){
                 targetYawAngleWorld = command.yaw;
                 targetPitchAngleWorld = std::clamp(command.pitch, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove

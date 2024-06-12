@@ -19,7 +19,7 @@ namespace ThornBots {
             int action;  //-1 ignore, 0 follow, 1 to fire
         };
         GimbalCommand update(double x, double y, double z, double current_pitch, double current_yaw) {
-            GimbalCommand command = {0, 0, 0, 0};
+            GimbalCommand command = {0.0, 0.0, 0.0, 0};
 
             // Add rotated offset vector of panel relative to RGB
             double X_prime = -x + 0.0175;                                                     // left
@@ -31,18 +31,18 @@ namespace ThornBots {
             cartesianToCylindrical(X_prime, Y_prime, Z_prime, r_prime, theta_prime, Z_double_prime);
 
             // Check if the target is above the height rejection offset
-            if (Z_double_prime > H) {
-                command.action = -1;
-                return command;
-            }
+            // if (Z_double_prime > H) {
+            //     command.action = -1;
+            //     return command;
+            // }
 
             // Update with the new panel data
-            panelData.push_back({r_prime, theta_prime});
-            if (panelData.size() > 3) panelData.erase(panelData.begin());
+            // panelData.push_back({r_prime, theta_prime});
+            // if (panelData.size() > 3) panelData.erase(panelData.begin());
 
             // Compute finite differences for velocity and acceleration
             double dr_dt = 0, d2r_dt2 = 0, dp_dt = 0, d2p_dt2 = 0;
-            computeFiniteDifferences(panelData, deltaTime, dr_dt, d2r_dt2, dp_dt, d2p_dt2);
+            //computeFiniteDifferences(panelData, deltaTime, dr_dt, d2r_dt2, dp_dt, d2p_dt2);
 
             // Calculate shot timing
             double deltaT_shot = (-dr_dt - 1) / d2r_dt2 + sqrt(pow(dr_dt / J - 1, 2) - 2 * d2r_dt2 / J * (r_prime / J + l)) / (2 * d2r_dt2 / J);
@@ -52,7 +52,7 @@ namespace ThornBots {
             double theta_triple_prime = theta_prime + dp_dt * deltaT_shot + d2p_dt2 * pow(deltaT_shot, 2) / 2;
 
             // Send this position and velocity to the turret controller
-            command.yaw = fmod(theta_triple_prime + current_yaw, M_2_PI);
+            command.yaw = fmod(theta_triple_prime + current_yaw, M_TWOPI);
             // lets not set yaw prime yet. This should make the controller less aggressive for now
 
             // Check if the yaw angle is within the threshold
