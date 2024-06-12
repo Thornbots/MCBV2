@@ -135,7 +135,7 @@ namespace ThornBots {
                 break;
         }
     }
-    constexpr double yawMin = -0.6, yawMax = 0.6, pitchMin = -0.3, pitchMax = 0.3;
+    constexpr double yawMin = -0.6+PI, yawMax = 0.6+PI, pitchMin = -0.3, pitchMax = 0.3;
     // haha shooty funny
     void Robot::updateWithCV() {
         if (jetsonCommunication->newMessage()) {
