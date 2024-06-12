@@ -15,8 +15,8 @@ namespace ThornBots {
 
         void update(double x, double y, double z, double current_pitch, double current_yaw, double& yawOut, double& pitchOut, int& action) {
             // Add rotated offset vector of panel relative to RGB
-            double X_prime = -x + 0.0175;                                                     // left
-            double Y_prime = -y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
+            double X_prime = x + 0.0175;                                                     // left
+            double Y_prime = y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
             double Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);  // forwards
 
             // Convert to cylindrical coordinates
@@ -30,19 +30,19 @@ namespace ThornBots {
             // }
 
             // Update with the new panel data
-            panelData.push_back({r_prime, theta_prime});
-            if (panelData.size() > 3) panelData.erase(panelData.begin());
+            // panelData.push_back({r_prime, theta_prime});
+            // if (panelData.size() > 3) panelData.erase(panelData.begin());
 
             // Compute finite differences for velocity and acceleration
             double dr_dt = 0, d2r_dt2 = 0, dp_dt = 0, d2p_dt2 = 0;
-            computeFiniteDifferences(panelData, deltaTime, dr_dt, d2r_dt2, dp_dt, d2p_dt2);
+            // computeFiniteDifferences(panelData, deltaTime, dr_dt, d2r_dt2, dp_dt, d2p_dt2);
 
             // Calculate shot timing
             double deltaT_shot = (-dr_dt - 1) / d2r_dt2 + sqrt(pow(dr_dt / J - 1, 2) - 2 * d2r_dt2 / J * (r_prime / J + l)) / (2 * d2r_dt2 / J);
 
             // Compute the target panel position at impact
-            double r_triple_prime = r_prime + dr_dt * deltaT_shot + d2r_dt2 * pow(deltaT_shot, 2) / 2;
-            double theta_triple_prime = theta_prime + dp_dt * deltaT_shot + d2p_dt2 * pow(deltaT_shot, 2) / 2;
+            double r_triple_prime = r_prime;// + dr_dt * deltaT_shot + d2r_dt2 * pow(deltaT_shot, 2) / 2;
+            double theta_triple_prime = theta_prime;// + dp_dt * deltaT_shot + d2p_dt2 * pow(deltaT_shot, 2) / 2;
 
             // Send this position and velocity to the turret controller
             yawOut = fmod(theta_triple_prime + current_yaw, M_TWOPI);
@@ -55,7 +55,7 @@ namespace ThornBots {
             }
 
             // Bullet drop calculations
-            pitchOut = asin((Z_double_prime + g * pow(deltaT_shot, 2) / 2) / (J * deltaT_shot));
+            pitchOut = asin((Z_double_prime));// + g * pow(deltaT_shot, 2) / 2) / (J * deltaT_shot));
             // Send s_prime to pitch controller
         }
 
