@@ -17,35 +17,35 @@ namespace ThornBots {
             // Add rotated offset vector of panel relative to RGB
             double X_prime = -x + 0.0175;                                                     // left
             double Y_prime = -y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
-            double Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);  // forwards
+            double Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);   // forwards
 
             // Convert to cylindrical coordinates
             double r_prime, theta_prime, Z_double_prime;
             cartesianToCylindrical(X_prime, Y_prime, Z_prime, r_prime, theta_prime, Z_double_prime);
 
-            //Check if the target is above the height rejection offset
-            // if (Z_double_prime > H) {
-            //     action = -1;
-            //     return;
-            // }
+            // Check if the target is above the height rejection offset
+            //  if (Z_double_prime > H) {
+            //      action = -1;
+            //      return;
+            //  }
 
             // Update with the new panel data
-            // panelData.push_back({r_prime, theta_prime});
-            // if (panelData.size() > 3) panelData.erase(panelData.begin());
+            panelData.push_back({r_prime, theta_prime});
+            if (panelData.size() > 3) panelData.erase(panelData.begin());
 
             // Compute finite differences for velocity and acceleration
             double dr_dt = 0, d2r_dt2 = 0, dp_dt = 0, d2p_dt2 = 0;
-            // computeFiniteDifferences(panelData, deltaTime, dr_dt, d2r_dt2, dp_dt, d2p_dt2);
+            computeFiniteDifferences(panelData, deltaTime, dr_dt, d2r_dt2, dp_dt, d2p_dt2);
 
             // Calculate shot timing
             double deltaT_shot = (-dr_dt - 1) / d2r_dt2 + sqrt(pow(dr_dt / J - 1, 2) - 2 * d2r_dt2 / J * (r_prime / J + l)) / (2 * d2r_dt2 / J);
 
             // Compute the target panel position at impact
-            double r_triple_prime = r_prime;// + dr_dt * deltaT_shot + d2r_dt2 * pow(deltaT_shot, 2) / 2;
-            double theta_triple_prime = theta_prime;// + dp_dt * deltaT_shot + d2p_dt2 * pow(deltaT_shot, 2) / 2;
+            double r_triple_prime = r_prime + dr_dt * deltaT_shot + d2r_dt2 * pow(deltaT_shot, 2) / 2;
+            double theta_triple_prime = theta_prime + dp_dt * deltaT_shot + d2p_dt2 * pow(deltaT_shot, 2) / 2;
 
             // Send this position and velocity to the turret controller
-            yawOut = theta_triple_prime + current_yaw;
+            yawOut = fmod(theta_triple_prime + current_yaw, 2 * M_PI);
             // lets not set yaw prime yet. This should make the controller less aggressive for now
 
             // Check if the yaw angle is within the threshold
@@ -55,7 +55,7 @@ namespace ThornBots {
             }
 
             // Bullet drop calculations
-            pitchOut = asin((Z_double_prime));// + g * pow(deltaT_shot, 2) / 2) / (J * deltaT_shot));
+            pitchOut = asin((Z_double_prime + g * pow(deltaT_shot, 2) / 2) / (J * deltaT_shot));
             // Send s_prime to pitch controller
         }
 
@@ -78,14 +78,11 @@ namespace ThornBots {
                                       double& d2p_dt2) {
             size_t n = data.size();
             if (n > 2) {
-                dr_dt = (data[n - 2].r - 4 * data[n - 1].r + 3 * data[n].r) / (2 * deltaTime);
-                d2r_dt2 = -(data[n - 2].r + 2 * data[n - 1].r - data[n].r) / (deltaTime * deltaTime);
-                dp_dt = (data[n - 2].theta - 4 * data[n - 1].theta + 3 * data[n].theta) / (2 * deltaTime);
-                d2p_dt2 = -(data[n - 2].theta + 2 * data[n - 1].theta - data[n].theta) / (deltaTime * deltaTime);
-            } else if (n > 1) {
-                dr_dt = (data[n].r - data[n - 1].r) / (deltaTime);
-                dp_dt = (data[n].theta - data[n - 1].theta) / (deltaTime);
-            }
+                dr_dt = (data[n - 3].r - 4 * data[n - 2].r + 3 * data[n - 1].r) / (2 * deltaTime);
+                d2r_dt2 = -(data[n - 3].r + 2 * data[n - 2].r - data[n - 1].r) / (deltaTime * deltaTime);
+                dp_dt = (data[n - 3].theta - 4 * data[n - 2].theta + 3 * data[n - 1].theta) / (2 * deltaTime);
+                d2p_dt2 = -(data[n - 3].theta + 2 * data[n - 2].theta - data[n - 1].theta) / (deltaTime * deltaTime);
+            } 
         }
     };
 }  // namespace ThornBots

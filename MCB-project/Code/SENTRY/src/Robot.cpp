@@ -143,7 +143,7 @@ namespace ThornBots {
             double yawOut = 0;
             double pitchOut = 0;
             int action = 0;
-            autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue() / 2, gimbalSubsystem->getYawEncoderValue(), yawOut,
+            autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue() / 2, yawAngleRelativeWorld, yawOut,
                            pitchOut, action);
 
             if (action != -1){// && msg->confidence > 0.1) {
