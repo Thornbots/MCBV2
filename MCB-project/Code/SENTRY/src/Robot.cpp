@@ -143,11 +143,11 @@ namespace ThornBots {
 
             double yawOut = 0;
             double pitchOut = 0;
-            int action;
+            int action = 0;
             autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue() / 2, gimbalSubsystem->getYawEncoderValue(), yawOut,
                            pitchOut, action);
 
-            if (action != -1 && msg->confidence > 0.1) {
+            if (action != -1){// && msg->confidence > 0.1) {
                 targetYawAngleWorld = yawOut;
                 targetPitchAngleWorld = std::clamp(pitchOut, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove
             }

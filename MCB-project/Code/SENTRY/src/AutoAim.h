@@ -24,10 +24,10 @@ namespace ThornBots {
             cartesianToCylindrical(X_prime, Y_prime, Z_prime, r_prime, theta_prime, Z_double_prime);
 
             //Check if the target is above the height rejection offset
-            if (Z_double_prime > H) {
-                action = -1;
-                return;
-            }
+            // if (Z_double_prime > H) {
+            //     action = -1;
+            //     return;
+            // }
 
             // Update with the new panel data
             panelData.push_back({r_prime, theta_prime});
