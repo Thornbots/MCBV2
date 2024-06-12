@@ -138,9 +138,8 @@ namespace ThornBots {
 
     // haha shooty funny
     void Robot::updateWithCV() {
-        if (cvTimer.execute()) {
+        if (!jetsonCommunication->hasBeenRead) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
-
             double yawOut = 0;
             double pitchOut = 0;
             int action = 0;
