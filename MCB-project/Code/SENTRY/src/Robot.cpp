@@ -8,7 +8,6 @@
 
 #include "Print.hpp"
 
-
 namespace ThornBots {
 
     double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
@@ -79,7 +78,7 @@ namespace ThornBots {
                 updateWithController();
                 break;
             case SPIN:
-                //updateWithSpin();
+                // updateWithSpin();
                 break;
             case SHOOT:
                 // updateWithSpin();
@@ -142,14 +141,18 @@ namespace ThornBots {
         if (cvTimer.execute()) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
 
-            AutoAim::GimbalCommand command = autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue()/2, gimbalSubsystem->getYawEncoderValue());
-            if(command.action != -1 && msg->confidence > 0.1){
-                targetYawAngleWorld = command.yaw;
-                targetPitchAngleWorld = std::clamp(command.pitch, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove
+            double yawOut = 0;
+            double pitchOut = 0;
+            int action;
+            autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue() / 2, gimbalSubsystem->getYawEncoderValue(), yawOut,
+                           pitchOut, action);
 
+            if (action != -1 && msg->confidence > 0.1) {
+                targetYawAngleWorld = yawOut;
+                targetPitchAngleWorld = std::clamp(pitchOut, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove
             }
             if (leftSwitchState == Remote::SwitchState::UP) {
-                if (command.action == 1) {
+                if (action == 1) {
                     shooterSubsystem->shoot(20);
                 } else {
                     shooterSubsystem->idle();
@@ -160,8 +163,6 @@ namespace ThornBots {
         }
         gimbalSubsystem->turretMove(targetYawAngleWorld, targetPitchAngleWorld, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
         drivetrainSubsystem->moveDriveTrain(0, 0, 0);
-
-
     }
     // literally just spin
     void Robot::updateWithSpin() { drivetrainSubsystem->moveDriveTrain(SLOW_BEYBLADE_FACTOR * MAX_SPEED, 0, 0); }
