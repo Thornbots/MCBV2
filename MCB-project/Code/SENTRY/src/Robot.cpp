@@ -135,7 +135,7 @@ namespace ThornBots {
                 break;
         }
     }
-
+    constexpr double yawMin = -0.6, yawMax = 0.6, pitchMin = -0.3, pitchMax = 0.3;
     // haha shooty funny
     void Robot::updateWithCV() {
         if (jetsonCommunication->newMessage()) {
@@ -147,8 +147,8 @@ namespace ThornBots {
                            pitchOut, action);
 
             if (action != -1){// && msg->confidence > 0.1) {
-                targetYawAngleWorld = std::clamp(yawOut, static_cast<double>(-0.6), static_cast<double>(0.6));
-                targetPitchAngleWorld = std::clamp(pitchOut, static_cast<double>(-0.3), static_cast<double>(0.3));  // TODO: remove
+                targetYawAngleWorld = std::clamp(yawOut, yawMin, yawMax);
+                targetPitchAngleWorld = std::clamp(pitchOut, pitchMin, pitchMax);  // TODO: remove
             }
             if (leftSwitchState == Remote::SwitchState::UP) {
                 if (action == 1) {
