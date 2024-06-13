@@ -3,11 +3,13 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
+#include "tap/motor/servo.hpp"
 
 #include "drivers_singleton.hpp"
 
 namespace ThornBots {
     static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
+    static tap::arch::PeriodicMilliTimer servoTimer(10);
     class ShooterSubsystem {
     public:  // Public Variables
         // constexpr static double PI = 3.14159;
@@ -15,6 +17,8 @@ namespace ThornBots {
         constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
         constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0};
         constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = {5, 0, 0, 0, 8000, 1, 0, 1, 0, 10, 0};
+
+        constexpr static double SERVO_MIN = 0, SERVO_MAX = 1;  // change these for servo mechanical limits if needed
 
     private:  // Private Variables
         tap::Drivers* drivers;
@@ -25,11 +29,14 @@ namespace ThornBots {
             tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0);
         tap::motor::DjiMotor motor_Flywheel2 =
             tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
+
         tap::algorithms::SmoothPid flywheelPIDController1 = tap::algorithms::SmoothPid(pid_conf_flywheel);
         tap::algorithms::SmoothPid flywheelPIDController2 = tap::algorithms::SmoothPid(pid_conf_flywheel);
         tap::algorithms::SmoothPid indexPIDController = tap::algorithms::SmoothPid(pid_conf_index);
 
-        double flyWheelVoltage, indexerVoltage = 0.0;
+        tap::motor::Servo hopperServo = tap::motor::Servo(src::DoNotUse_getDrivers(), tap::gpio::Pwm::C7, 0, 1, 1);
+
+        double flyWheelVoltage, indexerVoltage = 0.0, servoPosition = 0;
 
         bool shootingSafety = false;
         bool robotDisabled = false;
@@ -65,15 +72,21 @@ namespace ThornBots {
 
         void setIndexer(double val);
 
+        void setServo(double val);
+        inline void openServo() { setServo(SERVO_MAX); }
+        inline void closeServo() { setServo(SERVO_MIN); }
+
         void shoot(double maxFrequency);
         inline void idle() { setIndexer(0); }
         inline void unjam() {
             disableShooting();
+            openServo(); 
             setIndexer(-0.1);
         }
 
     private:  // Private Methods
         int getFlywheelVoltage();
         int getIndexerVoltage();
+        int getServoPosition();
     };
 }  // namespace ThornBots

@@ -27,6 +27,7 @@ namespace ThornBots {
         gimbalSubsystem->initialize();
         shooterSubsystem->initialize();
         drivers->refSerial.initialize();
+        drivers->pwm.init();  // For the servo we will be using
 
         modm::delay_ms(2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
         // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's
@@ -38,7 +39,7 @@ namespace ThornBots {
     void Robot::update() {
         drivers->canRxHandler.pollCanData();
         drivers->refSerial.updateSerial();
-
+        
         updateAllInputVariables();
         toggleKeyboardAndMouse();
 

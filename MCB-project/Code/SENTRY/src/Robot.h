@@ -19,7 +19,7 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer updateInputTimer(2);
     static tap::arch::PeriodicMilliTimer cvTimer(33);
 
-    enum Program { MANUAL, SPIN, SHOOT };
+    enum Program { MANUAL, MATCH, CV_TEST };
 
     class Robot {
     public:                                         // Public Variables
@@ -105,7 +105,7 @@ namespace ThornBots {
 
         inline double getMagnitude(double x, double y) { return sqrt(pow(x, 2) + pow(y, 2)); }
 
-        void updateWithCV();
+        void updateWithCV(bool patrol, bool shoot);
         void updateWithSpin();
         void updateWithController();
 
