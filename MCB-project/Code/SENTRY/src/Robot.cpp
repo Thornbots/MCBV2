@@ -83,23 +83,26 @@ namespace ThornBots {
         // check if match has started, if we arent recieving ref, there are still overrides
         matchHasStarted = drivers->refSerial.getGameData().gameStage == RefSerial::Rx::GameStage::IN_GAME;
 
-        //
+        /*
         switch (currentProgram) {
             case MANUAL:
                 updateWithController();
                 break;
             case MATCH:
                 if (matchHasStarted || leftSwitchState != Remote::SwitchState::DOWN)
-                    updateWithSpin(false);  // spin if match has started or the left switch is not down
-                // updateWithCV(
-                //     true, matchHasStarted &&
-                //               leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
+                    updateWithSpin(true);  // spin if match has started or the left switch is not down
+                    updateWithCV(
+                        true, matchHasStarted &&
+                                leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
                 break;
             case CV_TEST:
                 // updateWithCV(false, leftSwitchState == Remote::SwitchState::UP);
                 if(leftSwitchState == Remote::SwitchState::UP) updateWithSpin(true);
                 break;
         }
+        */
+
+        updateWithCV(true, true);
 
         if (motorsTimer.execute()) {
             drivetrainSubsystem->setMotorSpeeds();

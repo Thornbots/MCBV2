@@ -51,15 +51,16 @@ namespace ThornBots {
         run this to read from the uart queue buffer to get the coordinates of the panal
         */
         void messageReceiveCallback(const ReceivedSerialMessage &completeMessage) {
-            // cord_msg *m = (cord_msg *)completeMessage.data;
-            // memcpy((void*)&message, (void*)m, sizeof(cord_msg));
-            message = *(cord_msg*)completeMessage.data;
+            cord_msg *m = (cord_msg *)completeMessage.data;
+            memcpy((void*)&message, (void*)m, sizeof(cord_msg));
+            // message = *(cord_msg*)completeMessage.data;
             hasBeenRead = false;
             drivers->leds.set(tap::gpio::Leds::Blue, true);
             led_state = !led_state;
         };
 
-        cord_msg *getMsg() {
+        //TODO: try with value copy?
+        cord_msg *getMsg() { 
             if (hasBeenRead) return &empty_msg;
             drivers->leds.set(tap::gpio::Leds::Blue, false);
             hasBeenRead = true;
@@ -86,7 +87,7 @@ namespace ThornBots {
         }
 
     private:
-        cord_msg message == {0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0};
+        cord_msg message = {0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0};
         cord_msg empty_msg = {0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0};
     };
 
