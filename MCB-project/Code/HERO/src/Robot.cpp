@@ -133,7 +133,7 @@ namespace ThornBots {
 
                             break;
                         case (Remote::SwitchState::DOWN):
-                            yawEncoderCache = -PI / 6;
+                            yawEncoderCache = 5 * PI / 6;
                             // no break intentional so if in this case it also runs what is below
                         case (Remote::SwitchState::UP):
                             // Left switch is down, and right is up. So driveTrainFollows Turret
@@ -169,13 +169,13 @@ namespace ThornBots {
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, (leftStickMagnitude * MAX_SPEED), driveTrainEncoder + leftStickAngle);
             gimbalSubsystem->turretMove(targetYawAngleWorld,
                                         -0.1 * PI * right_stick_vert,  // was - 0.5 * PI
-                                        driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+                                        driveTrainRPM, yawAngleRelativeWorld, yawRPM, temp/dt, dt);
         }
     }
 
     void Robot::updateWithMouseKeyboard() {
         if (updateInputTimer.execute()) {
-            if (drivers->remote.keyPressed(Remote::Key::V)) {
+            if (keyJustPressed(Remote::Key::V)) {
                 // If you continue to hold V after you have used all your heat limit,
                 // and it eventually cools to allow another shot, it will shoot again.
                 // Use V to kill a base, not just hit-and-run tactics.
@@ -191,7 +191,7 @@ namespace ThornBots {
                 // Tries to unjam by running the motor backwards slowly while you are holding Z.
                 // No automatic turning off.
                 shooterSubsystem->unjam();
-            } else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID) {
+            } else if (!drivers->remote.keyPressed(Remote::Key::V)){//shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID) {
                 // If V isn't currently pressed and nothing else is happening, interrupt the burst fire.
                 shooterSubsystem->idle();
             }
@@ -261,7 +261,7 @@ namespace ThornBots {
             targetYawAngleWorld -= mouseX / 10000.0;
 
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
-            gimbalSubsystem->turretMove(targetYawAngleWorld, (accumulatedMouseY), driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+            gimbalSubsystem->turretMove(targetYawAngleWorld, (accumulatedMouseY), driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / 10000.0 / dt, dt);
         }
     }
 }  // namespace ThornBots

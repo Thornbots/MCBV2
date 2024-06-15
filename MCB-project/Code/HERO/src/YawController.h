@@ -15,7 +15,7 @@ namespace ThornBots {
     public:
         YawController();
         ~YawController();
-        double calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double deltaT);
+        double calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition, double inputVelocity, double deltaT);
 
     private:
         // START getters and setters
@@ -24,9 +24,9 @@ namespace ThornBots {
         double pastOutput = 0;
 
         // Physical constants
-        const double C = 0.0169;                          // kg-s/m^2
-        const double J = 0.031;                           // 289;               // kg-m^2
-        const double UK = 0.07;                           // N-m
+        const double C = 0.02;                          // kg-s/m^2
+        const double J = 0.045;                           // 289;               // kg-m^2
+        const double UK = 0.043;                           // N-m
         const double KB = 0.716;                          // V-rad/s
         const double KT = 0.741;                          // N-m/A
         const double RA = 8.705;                          // ohm
@@ -34,7 +34,7 @@ namespace ThornBots {
         const double VOLT_MAX = 22.2;                     // V
         const double VELO_MAX = VOLT_MAX / (KB * RATIO);  // rad/s
         // Position controller constants
-        const double KP = 11.3;  // sec^-1
+        const double KP = 9.0;  // sec^-1
 
         // Feedforward constants
         const double A_SCALE = 0.9;                       // 0.8            // unitless
@@ -48,8 +48,8 @@ namespace ThornBots {
         const double KDT_REV = -0.7;  // unitless
 
         // Velocity feedback
-        const double KPV = 1;                       // A-s/rad
-        const double KIV = 1.5;                     // A/rad
+        const double KPV = 3;                       // A-s/rad
+        const double KIV = 15;                     // A/rad
         const double IV_MAX = 0.1;                  // units TBD
         const double INT_THRESH = VOLT_MAX * 0.85;  // V
         const double TAKEBACK = 0.01;               // unitless

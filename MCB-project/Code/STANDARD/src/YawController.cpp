@@ -25,6 +25,7 @@ namespace ThornBots {
         }
 
         double choiceKDT = currentDrivetrainVelocity * positionError > 0 ? KDT : KDT_REV;  // check if turret is fighting drivetrain;
+        inputVelocity = std::clamp(inputVelocity, -VELO_MAX/2, VELO_MAX/2);
         double targetVelocity = (KP + signum(currentDrivetrainVelocity) * choiceKDT) * positionError + inputVelocity;
 
         // model based motion profile

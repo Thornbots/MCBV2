@@ -96,7 +96,7 @@ namespace ThornBots {
             case UNJAM:
                 disableShooting();
                 isRapidStart = true;
-                setAllIndex(0, -0.1, -0.1);
+                setAllIndex(-0.4, -0.4, -0.4);
                 //set state to idle for next time. If unjam is held this will do nothing
                 idle();
                 break;
@@ -106,7 +106,9 @@ namespace ThornBots {
 
                 if (isRapidStart) {
                     numberOfShots = heatRemaining / 100;
-                    numberOfShots = std::floor((numberOfShots / BURST_FIRE_RATE * coolingRate + heatRemaining) / 100);
+                    
+                    numberOfShots = std::floor((numberOfShots / BURST_FIRE_RATE * coolingRate + heatRemaining - LATENCY*coolingRate) / 100);
+                    
                     numberOfShots = std::min(numberOfShots, (int)turretData.bulletsRemaining42);
                     startIndexerPosition = motor_Indexer.getEncoderUnwrapped();
                     isRapidStart = false;
@@ -122,20 +124,20 @@ namespace ThornBots {
                     }
                 }
 
-                setAllIndex(1, 1, 0.12);
+                setAllIndex(1, 0.8, 0.12);
                 break;
             case SINGLE:
                 enableShooting();
 
                 isRapidStart = true;
-                if (drivers->refSerial.getRefSerialReceivingData() && (turretData.bulletsRemaining42 < 1 || heatRemaining < 100)) {
+                if (drivers->refSerial.getRefSerialReceivingData() && (heatRemaining < 100)) {
                     // if we don't have ammo to shoot, don't shoot. also make sure we are actually connected to the ref system
                     // this serves as a failsafe
                     idle();
                     // no break intentional, want it to do idle
                 } else {
                     if (readSwitch()) {
-                        setAllIndex(0.3, 0, 0);
+                        setAllIndex(0.5, 0, 0);
                         idle();
 
                     } else {

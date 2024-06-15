@@ -56,7 +56,10 @@ namespace ThornBots {
         double I4t = std::clamp(static_cast<double>(pidController.getOutput()) / 819.2, -abs(VOLT_MAX - KB * w4) / RA, abs(VOLT_MAX - KB * w4) / RA);
 
         // Calculate total power requested
-        double totalPowerRequested = 0.8 * RA * (I1t * I1t + I2t * I2t + I3t * I3t + I4t * I4t) + VELO_LOSS * (abs(w1) + abs(w2) + abs(w3) + abs(w4));
+         double totalPowerRequested = 0.7 * RA * (I1t * I1t + I2t * I2t + I3t * I3t + I4t * I4t) + VELO_LOSS * (abs(w1) + abs(w2) + abs(w3) +
+         abs(w4));
+        //double totalPowerRequested =
+          //  RA * (I1t * I1t + I2t * I2t + I3t * I3t + I4t * I4t) + KT * (abs(w1 * I1t) + abs(w2 * I2t) + abs(w3 * I3t) + abs(w4 * I4t));
 
         // Scale currents if power limit is exceeded
         double scale = std::max((double)1.0, (totalPowerRequested + IDLE_DRAW) / powerLimit);
