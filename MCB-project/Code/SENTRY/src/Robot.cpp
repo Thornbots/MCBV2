@@ -60,6 +60,15 @@ namespace ThornBots {
         led_timmer--;
         // =======================
 
+        if (send_timer==0){ //FIXME:
+            JetsonCommunication::encoder_msg msg;
+            msg.data_len = 9;
+            msg.current_pitch = gimbalSubsystem->getPitchEncoderValue() / 2;
+            jetsonCommunication->send(&msg);
+            send_timer = 1000;
+        }
+        send_timer--;
+
         jetsonCommunication->updateSerial();
 
         updateAllInputVariables();
@@ -140,12 +149,13 @@ namespace ThornBots {
     constexpr double yawMin = -0.6 + PI, yawMax = 0.6 + PI, pitchMin = -0.3, pitchMax = 0.3;
     // haha shooty funny
     void Robot::updateWithCV(bool patrol, bool shoot) {
+
         if (jetsonCommunication->newMessage()) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
             double yawOut = 0;
             double pitchOut = 0;
             int action = -1;
-            autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue() / 2, yawAngleRelativeWorld, yawOut, pitchOut, action);
+            autoAim.update(msg, gimbalSubsystem->getPitchEncoderValue() / 2, yawAngleRelativeWorld, yawOut, pitchOut, action);
 
             if (action != -1) {  // && msg->confidence > 0.1) {
                 if (!isnan(yawOut)) targetYawAngleWorld = std::clamp(yawOut, yawMin, yawMax);
