@@ -76,7 +76,7 @@ namespace ThornBots {
         }
 
         void shoot(double maxFrequency);
-        inline void idle() { shoot(0); }
+        inline void idle() { setIndexers(0); }
         inline void unjam() {
             disableShooting();
             setIndexers(-0.1);

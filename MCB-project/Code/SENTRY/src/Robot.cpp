@@ -76,15 +76,19 @@ namespace ThornBots {
 
         //
         switch (currentProgram) {
-            case MANUAL: 
+            case MANUAL:
                 updateWithController();
                 break;
             case MATCH:
-                if (matchHasStarted || leftSwitchState != Remote::SwitchState::DOWN) updateWithSpin(); //spin if match has started or the left switch is not down
-                updateWithCV(true, matchHasStarted && leftSwitchState == Remote::SwitchState::UP); //patrol and shoot if match has started and switch is in right position 
+                if (matchHasStarted || leftSwitchState != Remote::SwitchState::DOWN)
+                    updateWithSpin(false);  // spin if match has started or the left switch is not down
+                // updateWithCV(
+                //     true, matchHasStarted &&
+                //               leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
                 break;
             case CV_TEST:
-                updateWithCV(false, leftSwitchState == Remote::SwitchState::UP);
+                // updateWithCV(false, leftSwitchState == Remote::SwitchState::UP);
+                if(leftSwitchState == Remote::SwitchState::UP) updateWithSpin(true);
                 break;
         }
 
@@ -167,7 +171,12 @@ namespace ThornBots {
         drivetrainSubsystem->moveDriveTrain(0, 0, 0);
     }
     // literally just spin
-    void Robot::updateWithSpin() { drivetrainSubsystem->moveDriveTrain(SLOW_BEYBLADE_FACTOR * MAX_SPEED, 0, 0); }
+    void Robot::updateWithSpin(bool useTurret) {
+        double speedUsed = matchHasStarted ? FAST_BEYBLADE_FACTOR : SLOW_BEYBLADE_FACTOR;
+
+        drivetrainSubsystem->moveDriveTrain(speedUsed * MAX_SPEED, 0, 0);
+        if(useTurret) gimbalSubsystem->turretMove(targetYawAngleWorld, 0, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
+    }
 
     void Robot::updateWithController() {
         if (updateInputTimer.execute()) {

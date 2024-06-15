@@ -106,7 +106,7 @@ namespace ThornBots {
         inline double getMagnitude(double x, double y) { return sqrt(pow(x, 2) + pow(y, 2)); }
 
         void updateWithCV(bool patrol, bool shoot);
-        void updateWithSpin();
+        void updateWithSpin(bool useTurret);
         void updateWithController();
 
         // void updateWithMouseKeyboard();
