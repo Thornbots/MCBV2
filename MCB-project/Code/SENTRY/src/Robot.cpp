@@ -60,6 +60,15 @@ namespace ThornBots {
         led_timmer--;
         // =======================
 
+        if (send_timer==0){ //FIXME:
+            JetsonCommunication::encoder_msg msg;
+            msg.data_len = 9;
+            msg.current_pitch = gimbalSubsystem->getPitchEncoderValue() / 2;
+            jetsonCommunication->send(&msg);
+            send_timer = 1000;
+        }
+        send_timer--;
+
         jetsonCommunication->updateSerial();
 
         updateAllInputVariables();
@@ -74,23 +83,26 @@ namespace ThornBots {
         // check if match has started, if we arent recieving ref, there are still overrides
         matchHasStarted = drivers->refSerial.getGameData().gameStage == RefSerial::Rx::GameStage::IN_GAME;
 
-        //
+        /*
         switch (currentProgram) {
             case MANUAL:
                 updateWithController();
                 break;
             case MATCH:
                 if (matchHasStarted || leftSwitchState != Remote::SwitchState::DOWN)
-                    updateWithSpin(false);  // spin if match has started or the left switch is not down
-                // updateWithCV(
-                //     true, matchHasStarted &&
-                //               leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
+                    updateWithSpin(true);  // spin if match has started or the left switch is not down
+                    updateWithCV(
+                        true, matchHasStarted &&
+                                leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
                 break;
             case CV_TEST:
                 // updateWithCV(false, leftSwitchState == Remote::SwitchState::UP);
                 if(leftSwitchState == Remote::SwitchState::UP) updateWithSpin(true);
                 break;
         }
+        */
+
+        updateWithCV(true, true);
 
         if (motorsTimer.execute()) {
             drivetrainSubsystem->setMotorSpeeds();
@@ -144,12 +156,13 @@ namespace ThornBots {
     constexpr double yawMin = -0.6 + PI, yawMax = 0.6 + PI, pitchMin = -0.3, pitchMax = 0.3;
     // haha shooty funny
     void Robot::updateWithCV(bool patrol, bool shoot) {
+
         if (jetsonCommunication->newMessage()) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
             double yawOut = 0;
             double pitchOut = 0;
             int action = -1;
-            autoAim.update(msg->x, msg->y, msg->z, gimbalSubsystem->getPitchEncoderValue() / 2, yawAngleRelativeWorld, yawOut, pitchOut, action);
+            autoAim.update(msg, gimbalSubsystem->getPitchEncoderValue() / 2, yawAngleRelativeWorld, yawOut, pitchOut, action);
 
             if (action != -1) {  // && msg->confidence > 0.1) {
                 if (!isnan(yawOut)) targetYawAngleWorld = std::clamp(yawOut, yawMin, yawMax);

@@ -1,8 +1,14 @@
 #pragma once
 
+#ifndef AUTOAIM_H_
+#define AUTOAIM_H_
+
 #include <cmath>
 #include <vector>
 #include "tap/algorithms/ballistics.hpp"
+#include "JetsonCommunication.h"
+#include "modm/math/geometry/vector.hpp"
+
 
 namespace ThornBots {
     using namespace tap::algorithms::ballistics;
@@ -15,23 +21,39 @@ namespace ThornBots {
             double theta;
         };
 
-        void update(float x, float y, float z, float current_pitch, float current_yaw, double& yawOut, double& pitchOut, int& action) {
+        void update(JetsonCommunication::cord_msg* msg, float current_pitch, float current_yaw, double& yawOut, double& pitchOut, int& action) {
             // Add rotated offset vector of panel relative to RGB
-            if (z == 0) return;
+            if (msg->z == 0.0f) return;
+            // if (msg->z == 0) return;  FIXME:<---- this breaks?
         
-            float X_prime = -x + 0.0175;                                                     // left
-            float Y_prime = -y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
-            float Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);   // forwards
+            // float X_prime = -x + 0.0175;                                                     // left
+            // float Y_prime = -y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
+            // float Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);   // forwards
 
-            if(Y_prime > H){
-                action = -1;
-                return;
-            }
 
-            MeasuredKinematicState state = MeasuredKinematicState({X_prime, Y_prime, Z_prime}); //TODO find vel and accel
+            //TODO: just store vec3s in JetosnComms msg struct
+            // modm::Vector3f pos(msg->x,msg->y,msg->z);
+            // modm::Vector3f vel(msg->v_x,msg->v_y,msg->v_z);
+            // modm::Vector3f acc(msg->a_x,msg->a_y,msg->a_z);
+
+
+            // MeasuredKinematicState state;//(pos,vel,acc); 
+            // state.position = modm::Vector3f(0,0,0);
+            // state.velocity = modm::Vector3f(0,0,0);
+            // state.acceleration = modm::Vector3f(0,0,0);
+
+            MeasuredKinematicState state;//(pos,vel,acc); 
+            state.position = modm::Vector3f(msg->x,msg->y,msg->z);
+            state.velocity = modm::Vector3f(msg->v_x,msg->v_y,msg->v_z);
+            state.acceleration = modm::Vector3f(msg->a_x,msg->a_y,msg->a_z);
 
             float targetYaw, targetPitch, travelTime;
-            tap::algorithms::ballistics::findTargetProjectileIntersection(state, J, 3, &targetPitch, &targetYaw, &travelTime, 0);
+            bool valid = tap::algorithms::ballistics::findTargetProjectileIntersection(state, J, 3, &targetPitch, &targetYaw, &travelTime, 0);
+
+            if(!valid){
+                action = -1;// make enums for action
+                return;
+            }
 
             yawOut = fmod(current_yaw + targetYaw, 2 * PI);
             pitchOut = targetPitch;
@@ -39,7 +61,11 @@ namespace ThornBots {
             if (abs(targetYaw) < 5 * M_PI / 180) {
                 // Enable shooting
                 action = 1;
+                return;
             }
+            action = 0;
+
+            //TODO:================================================================================ 
 
             // // Convert to cylindrical coordinates
             // double r_prime, theta_prime, Z_double_prime;
@@ -108,3 +134,4 @@ namespace ThornBots {
         }
     };
 }  // namespace ThornBots
+#endif  // DRIVERS_SINGLETON_HPP_

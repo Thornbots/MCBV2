@@ -28,48 +28,54 @@ namespace ThornBots {
             float x=0; // meters
             float y=0; // meters
             float z=0; // meters
+            float v_x=0; // m/s
+            float v_y=0; // m/s
+            float v_z=0; // m/s
+            float a_x=0; // m/s^2
+            float a_y=0; // m/s^2
+            float a_z=0; // m/s^2
             float confidence=0; // 0.0 to 1.0
-        };
+        }; //TODO: use modm_packed?
 
         //TODO: make better scheme
-        struct for_jetson_msg{
+        struct encoder_msg{
             uint8_t header = 0xA5;
             uint16_t data_len = 0; //little endian
             // uint8_t data_type = 0;
-            float motor1;
-            float motor2;
-            float motor3;
-            float motor4;
+            double current_pitch;
             uint8_t newline = 0x0A; // newline '\n'
-        };
+        } modm_packed;
 
 
         /*
         run this to read from the uart queue buffer to get the coordinates of the panal
         */
         void messageReceiveCallback(const ReceivedSerialMessage &completeMessage) {
-            message = (cord_msg *)completeMessage.data;
+            cord_msg *m = (cord_msg *)completeMessage.data;
+            memcpy((void*)&message, (void*)m, sizeof(cord_msg));
+            // message = *(cord_msg*)completeMessage.data;
             hasBeenRead = false;
             drivers->leds.set(tap::gpio::Leds::Blue, true);
             led_state = !led_state;
         };
 
-        cord_msg *getMsg() {
+        //TODO: try with value copy?
+        cord_msg *getMsg() { 
             if (hasBeenRead) return &empty_msg;
             drivers->leds.set(tap::gpio::Leds::Blue, false);
             hasBeenRead = true;
-            return message;
+            return &message;
         };
         bool newMessage(){
             return !hasBeenRead;
         }
 
-        void sendToJetson(struct for_jetson_msg* msg){
+        void send(struct encoder_msg* msg){
             tap::communication::serial::Uart::UartPort port = tap::communication::serial::Uart::Uart1;
             
             uint8_t *msg_to_send = reinterpret_cast<uint8_t*>(msg);
             // drivers->uart.write(port, 0xA5);
-            drivers->uart.write(port, msg_to_send, sizeof(for_jetson_msg));
+            drivers->uart.write(port, msg_to_send, sizeof(encoder_msg));
             // drivers->uart.write(port, '\n');
             // drivers->uart.write(port, '\0');
 
@@ -81,8 +87,8 @@ namespace ThornBots {
         }
 
     private:
-        cord_msg *message;
-        cord_msg empty_msg = {0.0, 0.0, 0.0, 0.0};
+        cord_msg message = {0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0};
+        cord_msg empty_msg = {0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0};
     };
 
 }  // namespace ThornBots
