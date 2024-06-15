@@ -48,7 +48,7 @@ namespace ThornBots {
             enableRobot();
         else
             disableRobot();
-            
+
         if (robotDisabled) return;
 
         if (useKeyboardMouse) {
@@ -152,10 +152,10 @@ namespace ThornBots {
                     break;
             }
 
-            //no rapid with controller for ease of testing
-            // if (wheelValue < -0.5)
-            //     shooterSubsystem->rapid();
-            //else 
+            // no rapid with controller for ease of testing
+            //  if (wheelValue < -0.5)
+            //      shooterSubsystem->rapid();
+            // else
             if (wheelValue < -0.2)
                 shooterSubsystem->single();
             else if (wheelValue > 0.2)
@@ -176,13 +176,23 @@ namespace ThornBots {
     void Robot::updateWithMouseKeyboard() {
         if (updateInputTimer.execute()) {
             if (drivers->remote.keyPressed(Remote::Key::V)) {
+                // If you continue to hold V after you have used all your heat limit,
+                // and it eventually cools to allow another shot, it will shoot again.
+                // Use V to kill a base, not just hit-and-run tactics.
                 shooterSubsystem->rapid();
             } else if (drivers->remote.getMouseL() && mouseLHasBeenReleased) {
+                // If you continue to hold MouseL after a shot has been fired, 
+                // nothing will happen.
+                // Does not count clicks, clicking 3 times doesn't guarantee 3 shots.
+                // Use MouseL to shoot once.
                 mouseLHasBeenReleased = false;
                 shooterSubsystem->single();
             } else if (drivers->remote.keyPressed(Remote::Key::Z)) {
+                // Tries to unjam by running the motor backwards slowly while you are holding Z.
+                // No automatic turning off.
                 shooterSubsystem->unjam();
             } else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID) {
+                // If V isn't currently pressed and nothing else is happening, interrupt the burst fire.
                 shooterSubsystem->idle();
             }
 
