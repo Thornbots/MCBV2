@@ -90,8 +90,6 @@ namespace ThornBots {
     //statics got moved to be private member variables in the header file as this is more consistent and better practice imho
     void ShooterSubsystem::index() {
         tap::communication::serial::RefSerialData::Rx::TurretData turretData = drivers->refSerial.getRobotData().turret;
-        double latency = 0;        // TODO: change this later
-        double burstFireRate = 5;  // 5 hertz always
         int coolingRate = turretData.coolingRate, heatRemaining = turretData.heatLimit - turretData.heat42;
 
         switch (cmd) {
@@ -108,7 +106,7 @@ namespace ThornBots {
 
                 if (isRapidStart) {
                     numberOfShots = heatRemaining / 100;
-                    numberOfShots = std::floor((numberOfShots / burstFireRate * coolingRate + heatRemaining) / 100);
+                    numberOfShots = std::floor((numberOfShots / BURST_FIRE_RATE * coolingRate + heatRemaining) / 100);
                     numberOfShots = std::min(numberOfShots, (int)turretData.bulletsRemaining42);
                     startIndexerPosition = motor_Indexer.getEncoderUnwrapped();
                     isRapidStart = false;
