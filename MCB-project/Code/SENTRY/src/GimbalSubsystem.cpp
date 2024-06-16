@@ -2,6 +2,9 @@
 double yaw_Motor_Voltage = 0;
 double yaw_Motor_Desired_Angle = 0;
 
+double characterizationCurrentMA;
+double characterizationVelocityRadS;
+
 namespace ThornBots {
     GimbalSubsystem::GimbalSubsystem(tap::Drivers* driver) {
         this->drivers = driver;
@@ -16,10 +19,12 @@ namespace ThornBots {
     }
 
     void GimbalSubsystem::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld,
-                                     double yawRPM, double dt) {
+                                     double yawRadS, double dt) {
         if (turretControllerTimer.execute()) {
-            pitchMotorVoltage = getPitchVoltage(desiredPitchAngle, dt);
-            yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, dt);
+            // pitchMotorVoltage = getPitchVoltage(desiredPitchAngle, dt);
+            // yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRadS, desiredYawAngle, dt);
+            characterizationVelocityRadS = yawRadS;
+            characterize();
         }
         // TODO: Add flywheels, indexer, and servo
     }
@@ -52,6 +57,12 @@ namespace ThornBots {
     int GimbalSubsystem::getPitchVoltage(double targetAngle, double dt) {
         if (robotDisabled) return 0;
         return 1000 * pitchController.calculate(getPitchEncoderValue() / 2, getPitchVel() / 2, targetAngle, dt);
+    }
+    void GimbalSubsystem::characterize() {
+        characterizationCurrentMA = dist(gen);
+
+        pitchMotorVoltage = 0;
+        yawMotorVoltage = characterizationCurrentMA;  // set this value to a random number between -20000 and 20000
     }
 
 }  // namespace ThornBots
