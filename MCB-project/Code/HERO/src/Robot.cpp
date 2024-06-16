@@ -191,8 +191,9 @@ namespace ThornBots {
                 // Tries to unjam by running the motor backwards slowly while you are holding Z.
                 // No automatic turning off.
                 shooterSubsystem->unjam();
-            } else if (!drivers->remote.keyPressed(Remote::Key::V)){//shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID) {
-                // If V isn't currently pressed and nothing else is happening, interrupt the burst fire.
+            } 
+            if (shooterSubsystem->getCommand()==ShooterSubsystem::IndexCommand::RAPID && !drivers->remote.keyPressed(Remote::Key::V)){
+                // If V isn't currently pressed, interrupt the burst fire.
                 shooterSubsystem->idle();
             }
 
