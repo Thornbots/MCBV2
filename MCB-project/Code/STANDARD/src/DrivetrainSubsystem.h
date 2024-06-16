@@ -43,6 +43,8 @@ namespace ThornBots {
         const double IDLE_DRAW = 3;      // watts, measured
         const double DEFAULT_LIMIT = 100;
 
+        const double KT = 0.35;
+
     public:  // Public Methods
         DrivetrainSubsystem(tap::Drivers* driver);
         ~DrivetrainSubsystem() {}  // Intentionally blank

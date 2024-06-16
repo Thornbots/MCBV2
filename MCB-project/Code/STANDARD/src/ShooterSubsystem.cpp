@@ -9,7 +9,7 @@ namespace ThornBots {
         motor_Indexer.initialize();
         motor_Flywheel1.initialize();
         motor_Flywheel2.initialize();
-
+        drivers->pwm.setTimerFrequency(tap::gpio::Pwm::Timer::TIMER1, 333);  // Timer 1 for C1 Pin
 
         // Nothing needs to be done to drivers
         // Nothing needs to be done to the controllers
@@ -19,6 +19,7 @@ namespace ThornBots {
             indexerVoltage = getIndexerVoltage();
             flyWheelVoltage = getFlywheelVoltage();
         }
+
     }
 
     void ShooterSubsystem::setMotorSpeeds() {
@@ -31,8 +32,8 @@ namespace ThornBots {
 
         flywheelPIDController2.runControllerDerivateError(flyWheelVoltage - motor_Flywheel2.getShaftRPM(), 1);
         motor_Flywheel2.setDesiredOutput(static_cast<int32_t>(flywheelPIDController2.getOutput()));
-
-        if (servoTimer.execute()) hopperServo.setTargetPwm(servoPosition);
+        
+        if(servoTimer.execute()) hopperServo.updateSendPwmRamp();
     }
 
     void ShooterSubsystem::stopMotors() {
@@ -45,7 +46,7 @@ namespace ThornBots {
         // flywheelPIDController2.runControllerDerivateError(0 - motor_Flywheel2.getShaftRPM(), 1);
         motor_Flywheel2.setDesiredOutput(0);  // static_cast<int32_t>(flywheelPIDController2.getOutput()));
 
-        openServo(); //open when robot is disabled so it is out of the way
+        //openServo();  // open when robot is disabled so it is out of the way
         drivers->djiMotorTxHandler.encodeAndSendCanData();
         // TODO: Add the other motors
     }
@@ -68,7 +69,7 @@ namespace ThornBots {
 
     void ShooterSubsystem::shoot(double maxFrequency) {
         enableShooting();
-        closeServo(); //when shooting resumes close servo to prevent balls from leaving
+        closeServo();  // when shooting resumes close servo to prevent balls from leaving
         tap::communication::serial::RefSerial::Rx::TurretData turretData = drivers->refSerial.getRobotData().turret;
 
         double latency = 0.4, remaining = turretData.heatLimit - turretData.heat17ID1;
@@ -81,5 +82,5 @@ namespace ThornBots {
         setIndexer(maxFrequency / 20.0);
     }
 
-    void ShooterSubsystem::setServo(double val) { servoPosition = std::clamp(val, SERVO_MIN, SERVO_MAX); }
+    void ShooterSubsystem::setServo(float val) { if(secondTimer.execute()) hopperServo.setTargetPwm(val); }
 }  // namespace ThornBots

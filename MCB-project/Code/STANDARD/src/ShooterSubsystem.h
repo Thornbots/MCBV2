@@ -9,7 +9,8 @@
 
 namespace ThornBots {
     static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
-    static tap::arch::PeriodicMilliTimer servoTimer(10);
+    static tap::arch::PeriodicMilliTimer secondTimer(100);
+    static tap::arch::PeriodicMilliTimer servoTimer(20);
     class ShooterSubsystem {
     public:  // Public Variables
         // constexpr static double PI = 3.14159;
@@ -18,7 +19,7 @@ namespace ThornBots {
         constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0};
         constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = {5, 0, 0, 0, 8000, 1, 0, 1, 0, 10, 0};
 
-        constexpr static double SERVO_MIN = 0, SERVO_MAX = 1;  // change these for servo mechanical limits if needed
+        constexpr static float SERVO_MIN = 0.400f, SERVO_MAX = 0.733f;  // change these for servo mechanical limits if needed
 
     private:  // Private Variables
         tap::Drivers* drivers;
@@ -34,9 +35,9 @@ namespace ThornBots {
         tap::algorithms::SmoothPid flywheelPIDController2 = tap::algorithms::SmoothPid(pid_conf_flywheel);
         tap::algorithms::SmoothPid indexPIDController = tap::algorithms::SmoothPid(pid_conf_index);
 
-        tap::motor::Servo hopperServo = tap::motor::Servo(src::DoNotUse_getDrivers(), tap::gpio::Pwm::C7, 0, 1, 1);
+        tap::motor::Servo hopperServo = tap::motor::Servo(src::DoNotUse_getDrivers(), tap::gpio::Pwm::C1, 0.8f, 0.2f, 0.01f);
 
-        double flyWheelVoltage, indexerVoltage = 0.0, servoPosition = 0;
+        double flyWheelVoltage, indexerVoltage = 0.0;
 
         bool shootingSafety = false;
         bool robotDisabled = false;
@@ -72,9 +73,9 @@ namespace ThornBots {
 
         void setIndexer(double val);
 
-        void setServo(double val);
-        inline void openServo() { setServo(SERVO_MAX); }
-        inline void closeServo() { setServo(SERVO_MIN); }
+        void setServo(float val);
+        inline void openServo() { setServo(SERVO_MIN); }
+        inline void closeServo() { setServo(SERVO_MAX); }
 
         void shoot(double maxFrequency);
         inline void idle() { setIndexer(0); }

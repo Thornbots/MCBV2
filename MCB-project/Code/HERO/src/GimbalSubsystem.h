@@ -57,8 +57,8 @@ namespace ThornBots {
          * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
          * and right stick will control pitch and yaw of the turret.
          */
-        void turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM,
-                        double dt);
+       void turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM,
+                        double inputVel, double dt);
 
         /*
          * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a voltage level which
@@ -84,7 +84,11 @@ namespace ThornBots {
         void reZeroYaw();
 
         inline double getYawEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motor_Yaw.getEncoderUnwrapped()) * PI / 180; }
-        inline double getPitchEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180; }
+        inline double getPitchEncoderValue() { 
+            double d = tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180; 
+            if(d > 0) d -= 2 * PI;
+            return d;
+        }
         inline double getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30; }
         inline double getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
 
@@ -92,6 +96,6 @@ namespace ThornBots {
 
     private:  // Private Methods
         int getPitchVoltage(double targetAngle, double dt);
-        int getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt);
+        int getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double inputVel, double dt);
     };
 }  // namespace ThornBots

@@ -29,10 +29,10 @@ namespace ThornBots {
         const double RATIO = 1;                           // unitless
         const double VOLT_MAX = 22.2;                     // V
         const double VELO_MAX = VOLT_MAX / (KB * RATIO);  // rad/s
-        const double ACCEL_MAX = 40.0;                    // rad/s
+        const double ACCEL_MAX = 80.0;                    // rad/s
 
         // Position controller constants
-        const double KP = 10;  // sec^-1
+        const double KP = 16;  // sec^-1
 
         // Feedforward constants
         const double KSTATIC = 0.1;    // A
@@ -40,7 +40,7 @@ namespace ThornBots {
         const double KF = 0;           //-0.001;                    // A
 
         // Velocity feedback
-        const double KPV = 0.4;                     // 0.3                  // A-s/rad
+        const double KPV = 0.3;                     // 0.3                  // A-s/rad
         const double KIV = 2;                       // 2                 // A/rad
         const double IV_MAX = 0.1;                  // units TBD
         const double INT_THRESH = VOLT_MAX * 0.85;  // V

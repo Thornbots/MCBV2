@@ -15,7 +15,7 @@ namespace ThornBots {
     YawController::YawController() {}
 
     double YawController::calculate(double currentPosition, double currentVelocity, double currentDrivetrainVelocity, double targetPosition,
-                                    double deltaT) {
+                                    double inputVelocity, double deltaT) {
         double positionError = targetPosition - currentPosition;
         while (positionError > M_PI) {
             positionError -= M_TWOPI;
@@ -25,7 +25,8 @@ namespace ThornBots {
         }
 
         double choiceKDT = currentDrivetrainVelocity * positionError > 0 ? KDT : KDT_REV;  // check if turret is fighting drivetrain;
-        double targetVelocity = (KP + signum(currentDrivetrainVelocity) * choiceKDT) * positionError;
+        inputVelocity = std::clamp(inputVelocity, -VELO_MAX/2, VELO_MAX/2);
+        double targetVelocity = (KP + signum(currentDrivetrainVelocity) * choiceKDT) * positionError + inputVelocity;
 
         // model based motion profile
         double aMaxTemp = (C + (KB * KT * pow(RATIO, 2)) / RA + UK * signum(currentDrivetrainVelocity - currentVelocity));

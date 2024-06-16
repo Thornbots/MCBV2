@@ -27,7 +27,7 @@ namespace ThornBots {
         // Physical constants
         const double C = 0.0169;                          // kg-s/m^2
         const double J = 0.031;                           // 289;               // kg-m^2
-        const double UK = 0.07;                           // N-m
+        const double UK = 0.05;                           // N-m
         const double KB = 0.716;                          // V-rad/s
         const double KT = 0.741;                          // N-m/A
         const double RA = 8.705;                          // ohm
@@ -35,7 +35,7 @@ namespace ThornBots {
         const double VOLT_MAX = 22.2;                     // V
         const double VELO_MAX = VOLT_MAX / (KB * RATIO);  // rad/s
         // Position controller constants
-        const double KP = 11.3;  // sec^-1
+        const double KP = 11.1;  // sec^-1
 
         // Feedforward constants
         const double A_SCALE = 0.9;                       // 0.8            // unitless

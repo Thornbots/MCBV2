@@ -1,4 +1,6 @@
 #include "GimbalSubsystem.h"
+double yaw_Motor_Voltage = 0;
+double yaw_Motor_Desired_Angle = 0;
 
 namespace ThornBots {
     GimbalSubsystem::GimbalSubsystem(tap::Drivers* driver) {
@@ -25,6 +27,7 @@ namespace ThornBots {
     void GimbalSubsystem::setMotorSpeeds() {
         motor_Pitch.setDesiredOutput(pitchMotorVoltage);
         motor_Yaw.setDesiredOutput(yawMotorVoltage);
+        yaw_Motor_Voltage = yawMotorVoltage;
     }
 
     void GimbalSubsystem::stopMotors() {
@@ -40,6 +43,7 @@ namespace ThornBots {
     }
 
     int GimbalSubsystem::getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM, double desiredAngleWorld, double dt) {
+        yaw_Motor_Desired_Angle = desiredAngleWorld;
         if (robotDisabled) return 0;
         return 1000 * yawController.calculate(yawAngleRelativeWorld, yawRPM, 0, desiredAngleWorld,
                                               dt);  // 1000 to convert to mV which taproot wants. DTrpm is 0, can calculate and pass in the future
