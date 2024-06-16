@@ -171,7 +171,10 @@ namespace ThornBots {
         if (updateInputTimer.execute()) {
             // shooting
             if (drivers->remote.getMouseL()) {
-                shooterSubsystem->shoot(10);
+                if(drivers->refSerial.getGameData().gameType==tap::communication::serial::RefSerial::Rx::GameType::ROBOMASTER_RMUL_3V3 && drivers->refSerial.getRobotData().robotLevel < 3)
+                    shooterSubsystem->shoot(10);
+                else 
+                    shooterSubsystem->shoot(15);
             } else if (drivers->remote.keyPressed(Remote::Key::Z)) {
                 shooterSubsystem->unjam();
             } else {
