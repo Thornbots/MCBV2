@@ -41,9 +41,9 @@ namespace ThornBots {
 
         // integral velocity controller
         if (abs(pastOutput) < INT_THRESH || velocityError * buildup < 0) {  // saturation detection
-            if (velocityError * buildup < 0) {                              // overshooting
+            //if (velocityError * buildup < 0) {                              // overshooting
                 buildup *= (1 - TAKEBACK);                                  // take back not quite half
-            }
+            //}
             buildup += velocityError * deltaT;  // integrate normally
         }
         // calculation for setting target current aka velocity controller

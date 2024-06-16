@@ -8,6 +8,8 @@ double characterizationVelocityRadS;
 namespace ThornBots {
     GimbalSubsystem::GimbalSubsystem(tap::Drivers* driver) {
         this->drivers = driver;
+            gen = std::mt19937(rd());
+        dist = std::uniform_int_distribution<>(-8192, 8192);
         // TODO: Complete this
     }
     void GimbalSubsystem::initialize() {
@@ -21,10 +23,10 @@ namespace ThornBots {
     void GimbalSubsystem::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM, double yawAngleRelativeWorld,
                                      double yawRadS, double dt) {
         if (turretControllerTimer.execute()) {
-            // pitchMotorVoltage = getPitchVoltage(desiredPitchAngle, dt);
-            // yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRadS, desiredYawAngle, dt);
-            characterizationVelocityRadS = yawRadS;
-            characterize();
+            pitchMotorVoltage = getPitchVoltage(desiredPitchAngle, dt);
+            yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRadS, desiredYawAngle, dt);
+            //characterizationVelocityRadS = yawRadS;
+            //characterize();
         }
         // TODO: Add flywheels, indexer, and servo
     }

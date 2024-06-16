@@ -32,7 +32,7 @@ namespace ThornBots {
         const double ACCEL_MAX = 40.0;                    // rad/s
 
         // Position controller constants
-        const double KP = 10;  // sec^-1
+        const double KP = 14;  // sec^-1
 
         // Feedforward constants
         const double KSTATIC = 0.1;    // A
