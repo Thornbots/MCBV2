@@ -168,7 +168,7 @@ namespace ThornBots {
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, (leftStickMagnitude * MAX_SPEED), driveTrainEncoder + leftStickAngle);
             gimbalSubsystem->turretMove(targetYawAngleWorld,
-                                        -0.1 * PI * right_stick_vert,  // was - 0.5 * PI
+                                        std::min(static_cast<double>(0.1*PI),-0.2 * PI * right_stick_vert),  // was - 0.5 * PI
                                         driveTrainRPM, yawAngleRelativeWorld, yawRPM, temp/dt, dt);
         }
     }
@@ -191,8 +191,9 @@ namespace ThornBots {
                 // Tries to unjam by running the motor backwards slowly while you are holding Z.
                 // No automatic turning off.
                 shooterSubsystem->unjam();
-            } else if (!drivers->remote.keyPressed(Remote::Key::V)){//shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID) {
-                // If V isn't currently pressed and nothing else is happening, interrupt the burst fire.
+            } 
+            if (shooterSubsystem->getCommand()==ShooterSubsystem::IndexCommand::RAPID && !drivers->remote.keyPressed(Remote::Key::V)){
+                // If V isn't currently pressed, interrupt the burst fire.
                 shooterSubsystem->idle();
             }
 
@@ -256,7 +257,7 @@ namespace ThornBots {
             accumulatedMouseY += mouseY / 10000.0;
 
             if (accumulatedMouseY > 0.08) accumulatedMouseY = 0.08;  // how far down
-            if (accumulatedMouseY < -0.4) accumulatedMouseY = -0.4;  // how far up
+            if (accumulatedMouseY < -0.2 * PI) accumulatedMouseY = -0.2*PI;  // how far up
 
             targetYawAngleWorld -= mouseX / 10000.0;
 

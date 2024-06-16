@@ -1,4 +1,6 @@
 #pragma once
+#include <random>
+
 #include "tap/algorithms/smooth_pid.hpp"
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/board/board.hpp"
@@ -28,6 +30,9 @@ namespace ThornBots {
         ThornBots::PitchController pitchController = PitchController();
 
         double pitchMotorVoltage, yawMotorVoltage;
+        std::random_device rd;
+        std::mt19937 gen;
+        std::uniform_int_distribution<int> dist;
 
         bool robotDisabled = false;
 
@@ -88,6 +93,8 @@ namespace ThornBots {
         inline double getPitchEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180 - 0.18 * PI; }
         inline double getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30 * (187 / 7182.0); }
         inline double getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
+
+        void characterize();
 
     private:  // Private Methods
         int getPitchVoltage(double targetAngle, double dt);

@@ -148,7 +148,7 @@ namespace ThornBots {
             default:  // case IDLE
                 isRapidStart = true;
                 if (readSwitch())
-                    setAllIndex(0.2, 0.1, 0.12);
+                    setAllIndex(0.2, 0.4, 0.12);
                 else
                     setAllIndex(0, 0, 0);
                 break;
