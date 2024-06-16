@@ -168,7 +168,7 @@ namespace ThornBots {
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, (leftStickMagnitude * MAX_SPEED), driveTrainEncoder + leftStickAngle);
             gimbalSubsystem->turretMove(targetYawAngleWorld,
-                                        -0.1 * PI * right_stick_vert,  // was - 0.5 * PI
+                                        std::min(static_cast<double>(0.1*PI),-0.2 * PI * right_stick_vert),  // was - 0.5 * PI
                                         driveTrainRPM, yawAngleRelativeWorld, yawRPM, temp/dt, dt);
         }
     }
@@ -256,7 +256,7 @@ namespace ThornBots {
             accumulatedMouseY += mouseY / 10000.0;
 
             if (accumulatedMouseY > 0.08) accumulatedMouseY = 0.08;  // how far down
-            if (accumulatedMouseY < -0.4) accumulatedMouseY = -0.4;  // how far up
+            if (accumulatedMouseY < -0.2 * PI) accumulatedMouseY = -0.2*PI;  // how far up
 
             targetYawAngleWorld -= mouseX / 10000.0;
 

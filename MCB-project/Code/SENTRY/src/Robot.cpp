@@ -83,26 +83,30 @@ namespace ThornBots {
         // check if match has started, if we arent recieving ref, there are still overrides
         matchHasStarted = drivers->refSerial.getGameData().gameStage == RefSerial::Rx::GameStage::IN_GAME;
 
-        /*
+        // /*
         switch (currentProgram) {
-            case MANUAL:
+            case MANUAL: //middle
                 updateWithController();
+                shoot = false;
                 break;
-            case MATCH:
-                if (matchHasStarted || leftSwitchState != Remote::SwitchState::DOWN)
-                    updateWithSpin(true);  // spin if match has started or the left switch is not down
-                    updateWithCV(
-                        true, matchHasStarted &&
-                                leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
-                break;
-            case CV_TEST:
+            case MATCH: //down
+                // if (matchHasStarted || leftSwitchState != Remote::SwitchState::DOWN)
+                //     updateWithSpin(true);  // spin if match has started or the left switch is not down
+                //     updateWithCV(
+                //         true, matchHasStarted &&
+                //                 leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
+                // break;
+            case CV_TEST: //up
+                shoot = matchHasStarted;
+
                 // updateWithCV(false, leftSwitchState == Remote::SwitchState::UP);
-                if(leftSwitchState == Remote::SwitchState::UP) updateWithSpin(true);
+                updateWithCV(true, true);//shoot);
+                if(leftSwitchState == Remote::SwitchState::UP) updateWithSpin(false);
                 break;
         }
-        */
+        // */
 
-        updateWithCV(true, true);
+        // updateWithCV(true, true);
 
         if (motorsTimer.execute()) {
             drivetrainSubsystem->setMotorSpeeds();
@@ -153,7 +157,7 @@ namespace ThornBots {
                 break;
         }
     }
-    constexpr double yawMin = -0.6 + PI, yawMax = 0.6 + PI, pitchMin = -0.3, pitchMax = 0.3;
+    constexpr double yawMin = -0.3 + PI, yawMax = 0.3 + PI, pitchMin = -0.3, pitchMax = 0.3;
     // haha shooty funny
     void Robot::updateWithCV(bool patrol, bool shoot) {
 
@@ -165,9 +169,10 @@ namespace ThornBots {
             autoAim.update(msg, gimbalSubsystem->getPitchEncoderValue() / 2, yawAngleRelativeWorld, yawOut, pitchOut, action);
 
             if (action != -1) {  // && msg->confidence > 0.1) {
-                if (!isnan(yawOut)) targetYawAngleWorld = std::clamp(yawOut, yawMin, yawMax);
+                if (!isnan(yawOut)) targetYawAngleWorld = fmod(yawAngleRelativeWorld + PI/2 - yawOut, 2*PI);//std::clamp(yawOut + yawAngleRelativeWorld, yawMin, yawMax);
                 if (!isnan(pitchOut)) targetPitchAngleWorld = std::clamp(pitchOut, pitchMin, pitchMax);  // TODO: remove
             } else if (patrol) {
+                targetPitchAngleWorld = -0.5*PI;
                 targetYawAngleWorld = fmod(targetYawAngleWorld + 0.01, 2 * PI);  // 3 rad/s
             }
             if (shoot) {

@@ -56,6 +56,7 @@ namespace ThornBots {
         ThornBots::AutoAim autoAim = AutoAim();
 
         int send_timer = 0;
+        bool shoot = false;
 
     public:  // Public Methods
         Robot(tap::Drivers* driver, ThornBots::DrivetrainSubsystem* drivetrainSubsystem, ThornBots::GimbalSubsystem* gimbalSubsystem,

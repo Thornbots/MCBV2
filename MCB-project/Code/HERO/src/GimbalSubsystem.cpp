@@ -6,7 +6,7 @@ namespace ThornBots {
     GimbalSubsystem::GimbalSubsystem(tap::Drivers* driver) {
         this->drivers = driver;
         gen = std::mt19937(rd());
-        dist = std::uniform_int_distribution<>(-20000, 20000);
+        dist = std::uniform_int_distribution<>(-4000, 4000);
         // TODO: Complete this
     }
     void GimbalSubsystem::initialize() {
