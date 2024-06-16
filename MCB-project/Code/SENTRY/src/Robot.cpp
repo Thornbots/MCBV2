@@ -172,8 +172,8 @@ namespace ThornBots {
                 if (!isnan(yawOut)) targetYawAngleWorld = fmod(yawAngleRelativeWorld + PI/2 - yawOut, 2*PI);//std::clamp(yawOut + yawAngleRelativeWorld, yawMin, yawMax);
                 if (!isnan(pitchOut)) targetPitchAngleWorld = std::clamp(pitchOut, pitchMin, pitchMax);  // TODO: remove
             } else if (patrol) {
-                targetPitchAngleWorld = -0.5*PI;
-                targetYawAngleWorld = fmod(targetYawAngleWorld + 0.01, 2 * PI);  // 3 rad/s
+                targetPitchAngleWorld = -0.05*PI;
+                targetYawAngleWorld = fmod(targetYawAngleWorld + 0.02, 2 * PI);  // 3 rad/s
             }
             if (shoot) {
                 if (action == 1) {

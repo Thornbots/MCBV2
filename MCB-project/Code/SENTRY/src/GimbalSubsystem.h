@@ -85,7 +85,7 @@ namespace ThornBots {
         inline double getYawEncoderValue() {
             return tap::motor::DjiMotor::encoderToDegrees(motor_Yaw.getEncoderUnwrapped()) * PI / 180 * (187 / 7182.0);
         }
-        inline double getPitchEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180 - 0.07 * PI; }
+        inline double getPitchEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180 - 0.18 * PI; }
         inline double getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30 * (187 / 7182.0); }
         inline double getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
 
