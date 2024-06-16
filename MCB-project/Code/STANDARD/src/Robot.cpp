@@ -171,58 +171,17 @@ namespace ThornBots {
         if (updateInputTimer.execute()) {
             // shooting
             if (drivers->remote.getMouseL()) {
-                shooterSubsystem->shoot(10);
+                if(drivers->refSerial.getGameData().gameType==tap::communication::serial::RefSerial::Rx::GameType::ROBOMASTER_RMUL_3V3 && drivers->refSerial.getRobotData().robotLevel < 3)
+                    shooterSubsystem->shoot(10);
+                else 
+                    shooterSubsystem->shoot(15);
             } else if (drivers->remote.keyPressed(Remote::Key::Z)) {
                 shooterSubsystem->unjam();
             } else {
                 shooterSubsystem->idle();
             }
 
-            if (keyJustPressed(Remote::Key::R)) currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
 
-            if (keyJustPressed(Remote::Key::F)) currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
-
-            if (keyJustPressed(Remote::Key::C)) currentBeybladeFactor = 0;
-
-            if (currentBeybladeFactor != 0)
-                targetDTVelocityWorld = (-currentBeybladeFactor * MAX_SPEED);
-            else {
-                targetDTVelocityWorld = 0;
-                if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
-                    targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
-                }
-                if (drivers->remote.keyPressed(Remote::Key::E)) {  // rotate right
-                    targetDTVelocityWorld += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
-                }
-            }
-
-            // movement
-            int moveHorizonal = 0;
-            int moveVertical = 0;
-
-            if (drivers->remote.keyPressed(Remote::Key::W)) moveVertical++;
-            if (drivers->remote.keyPressed(Remote::Key::A)) moveHorizonal--;
-            if (drivers->remote.keyPressed(Remote::Key::S)) moveVertical--;
-            if (drivers->remote.keyPressed(Remote::Key::D)) moveHorizonal++;
-
-            double moveAngle = getAngle(moveHorizonal, moveVertical);
-            double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
-
-            if (drivers->remote.keyPressed(Remote::Key::CTRL)) {  // slow
-                moveMagnitude *= SLOW_SPEED;
-                drivetrainSubsystem->setRegularPowerLimit();
-            } else if (drivers->remote.keyPressed(Remote::Key::SHIFT)) {  // fast
-                moveMagnitude *= FAST_SPEED;
-                drivetrainSubsystem->setHigherPowerLimit();
-            } else {  // medium
-                moveMagnitude *= MED_SPEED;
-                drivetrainSubsystem->setRegularPowerLimit();
-            }
-
-            driveTrainEncoder = gimbalSubsystem->getYawEncoderValue();
-            yawEncoderCache = driveTrainEncoder;
-
-            drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle);
 
             // mouse
             static int mouseXOffset = drivers->remote.getMouseX();
@@ -240,6 +199,60 @@ namespace ThornBots {
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
             gimbalSubsystem->turretMove(targetYawAngleWorld, accumulatedMouseY, driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / 15000.0 / dt,
                                         dt);
+
+            
+            // movement
+            
+            if (keyJustPressed(Remote::Key::R)) currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
+
+            if (keyJustPressed(Remote::Key::F)) currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
+
+            if (keyJustPressed(Remote::Key::C)) currentBeybladeFactor = 0;
+
+            targetDTVelocityWorld = 0;
+            if (drivers->remote.keyPressed(Remote::Key::CTRL)) {  
+                // Align turret to drive train, reset beyblade
+
+                // From controller: Left switch is down, and right is up.
+                targetYawAngleWorld = yawAngleRelativeWorld + (yawEncoderCache - driveTrainEncoder);
+                targetDTVelocityWorld -= mouseX / 15000.0;
+                currentBeybladeFactor = 0;
+            } else 
+                targetDTVelocityWorld = (-currentBeybladeFactor * MAX_SPEED);
+
+            if (currentBeybladeFactor == 0) {
+                if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
+                    targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+                }
+                if (drivers->remote.keyPressed(Remote::Key::E)) {  // rotate right
+                    targetDTVelocityWorld += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+                }
+            }
+
+            int moveHorizonal = 0;
+            int moveVertical = 0;
+
+            if (drivers->remote.keyPressed(Remote::Key::W)) moveVertical++;
+            if (drivers->remote.keyPressed(Remote::Key::A)) moveHorizonal--;
+            if (drivers->remote.keyPressed(Remote::Key::S)) moveVertical--;
+            if (drivers->remote.keyPressed(Remote::Key::D)) moveHorizonal++;
+
+            double moveAngle = getAngle(moveHorizonal, moveVertical);
+            double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
+
+            
+            if (drivers->remote.keyPressed(Remote::Key::SHIFT)) {  // fast
+                moveMagnitude *= FAST_SPEED;
+                drivetrainSubsystem->setHigherPowerLimit();
+            } else {  // medium
+                moveMagnitude *= MED_SPEED;
+                drivetrainSubsystem->setRegularPowerLimit();
+            }
+
+            driveTrainEncoder = gimbalSubsystem->getYawEncoderValue();
+            yawEncoderCache = driveTrainEncoder;
+
+            drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle);
         }
     }
 }  // namespace ThornBots

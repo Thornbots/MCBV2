@@ -22,7 +22,7 @@ namespace ThornBots {
         tap::Drivers* drivers;
         // TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
         tap::motor::DjiMotor motor_Yaw =
-            tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0);
+            tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0);
         tap::motor::DjiMotor motor_Pitch =
             tap::motor::DjiMotor(src::DoNotUse_getDrivers(), tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, true, "Pitch", 0, 0);
 

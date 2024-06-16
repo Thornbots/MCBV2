@@ -43,9 +43,9 @@ namespace ThornBots {
             // state.acceleration = modm::Vector3f(0,0,0);
 
             MeasuredKinematicState state;//(pos,vel,acc); 
-            state.position = modm::Vector3f(msg->x,msg->y,msg->z);
-            state.velocity = modm::Vector3f(msg->v_x,msg->v_y,msg->v_z);
-            state.acceleration = modm::Vector3f(msg->a_x,msg->a_y,msg->a_z);
+            state.position = modm::Vector3f(msg->x,msg->z,-msg->y);
+            state.velocity = modm::Vector3f(msg->v_x,msg->v_z,-msg->v_y);
+            state.acceleration = modm::Vector3f(msg->a_x,msg->a_z,-msg->a_y);
 
             float targetYaw, targetPitch, travelTime;
             bool valid = tap::algorithms::ballistics::findTargetProjectileIntersection(state, J, 3, &targetPitch, &targetYaw, &travelTime, 0);
@@ -55,10 +55,10 @@ namespace ThornBots {
                 return;
             }
 
-            yawOut = fmod(current_yaw + targetYaw, 2 * PI);
+            yawOut = targetYaw;// fmod(current_yaw + targetYaw, 2 * PI);
             pitchOut = targetPitch;
 
-            if (abs(targetYaw) < 5 * M_PI / 180) {
+            if (abs(targetYaw) < PI/4 ) {
                 // Enable shooting
                 action = 1;
                 return;
