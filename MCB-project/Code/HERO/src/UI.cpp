@@ -1,4 +1,6 @@
 #include "UI.h"
+#include "modm/processing/resumable/macros.hpp"
+
 
 namespace ThornBots {
     UI::UI(tap::Drivers* driver) { this->drivers = driver; }
@@ -23,12 +25,14 @@ namespace ThornBots {
 
         RefSerialTransmitter->configGraphicGenerics(&msg->graphicData, (const uint8_t *)(1),
                                                     tap::communication::serial::RefSerialTransmitter::Tx::GRAPHIC_ADD, 1,
-                                                    tap::communication::serial::RefSerialTransmitter::Tx::GraphicColor::WHITE);
+                                                    tap::communication::serial::RefSerialTransmitter::Tx::GraphicColor::ORANGE);
 
-        RefSerialTransmitter->configLine(4, 100, 100, 200, 200, &msg->graphicData);
-        RefSerialTransmitter->configLine(4, 200, 200, 300, 400, &msg->graphicData);
+        RefSerialTransmitter->configLine(500, 0, 0, 2000, 2000, &msg->graphicData);
+        // RefSerialTransmitter->configLine(50, 0, 200, 300, 400, &msg->graphicData);
 
-        RefSerialTransmitter->sendGraphic(msg);
+        // RF_CALL(RefSerialTransmitter->sendGraphic(msg));
+        
+        
     }
 
 }  // namespace ThornBots

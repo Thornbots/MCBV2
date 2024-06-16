@@ -10,11 +10,12 @@ namespace ThornBots {
      * Constructor for Robot
      */
     Robot::Robot(tap::Drivers* driver, ThornBots::DrivetrainSubsystem* driveTrainController, ThornBots::GimbalSubsystem* turretController,
-                 ThornBots::ShooterSubsystem* shooterController) {
+                 ThornBots::ShooterSubsystem* shooterController, ThornBots::UI* ui) {
         this->drivers = driver;
         this->drivetrainSubsystem = driveTrainController;
         this->gimbalSubsystem = turretController;
         this->shooterSubsystem = shooterController;
+        this->ui = ui;
     }
 
     void Robot::initialize() {
@@ -27,6 +28,7 @@ namespace ThornBots {
         gimbalSubsystem->initialize();
         shooterSubsystem->initialize();
         drivers->refSerial.initialize();
+        // ui->initialize();
 
         modm::delay_ms(2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
         // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's

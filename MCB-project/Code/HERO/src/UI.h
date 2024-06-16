@@ -11,10 +11,10 @@
 
 
 namespace ThornBots {
-    tap::communication::serial::RefSerialTransmitter *RefSerialTransmitter;
     class UI {
     public:  // Public Variables
         // constexpr static int YAW_MOTOR_MAX_SPEED = 1000; 
+        tap::communication::serial::RefSerialTransmitter *RefSerialTransmitter;
 
     private:  // Private Variables
         tap::Drivers* drivers;
