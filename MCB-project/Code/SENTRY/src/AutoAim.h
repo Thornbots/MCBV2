@@ -23,7 +23,7 @@ namespace ThornBots {
 
         void update(JetsonCommunication::cord_msg* msg, float current_pitch, float current_yaw, double& yawOut, double& pitchOut, int& action) {
             // Add rotated offset vector of panel relative to RGB
-            if (msg->z == 0.0f) return;
+            if (msg->confidence == 0.0f) return;
             // if (msg->z == 0) return;  FIXME:<---- this breaks?
         
             // float X_prime = -x + 0.0175;                                                     // left
