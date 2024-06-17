@@ -22,6 +22,7 @@ namespace ThornBots {
         this->gimbalSubsystem = gimbalSubsystem;
         this->shooterSubsystem = shooterSubsystem;
         this->jetsonCommunication = jetsonCommunication;
+        panelTimer.stop();
     }
 
     void Robot::initialize() {
@@ -97,10 +98,11 @@ namespace ThornBots {
                 //                 leftSwitchState == Remote::SwitchState::UP);  // patrol and shoot if match has started and switch is in right position
                 // break;
             case CV_TEST: //up
-                shoot = matchHasStarted;
+                // shoot = matchHasStarted;
 
+                updateWithCV(true, leftSwitchState == Remote::SwitchState::UP);
                 // updateWithCV(false, leftSwitchState == Remote::SwitchState::UP);
-                updateWithCV(true, true);//shoot);
+                // updateWithCV(true, shoot);
                 if(leftSwitchState == Remote::SwitchState::UP) updateWithSpin(false);
                 break;
         }
@@ -161,25 +163,42 @@ namespace ThornBots {
     // haha shooty funny
     void Robot::updateWithCV(bool patrol, bool shoot) {
 
+
+        if (last_plate_time <= 0){
+        // if(panelTimer.execute()){
+            panelTimer.stop();
+            if (patrol){
+                targetYawAngleWorld = fmod(targetYawAngleWorld + 0.0001, 2 * PI);  // 3 rad/s
+            }
+        }else{
+            last_plate_time--;
+        }
+
         if (jetsonCommunication->newMessage()) {
             ThornBots::JetsonCommunication::cord_msg* msg = jetsonCommunication->getMsg();
             double yawOut = 0;
             double pitchOut = 0;
             int action = -1;
             autoAim.update(msg, gimbalSubsystem->getPitchEncoderValue() / 2, yawAngleRelativeWorld, yawOut, pitchOut, action);
-
             if (action != -1) {  // && msg->confidence > 0.1) {
-                if (!isnan(yawOut)) targetYawAngleWorld = fmod(yawAngleRelativeWorld + PI/2 - yawOut, 2*PI);//std::clamp(yawOut + yawAngleRelativeWorld, yawMin, yawMax);
-                if (!isnan(pitchOut)) targetPitchAngleWorld = std::clamp(pitchOut, pitchMin, pitchMax);  // TODO: remove
+                if (!isnan(yawOut)) targetYawAngleWorld = fmod(yawAngleRelativeWorld - yawOut, 2*PI);//std::clamp(yawOut + yawAngleRelativeWorld, yawMin, yawMax);
+                if (!isnan(pitchOut)) targetPitchAngleWorld = std::clamp(pitchOut/2.5, pitchMin, pitchMax);  // TODO: remove
+                last_plate_time = 50000; //4000;
+                panelTimer.restart(2000);
             } else if (patrol) {
-                targetPitchAngleWorld = -0.05*PI;
-                targetYawAngleWorld = fmod(targetYawAngleWorld + 0.02, 2 * PI);  // 3 rad/s
+                // targetPitchAngleWorld = -0.04*PI;
+                // targetYawAngleWorld = fmod(targetYawAngleWorld + 0.04, 2 * PI);  // 3 rad/s
             }
             if (shoot) {
                 if (action == 1) {
                     shooterSubsystem->shoot(20);
                 } else {
-                    shooterSubsystem->idle();
+                    if(last_plate_time > 2000){
+                        shooterSubsystem->shoot(20);
+                    }else{
+                        shooterSubsystem->enableShooting();
+                        shooterSubsystem->idle();
+                    }
                 }
             } else {
                 shooterSubsystem->disableShooting();

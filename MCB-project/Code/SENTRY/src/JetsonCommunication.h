@@ -55,14 +55,14 @@ namespace ThornBots {
             memcpy((void*)&message, (void*)m, sizeof(cord_msg));
             // message = *(cord_msg*)completeMessage.data;
             hasBeenRead = false;
-            drivers->leds.set(tap::gpio::Leds::Blue, true);
+            // drivers->leds.set(tap::gpio::Leds::Blue, true);
             led_state = !led_state;
         };
 
         //TODO: try with value copy?
         cord_msg *getMsg() { 
             if (hasBeenRead) return &empty_msg;
-            drivers->leds.set(tap::gpio::Leds::Blue, false);
+            // drivers->leds.set(tap::gpio::Leds::Blue, false);
             hasBeenRead = true;
             return &message;
         };
