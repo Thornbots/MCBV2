@@ -1,5 +1,6 @@
 #include "UI.h"
 
+
 namespace ThornBots {
     UI::UI(tap::Drivers* driver) { this->drivers = driver; }
 
@@ -7,6 +8,14 @@ namespace ThornBots {
         // Nothing needs to be done to drivers
         RefSerialTransmitter = new tap::communication::serial::RefSerialTransmitter(drivers);
 
+        sendInitialGraphics();
+    }
+
+
+    modm::ResumableResult<bool> UI::sendInitialGraphics()
+    {
+        RF_BEGIN(0);
+        
         //  Example code:
         // Graphic1Message msg;
         // RefSerialTransmitter::configGraphicGenerics(&msg.graphicData, "\x00\x00\x01", RefSerial::GRAPHIC_ADD, 1, YELLOW);
@@ -23,12 +32,20 @@ namespace ThornBots {
 
         RefSerialTransmitter->configGraphicGenerics(&msg->graphicData, (const uint8_t *)(1),
                                                     tap::communication::serial::RefSerialTransmitter::Tx::GRAPHIC_ADD, 1,
-                                                    tap::communication::serial::RefSerialTransmitter::Tx::GraphicColor::WHITE);
+                                                    tap::communication::serial::RefSerialTransmitter::Tx::GraphicColor::ORANGE);
 
-        RefSerialTransmitter->configLine(4, 100, 100, 200, 200, &msg->graphicData);
-        RefSerialTransmitter->configLine(4, 200, 200, 300, 400, &msg->graphicData);
+        RefSerialTransmitter->configLine(500, 0, 0, 2000, 2000, &msg->graphicData);
+        RefSerialTransmitter->configLine(50, 0, 200, 300, 400, &msg->graphicData);
+        
+        RF_CALL(refSerialTransmitter.sendGraphic(msg));
+        
 
-        RefSerialTransmitter->sendGraphic(msg);
+        RF_END();
     }
 
+    modm::ResumableResult<bool> UI::update()
+    {
+        RF_BEGIN(1);
+        RF_END();
+    }
 }  // namespace ThornBots

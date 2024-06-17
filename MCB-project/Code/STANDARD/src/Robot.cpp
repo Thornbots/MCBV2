@@ -186,19 +186,16 @@ namespace ThornBots {
             // mouse
             static int mouseXOffset = drivers->remote.getMouseX();
             static int mouseYOffset = drivers->remote.getMouseY();
-            int mouseX = drivers->remote.getMouseX() - mouseXOffset;
-            int mouseY = drivers->remote.getMouseY() - mouseYOffset;
+            int mouseX = (drivers->remote.getMouseX() - mouseXOffset)*MOUSE_X_SENSITIVITY;
+            int mouseY = (drivers->remote.getMouseY() - mouseYOffset)*MOUSE_Y_SENSITIVITY;
             static double accumulatedMouseY = 0;
-            accumulatedMouseY += mouseY / 10000.0;
+            accumulatedMouseY += mouseY;
 
             if (accumulatedMouseY > 0.4) accumulatedMouseY = 0.4;
             if (accumulatedMouseY < -0.3) accumulatedMouseY = -0.3;
 
-            targetYawAngleWorld -= mouseX / 15000.0;
+            targetYawAngleWorld -= mouseX;
 
-            targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
-            gimbalSubsystem->turretMove(targetYawAngleWorld, accumulatedMouseY, driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / 15000.0 / dt,
-                                        dt);
 
             
             // movement
@@ -210,24 +207,33 @@ namespace ThornBots {
             if (keyJustPressed(Remote::Key::C)) currentBeybladeFactor = 0;
 
             targetDTVelocityWorld = 0;
-            if (drivers->remote.keyPressed(Remote::Key::CTRL)) {  
-                // Align turret to drive train, reset beyblade
+            
 
-                // From controller: Left switch is down, and right is up.
-                targetYawAngleWorld = yawAngleRelativeWorld + (yawEncoderCache - driveTrainEncoder);
-                targetDTVelocityWorld -= mouseX / 15000.0;
-                currentBeybladeFactor = 0;
-            } else 
+            // if (drivers->remote.keyPressed(Remote::Key::CTRL)) {  
+            //     // Align turret to drive train, reset beyblade
+            //     if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
+            //         //Changing mouseX for turretMove() later
+            //         mouseX += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            //     }
+            //     if (drivers->remote.keyPressed(Remote::Key::E)) {  // rotate right
+            //         mouseX -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            //     }
+
+            //     // From controller: Left switch is down, and right is up.
+            //     targetYawAngleWorld = yawAngleRelativeWorld + (yawEncoderCache - driveTrainEncoder);
+            //     targetDTVelocityWorld -= mouseX;
+            //     currentBeybladeFactor = 0;
+            // } else {
+                if (currentBeybladeFactor == 0) {
+                    if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
+                        targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+                    }
+                    if (drivers->remote.keyPressed(Remote::Key::E)) {  // rotate right
+                        targetDTVelocityWorld += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+                    }
+                }
                 targetDTVelocityWorld = (-currentBeybladeFactor * MAX_SPEED);
-
-            if (currentBeybladeFactor == 0) {
-                if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
-                    targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
-                }
-                if (drivers->remote.keyPressed(Remote::Key::E)) {  // rotate right
-                    targetDTVelocityWorld += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
-                }
-            }
+            // }
 
             int moveHorizonal = 0;
             int moveVertical = 0;
@@ -244,14 +250,17 @@ namespace ThornBots {
             if (drivers->remote.keyPressed(Remote::Key::SHIFT)) {  // fast
                 moveMagnitude *= FAST_SPEED;
                 drivetrainSubsystem->setHigherPowerLimit();
-            } else {  // medium
-                moveMagnitude *= MED_SPEED;
+            } else {  // regular
+                moveMagnitude *= REG_SPEED;
                 drivetrainSubsystem->setRegularPowerLimit();
             }
 
             driveTrainEncoder = gimbalSubsystem->getYawEncoderValue();
             yawEncoderCache = driveTrainEncoder;
 
+            targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+            gimbalSubsystem->turretMove(targetYawAngleWorld, accumulatedMouseY, driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / dt,
+                                        dt);
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle);
         }
     }

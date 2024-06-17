@@ -28,7 +28,7 @@ namespace ThornBots {
         bool robotDisabled = false;
         double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0;
 
-        const double HIGH_LIM_INC = 40;      // in watts, however many watts over the current limit given by the ref system
+        const double HIGH_LIM_INC = 60;      // in watts, however many watts over the current limit given by the ref system
         const double REG_LIM_INC = 0;        // in watts, should be zero
         double limitIncrease = REG_LIM_INC;  // in watts
 
