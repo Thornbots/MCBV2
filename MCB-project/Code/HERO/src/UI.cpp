@@ -1,5 +1,4 @@
 #include "UI.h"
-#include "modm/processing/resumable/macros.hpp"
 
 
 namespace ThornBots {
@@ -9,6 +8,14 @@ namespace ThornBots {
         // Nothing needs to be done to drivers
         RefSerialTransmitter = new tap::communication::serial::RefSerialTransmitter(drivers);
 
+        sendInitialGraphics();
+    }
+
+
+    modm::ResumableResult<bool> UI::sendInitialGraphics()
+    {
+        RF_BEGIN(0);
+        
         //  Example code:
         // Graphic1Message msg;
         // RefSerialTransmitter::configGraphicGenerics(&msg.graphicData, "\x00\x00\x01", RefSerial::GRAPHIC_ADD, 1, YELLOW);
@@ -28,11 +35,17 @@ namespace ThornBots {
                                                     tap::communication::serial::RefSerialTransmitter::Tx::GraphicColor::ORANGE);
 
         RefSerialTransmitter->configLine(500, 0, 0, 2000, 2000, &msg->graphicData);
-        // RefSerialTransmitter->configLine(50, 0, 200, 300, 400, &msg->graphicData);
+        RefSerialTransmitter->configLine(50, 0, 200, 300, 400, &msg->graphicData);
+        
+        RF_CALL(refSerialTransmitter.sendGraphic(msg));
+        
 
-        // RF_CALL(RefSerialTransmitter->sendGraphic(msg));
-        
-        
+        RF_END();
     }
 
+    modm::ResumableResult<bool> UI::update()
+    {
+        RF_BEGIN(1);
+        RF_END();
+    }
 }  // namespace ThornBots
