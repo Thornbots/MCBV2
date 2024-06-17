@@ -209,21 +209,21 @@ namespace ThornBots {
             targetDTVelocityWorld = 0;
             
 
-            if (drivers->remote.keyPressed(Remote::Key::CTRL)) {  
-                // Align turret to drive train, reset beyblade
-                if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
-                    //Changing mouseX for turretMove() later
-                    mouseX += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
-                }
-                if (drivers->remote.keyPressed(Remote::Key::E)) {  // rotate right
-                    mouseX -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
-                }
+            // if (drivers->remote.keyPressed(Remote::Key::CTRL)) {  
+            //     // Align turret to drive train, reset beyblade
+            //     if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
+            //         //Changing mouseX for turretMove() later
+            //         mouseX += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            //     }
+            //     if (drivers->remote.keyPressed(Remote::Key::E)) {  // rotate right
+            //         mouseX -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            //     }
 
-                // From controller: Left switch is down, and right is up.
-                targetYawAngleWorld = yawAngleRelativeWorld + (yawEncoderCache - driveTrainEncoder);
-                targetDTVelocityWorld -= mouseX;
-                currentBeybladeFactor = 0;
-            } else {
+            //     // From controller: Left switch is down, and right is up.
+            //     targetYawAngleWorld = yawAngleRelativeWorld + (yawEncoderCache - driveTrainEncoder);
+            //     targetDTVelocityWorld -= mouseX;
+            //     currentBeybladeFactor = 0;
+            // } else {
                 if (currentBeybladeFactor == 0) {
                     if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
                         targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
@@ -233,7 +233,7 @@ namespace ThornBots {
                     }
                 }
                 targetDTVelocityWorld = (-currentBeybladeFactor * MAX_SPEED);
-            }
+            // }
 
             int moveHorizonal = 0;
             int moveVertical = 0;
