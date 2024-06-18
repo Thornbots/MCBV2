@@ -12,16 +12,26 @@
 #include "drivers_singleton.hpp"
 
 #include "modm/processing/resumable.hpp"
+#include "modm/processing/protothread.hpp"
+#include <cstdint>
+
+#include "tap/architecture/timeout.hpp"
+#include "tap/communication/serial/ref_serial_data.hpp"
+
+
 
 namespace ThornBots {
 
     // the class UI extends Resumable, and any public stuff in Resumable becomes protected here
-    class UI : protected modm::Resumable<2> {
+    // it also extends RefSerialData
+    class UI : protected modm::Resumable<2>, protected tap::communication::serial::RefSerialData, ::modm::pt::Protothread {
     public:  // Public Variables
-        tap::communication::serial::RefSerialTransmitter* RefSerialTransmitter;
+        tap::communication::serial::RefSerialTransmitter* refSerialTransmitter;
 
     private:  // Private Variables
         tap::Drivers* drivers;
+        bool restarting;
+        int nextName = 0;
 
     public:  // Public Methods
         UI(tap::Drivers* driver);
@@ -31,7 +41,21 @@ namespace ThornBots {
          * Call this function once, outside of the main loop.
          * Sends both things that change and those that don't.
          */
-        void initialize();
+        bool initialize();
+
+        /*
+         * Call this function once, outside of the main loop.
+         * Sends both things that change and those that don't.
+         */
+        void restartHud();
+
+        /**
+         * Resets the graphic name generator so the next time it is queried via `getUnusedGraphicName`,
+         * the function returns {0, 0, 0}.
+         */
+        inline void resetGraphicNameGenerator() {nextName = 0;};
+
+        inline const uint8_t * getNextGrapicName() {(const uint8_t *) nextName++;};
 
 
         /*
@@ -40,10 +64,26 @@ namespace ThornBots {
          */
         modm::ResumableResult<bool> update();
 
+        
+        //these were overrides, not sure what overriding
+        void execute();
+
+        void end(bool) {};
+
+        bool isFinished() const { return false; };
+
     private:  // Private Methods
               // int getPitchVoltage(double targetAngle, double dt);
         
-        // Actually what sends graphics. initialize() calls this.
-        modm::ResumableResult<bool> sendInitialGraphics();
+        // initialize() calls this. Sends the grapics for the first time.
+        modm::ResumableResult<bool> sendInitial();
+
+        
+
+        
+        bool run();
+
+        
+        // bool run();
     };
 }  // namespace ThornBots
