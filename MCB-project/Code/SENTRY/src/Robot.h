@@ -19,6 +19,8 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer updateInputTimer(2);
     static tap::arch::PeriodicMilliTimer cvTimer(33);
 
+    static tap::arch::PeriodicMilliTimer panelTimer(2000);
+
     enum Program { MANUAL, MATCH, CV_TEST };
 
     class Robot {
@@ -57,6 +59,7 @@ namespace ThornBots {
 
         int send_timer = 0;
         bool shoot = false;
+        int last_plate_time = 0;
 
     public:  // Public Methods
         Robot(tap::Drivers* driver, ThornBots::DrivetrainSubsystem* drivetrainSubsystem, ThornBots::GimbalSubsystem* gimbalSubsystem,

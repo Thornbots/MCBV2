@@ -23,9 +23,8 @@ namespace ThornBots {
 
         void update(JetsonCommunication::cord_msg* msg, float current_pitch, float current_yaw, double& yawOut, double& pitchOut, int& action) {
             // Add rotated offset vector of panel relative to RGB
-            if (msg->confidence == 0.0f) return;
-            // if (msg->z == 0) return;  FIXME:<---- this breaks?
-        
+            if (msg->confidence <= 0.2f || -msg->y > 0.35f) return;
+
             // float X_prime = -x + 0.0175;                                                     // left
             // float Y_prime = -y + 0.1295 * cos(current_pitch) - 0.0867 * sin(current_pitch);  // up
             // float Z_prime = z + 0.0867 * cos(current_pitch) + 0.1295 * sin(current_pitch);   // forwards
@@ -43,7 +42,7 @@ namespace ThornBots {
             // state.acceleration = modm::Vector3f(0,0,0);
 
             MeasuredKinematicState state;//(pos,vel,acc); 
-            state.position = modm::Vector3f(msg->x,msg->z,-msg->y);
+            state.position = modm::Vector3f(msg->x+0.1,msg->z,-msg->y + 0.2);
             state.velocity = modm::Vector3f(msg->v_x,msg->v_z,-msg->v_y);
             state.acceleration = modm::Vector3f(msg->a_x,msg->a_z,-msg->a_y);
 
@@ -55,10 +54,10 @@ namespace ThornBots {
                 return;
             }
 
-            yawOut = targetYaw;// fmod(current_yaw + targetYaw, 2 * PI);
+            yawOut = targetYaw-PI/2;// fmod(current_yaw + targetYaw, 2 * PI);
             pitchOut = targetPitch;
 
-            if (abs(targetYaw) < PI/4 ) {
+            if (abs(yawOut) < PI/16 ) {
                 // Enable shooting
                 action = 1;
                 return;
