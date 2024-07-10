@@ -1,29 +1,37 @@
 #pragma once
-#include "tap/algorithms/smooth_pid.hpp"
+#include <random>
+
 #include <tap/communication/serial/ref_serial_transmitter.hpp>
+
+#include "tap/algorithms/smooth_pid.hpp"
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 
 #include "PitchController.h"
 #include "YawController.h"
 #include "drivers_singleton.hpp"
-#include <random>
+
+#include "modm/processing/resumable.hpp"
+#include "modm/processing/protothread.hpp"
+#include <cstdint>
+
+#include "tap/architecture/timeout.hpp"
+#include "tap/communication/serial/ref_serial_data.hpp"
+
 
 
 namespace ThornBots {
-    class UI {
+
+    // the class UI extends Resumable, and any public stuff in Resumable becomes protected here
+    // it also extends RefSerialData
+    class UI : protected modm::Resumable<2>, protected tap::communication::serial::RefSerialData, ::modm::pt::Protothread {
     public:  // Public Variables
-        // constexpr static int YAW_MOTOR_MAX_SPEED = 1000; 
-        tap::communication::serial::RefSerialTransmitter *RefSerialTransmitter;
+        tap::communication::serial::RefSerialTransmitter* refSerialTransmitter;
 
     private:  // Private Variables
         tap::Drivers* drivers;
-        // TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-
-        // ThornBots::YawController yawController = YawController();
-        // ThornBots::PitchController pitchController = PitchController();
-
-
+        bool restarting;
+        int nextName = 0;
 
     public:  // Public Methods
         UI(tap::Drivers* driver);
@@ -31,26 +39,51 @@ namespace ThornBots {
 
         /*
          * Call this function once, outside of the main loop.
-         * This function will initalize all of the motors, timers, pidControllers, and any other used object.
-         * If you want to know what initializing actually does, ping Teaney in discord, or just Google it. It's pretty cool.
+         * Sends both things that change and those that don't.
          */
-        void initialize();
+        bool initialize();
 
         /*
-         * Should be called within the main loop, so called every time in the main loop when you want the described behavior.
-         * This will allow the drivetrain to translate with the left stick, and the right stick is for the turret.
-         * This function should be called when the right switch is in the Down state.
-         * Enabling beyblading (left switch is not down) will override this state, and left stick will control drivetrain translating
-         * and right stick will control pitch and yaw of the turret.
+         * Call this function once, outside of the main loop.
+         * Sends both things that change and those that don't.
          */
-        // void turretMove(double desiredYawAngle, double desiredPitchAngle);
+        void restartHud();
+
+        /**
+         * Resets the graphic name generator so the next time it is queried via `getUnusedGraphicName`,
+         * the function returns {0, 0, 0}.
+         */
+        inline void resetGraphicNameGenerator() {nextName = 0;};
+
+        inline const uint8_t * getNextGrapicName() {(const uint8_t *) nextName++;};
 
 
-        // inline void disable() { robotDisabled = true; }
-        // inline void enable() { robotDisabled = false; }
+        /*
+         * Should be called within the main loop maybe (There is a limit to how much you can send, maybe this will be handled here). Sends things that
+         * change.
+         */
+        modm::ResumableResult<bool> update();
 
+        
+        //these were overrides, not sure what overriding
+        void execute();
+
+        void end(bool) {};
+
+        bool isFinished() const { return false; };
 
     private:  // Private Methods
-        // int getPitchVoltage(double targetAngle, double dt);
+              // int getPitchVoltage(double targetAngle, double dt);
+        
+        // initialize() calls this. Sends the grapics for the first time.
+        modm::ResumableResult<bool> sendInitial();
+
+        
+
+        
+        bool run();
+
+        
+        // bool run();
     };
 }  // namespace ThornBots
