@@ -37,7 +37,7 @@ namespace ThornBots {
         const double VOLT_MAX = 24;      // Volts
         const double RA = 0.194 - 0.01;  // ohms //was 1.03 or 0.194
         const double KB = 0.35 / 19.2;   // volt-rad/s  //0.39
-        const double VELO_LOSS = 0.43;   // magic number representing loss from high rpm
+        const double VELO_LOSS = 0.4;   // magic number representing loss from high rpm
         const double IDLE_DRAW = 3;      // watts, measured
         const double DEFAULT_LIMIT = 100;
 

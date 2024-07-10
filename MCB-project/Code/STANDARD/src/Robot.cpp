@@ -39,10 +39,9 @@ namespace ThornBots {
     void Robot::update() {
         drivers->canRxHandler.pollCanData();
         drivers->refSerial.updateSerial();
-        
+
         updateAllInputVariables();
         toggleKeyboardAndMouse();
-
 
         if (drivers->remote.isConnected())
             enableRobot();
@@ -171,18 +170,16 @@ namespace ThornBots {
         if (updateInputTimer.execute()) {
             // shooting
             if (drivers->remote.getMouseL()) {
-                if(drivers->refSerial.getGameData().gameType==tap::communication::serial::RefSerial::Rx::GameType::ROBOMASTER_RMUL_3V3 && drivers->refSerial.getRobotData().robotLevel < 3)
+                if (drivers->refSerial.getGameData().gameType == tap::communication::serial::RefSerial::Rx::GameType::ROBOMASTER_RMUL_3V3 &&
+                    drivers->refSerial.getRobotData().robotLevel < 3)
                     shooterSubsystem->shoot(10);
-                else 
+                else
                     shooterSubsystem->shoot(15);
             } else if (drivers->remote.keyPressed(Remote::Key::Z)) {
                 shooterSubsystem->unjam();
             } else {
                 shooterSubsystem->idle();
             }
-
-
-
             // mouse
             static int mouseXOffset = drivers->remote.getMouseX();
             static int mouseYOffset = drivers->remote.getMouseY();
@@ -200,27 +197,18 @@ namespace ThornBots {
             gimbalSubsystem->turretMove(targetYawAngleWorld, accumulatedMouseY, driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / 15000.0 / dt,
                                         dt);
 
-            
             // movement
-            
+
             if (keyJustPressed(Remote::Key::R)) currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
 
             if (keyJustPressed(Remote::Key::F)) currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
 
             if (keyJustPressed(Remote::Key::C)) currentBeybladeFactor = 0;
 
-            targetDTVelocityWorld = 0;
-            if (drivers->remote.keyPressed(Remote::Key::CTRL)) {  
-                // Align turret to drive train, reset beyblade
-
-                // From controller: Left switch is down, and right is up.
-                targetYawAngleWorld = yawAngleRelativeWorld + (yawEncoderCache - driveTrainEncoder);
-                targetDTVelocityWorld -= mouseX / 15000.0;
-                currentBeybladeFactor = 0;
-            } else 
+            if (currentBeybladeFactor != 0)
                 targetDTVelocityWorld = (-currentBeybladeFactor * MAX_SPEED);
-
-            if (currentBeybladeFactor == 0) {
+            else {
+                targetDTVelocityWorld = 0;
                 if (drivers->remote.keyPressed(Remote::Key::Q)) {  // rotate left
                     targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
                 }
@@ -240,7 +228,6 @@ namespace ThornBots {
             double moveAngle = getAngle(moveHorizonal, moveVertical);
             double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
 
-            
             if (drivers->remote.keyPressed(Remote::Key::SHIFT)) {  // fast
                 moveMagnitude *= FAST_SPEED;
                 drivetrainSubsystem->setHigherPowerLimit();

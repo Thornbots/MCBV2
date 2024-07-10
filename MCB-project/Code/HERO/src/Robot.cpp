@@ -160,8 +160,10 @@ namespace ThornBots {
             // else
             if (wheelValue < -0.2)
                 shooterSubsystem->single();
-            else if (wheelValue > 0.2)
+            else if (wheelValue > 0.2){
                 shooterSubsystem->unjam();
+                shooterSubsystem->disableShooting();
+            }
             // else if (shooterSubsystem->getCommand() == ShooterSubsystem::IndexCommand::RAPID)
             //     shooterSubsystem->idle();
 

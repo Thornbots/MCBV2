@@ -94,7 +94,7 @@ namespace ThornBots {
 
         switch (cmd) {
             case UNJAM:
-                disableShooting();
+               // disableShooting();
                 isRapidStart = true;
                 setAllIndex(-0.4, -0.4, -0.4);
                 //set state to idle for next time. If unjam is held this will do nothing
