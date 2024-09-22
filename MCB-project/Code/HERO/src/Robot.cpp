@@ -10,12 +10,11 @@ namespace ThornBots {
      * Constructor for Robot
      */
     Robot::Robot(tap::Drivers* driver, ThornBots::DrivetrainSubsystem* driveTrainController, ThornBots::GimbalSubsystem* turretController,
-                 ThornBots::ShooterSubsystem* shooterController, ThornBots::UI* ui) {
+                 ThornBots::ShooterSubsystem* shooterController) {
         this->drivers = driver;
         this->drivetrainSubsystem = driveTrainController;
         this->gimbalSubsystem = turretController;
         this->shooterSubsystem = shooterController;
-        this->ui = ui;
     }
 
     void Robot::initialize() {

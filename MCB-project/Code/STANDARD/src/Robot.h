@@ -7,6 +7,7 @@
 #include "DrivetrainSubsystem.h"
 #include "GimbalSubsystem.h"
 #include "ShooterSubsystem.h"
+#include "UI.h"
 #include "drivers_singleton.hpp"
 
 namespace ThornBots {
@@ -36,6 +37,7 @@ namespace ThornBots {
         DrivetrainSubsystem* drivetrainSubsystem;
         GimbalSubsystem* gimbalSubsystem;
         ShooterSubsystem* shooterSubsystem;
+        ThornBots::UI* ui;
         double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
         double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
         double wheelValue = 0;
@@ -54,7 +56,7 @@ namespace ThornBots {
 
     public:  // Public Methods
         Robot(tap::Drivers* driver, DrivetrainSubsystem* driveTrainController, GimbalSubsystem* turretController,
-              ShooterSubsystem* shooterController);
+              ShooterSubsystem* shooterController, UI* ui);
 
         void initialize();
 
