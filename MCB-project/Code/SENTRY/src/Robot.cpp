@@ -168,7 +168,7 @@ namespace ThornBots {
         // if(panelTimer.execute()){
             panelTimer.stop();
             if (patrol){
-                targetYawAngleWorld = fmod(targetYawAngleWorld + 0.0001, 2 * PI);  // 3 rad/s
+                targetYawAngleWorld = fmod(targetYawAngleWorld + 0.0002, 2 * PI);  // 3 rad/s
             }
         }else{
             last_plate_time--;
@@ -183,7 +183,7 @@ namespace ThornBots {
             if (action != -1) {  // && msg->confidence > 0.1) {
                 if (!isnan(yawOut)) targetYawAngleWorld = fmod(yawAngleRelativeWorld - yawOut, 2*PI);//std::clamp(yawOut + yawAngleRelativeWorld, yawMin, yawMax);
                 if (!isnan(pitchOut)) targetPitchAngleWorld = std::clamp(pitchOut/2.5, pitchMin, pitchMax);  // TODO: remove
-                last_plate_time = 50000; //4000;
+                last_plate_time = 20000; //4000;
                 panelTimer.restart(2000);
             } else if (patrol) {
                 // targetPitchAngleWorld = -0.04*PI;
@@ -191,10 +191,13 @@ namespace ThornBots {
             }
             if (shoot) {
                 if (action == 1) {
-                    shooterSubsystem->shoot(20);
+                    shooterSubsystem->shoot(10);
                 } else {
                     if(last_plate_time > 2000){
-                        shooterSubsystem->shoot(20);
+                        if(last_plate_time > 10000)
+                            shooterSubsystem->shoot(10);
+                        else
+                            shooterSubsystem->shoot(0);
                     }else{
                         shooterSubsystem->enableShooting();
                         shooterSubsystem->idle();

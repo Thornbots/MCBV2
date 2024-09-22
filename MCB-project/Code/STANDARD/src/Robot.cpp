@@ -183,15 +183,18 @@ namespace ThornBots {
             // mouse
             static int mouseXOffset = drivers->remote.getMouseX();
             static int mouseYOffset = drivers->remote.getMouseY();
-            int mouseX = (drivers->remote.getMouseX() - mouseXOffset)*MOUSE_X_SENSITIVITY;
-            int mouseY = (drivers->remote.getMouseY() - mouseYOffset)*MOUSE_Y_SENSITIVITY;
+            int mouseX = drivers->remote.getMouseX() - mouseXOffset;
+            int mouseY = drivers->remote.getMouseY() - mouseYOffset;
             static double accumulatedMouseY = 0;
-            accumulatedMouseY += mouseY;
+            accumulatedMouseY += mouseY / 10000.0 ;
 
             if (accumulatedMouseY > 0.4) accumulatedMouseY = 0.4;
             if (accumulatedMouseY < -0.3) accumulatedMouseY = -0.3;
 
-            targetYawAngleWorld -= mouseX;
+            targetYawAngleWorld -= mouseX / 10000.0;
+
+            targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+            gimbalSubsystem->turretMove(targetYawAngleWorld, (accumulatedMouseY), driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / 10000.0 / dt, dt);
 
 
             // movement
@@ -237,8 +240,7 @@ namespace ThornBots {
             yawEncoderCache = driveTrainEncoder;
 
             targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
-            gimbalSubsystem->turretMove(targetYawAngleWorld, accumulatedMouseY, driveTrainRPM, yawAngleRelativeWorld, yawRPM, -mouseX / dt,
-                                        dt);
+
             drivetrainSubsystem->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle);
         }
     }
