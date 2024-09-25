@@ -40,3 +40,26 @@ jobs:
         run: |
           git commit -m "style: auto-format code via clang-format"
           git push origin ${{ github.head_ref }}
+
+      - name: Report status
+        if: always()  # This ensures the step runs even if previous steps fail
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
+              -f state='success' \
+              -f description='Clang format check passed' \
+              -f context='Clang Format'
+          else
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              /repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
+              -f state='failure' \
+              -f description='Clang format check failed' \
+              -f context='Clang Format'
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
