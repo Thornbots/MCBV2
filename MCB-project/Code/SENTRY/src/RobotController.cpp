@@ -4,7 +4,8 @@
 
 namespace ThornBots
 {
-// double stickLeftHorz, stickLeftVert, stickRightHorz, stickRightVert, stickLeftAngle, stickLeftMagn,
+// double stickLeftHorz, stickLeftVert, stickRightHorz, stickRightVert, stickLeftAngle,
+// stickLeftMagn,
 //     stickRightAngle, stickRightMagn = 0.0;
 double yawEncoderValue, IMUAngle = 0.0;
 /*
@@ -14,11 +15,11 @@ RobotController::RobotController(
     tap::Drivers* driver,
     ThornBots::DriveTrainController* driveTrainController,
     ThornBots::TurretController* turretController,
-    ThornBots::ShooterController* shooterController):
-    drivers(driver),
-    driveTrainController(driveTrainController),
-    turretController(turretController),
-    shooterController(shooterController)
+    ThornBots::ShooterController* shooterController)
+    : drivers(driver),
+      driveTrainController(driveTrainController),
+      turretController(turretController),
+      shooterController(shooterController)
 {
     // this->drivers = driver;
     // this->driveTrainController = driveTrainController;
@@ -44,34 +45,28 @@ void RobotController::initialize()
 
 void RobotController::update()
 {
-
     drivers->canRxHandler.pollCanData();
     updateAllInputVariables();
 
     toggleKeyboardAndMouse();
 
-
-    if(drivers->remote.isConnected())
+    if (drivers->remote.isConnected())
         enableRobot();
     else
         disableRobot();
-        
 
     if (useKeyboardMouse)
     {
-        if(robotDisabled) 
-            return;
-        //shooterController->enableShooting(); 
+        if (robotDisabled) return;
+        // shooterController->enableShooting();
         updateWithMouseKeyboard();
     }
     else
     {
-        if(robotDisabled) 
-            return;
-        //shooterController->disableShooting();
+        if (robotDisabled) return;
+        // shooterController->disableShooting();
         updateWithController();
     }
-
 
     if (drivers->remote.isConnected())
     {
@@ -151,7 +146,6 @@ void RobotController::updateAllInputVariables()
     yawAngleRelativeWorld = PI / 180 * drivers->bmi088.getYaw();
 
     wheelValue = drivers->remote.getWheel();
-
 }
 
 double RobotController::getAngle(double x, double y)
@@ -171,12 +165,12 @@ double RobotController::getMagnitude(double x, double y) { return sqrt(pow(x, 2)
 bool RobotController::toggleKeyboardAndMouse()
 {
     // only gets set to false the first time this funtion is called
-    static bool hasBeenReleased = true;  
+    static bool hasBeenReleased = true;
 
-    if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL)
-    &&drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT)
-    &&drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R))
-    {  
+    if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL) &&
+        drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT) &&
+        drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R))
+    {
         if (hasBeenReleased)
         {
             hasBeenReleased = false;
@@ -247,11 +241,15 @@ void RobotController::updateWithController()
                 break;
         }
     }
-    if(wheelValue > 0.3){
+    if (wheelValue > 0.3)
+    {
         shooterController->enableShooting();
         shooterController->setIndexer(0.5);
-    } else {
-        if(wheelValue < -0.3){
+    }
+    else
+    {
+        if (wheelValue < -0.3)
+        {
             shooterController->disableShooting();
         }
         shooterController->setIndexer(0);
@@ -269,104 +267,120 @@ void RobotController::updateWithController()
         yawRPM,
         dt);
     shooterController->setMotorSpeeds();
-
 }
 
 void RobotController::updateWithMouseKeyboard()
 {
     if (updateInputTimer.execute())
     {
-
-        //beyblade
-        static bool rHasBeenReleased = true; //r sets fast 
-        static bool fHasBeenReleased = true; //f sets slow 
-        static bool cHasBeenReleased = true; //c sets off 
+        // beyblade
+        static bool rHasBeenReleased = true;  // r sets fast
+        static bool fHasBeenReleased = true;  // f sets slow
+        static bool cHasBeenReleased = true;  // c sets off
         static double currentBeybladeFactor = 0;
 
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) { 
-            if (rHasBeenReleased){
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R))
+        {
+            if (rHasBeenReleased)
+            {
                 rHasBeenReleased = false;
                 currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
             }
-        } else{
+        }
+        else
+        {
             rHasBeenReleased = true;
         }
 
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F)){ 
-            if (fHasBeenReleased){
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F))
+        {
+            if (fHasBeenReleased)
+            {
                 fHasBeenReleased = false;
                 currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
             }
-        } else {
+        }
+        else
+        {
             fHasBeenReleased = true;
         }
-        
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::C)){ 
-            if (cHasBeenReleased){
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::C))
+        {
+            if (cHasBeenReleased)
+            {
                 cHasBeenReleased = false;
                 currentBeybladeFactor = 0;
             }
-        } else {
+        }
+        else
+        {
             cHasBeenReleased = true;
         }
 
-        if(currentBeybladeFactor!=0)
+        if (currentBeybladeFactor != 0)
             targetDTVelocityWorld = (currentBeybladeFactor * MAX_SPEED);
-        else{
-            targetDTVelocityWorld=0;
-            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Q)){ //rotate left
+        else
+        {
+            targetDTVelocityWorld = 0;
+            if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Q))
+            {  // rotate left
                 targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
             }
-            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::E)){ //rotate right
+            if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::E))
+            {  // rotate right
                 targetDTVelocityWorld += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
             }
         }
 
-
-        //movement
+        // movement
         int moveHorizonal = 0;
         int moveVertical = 0;
 
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W))
-            moveVertical++;
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::A))
-            moveHorizonal--;
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::S))
-            moveVertical--;
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::D))
-            moveHorizonal++;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W)) moveVertical++;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::A)) moveHorizonal--;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::S)) moveVertical--;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::D)) moveHorizonal++;
 
         double moveAngle = getAngle(moveHorizonal, moveVertical);
         double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
 
         if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL))  // slow
             moveMagnitude *= SLOW_SPEED;
-        else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT))  // fast
+        else if (drivers->remote.keyPressed(
+                     tap::communication::serial::Remote::Key::SHIFT))  // fast
             moveMagnitude *= FAST_SPEED;
-        else   // medium
+        else  // medium
             moveMagnitude *= MED_SPEED;
-    
+
         driveTrainEncoder = turretController->getYawEncoderValue();
         yawEncoderCache = driveTrainEncoder;
 
-        driveTrainController->moveDriveTrain(targetDTVelocityWorld, moveMagnitude, driveTrainEncoder + moveAngle); 
+        driveTrainController->moveDriveTrain(
+            targetDTVelocityWorld,
+            moveMagnitude,
+            driveTrainEncoder + moveAngle);
 
-        static int mouseXOffset = drivers->remote.getMouseX(), mouseYOffset = drivers->remote.getMouseY();
+        static int mouseXOffset = drivers->remote.getMouseX(),
+                   mouseYOffset = drivers->remote.getMouseY();
         static bool shoot = false;
         static double targetPitch = 0, targetYaw = 0;
 
-        int mouseX = drivers->remote.getMouseX() - mouseXOffset, mouseY = drivers->remote.getMouseY() - mouseYOffset;
+        int mouseX = drivers->remote.getMouseX() - mouseXOffset,
+            mouseY = drivers->remote.getMouseY() - mouseYOffset;
 
         // if(drivers->remote.getMouseL()){
         //     shoot = true;
 
         // if(drivers->remote.getMouseR()){
-        //      if(!jetsonCommunication.hasRead()) {                                
+        //      if(!jetsonCommunication.hasRead()) {
         //         jetsonCommunication.iReadData();
-        //         //Need to add the angle from the jetsonCommunicator to our current angle and tell our turret to go to that ()
-        //         targetPitch = turretController->getPitchEncoderValue() - 0.5 * PI  + jetsonCommunication.getMsg()->pitch;
-        //         targetYaw = turretController->getYawEncoderValue() + jetsonCommunication.getMsg()->yaw;
-                
+        //         //Need to add the angle from the jetsonCommunicator to our current angle and tell
+        //         our turret to go to that () targetPitch =
+        //         turretController->getPitchEncoderValue() - 0.5 * PI  +
+        //         jetsonCommunication.getMsg()->pitch; targetYaw =
+        //         turretController->getYawEncoderValue() + jetsonCommunication.getMsg()->yaw;
+
         //     }
         //     shoot = jetsonCommunication.getMsg()->shoot;
         // } else {
@@ -374,13 +388,18 @@ void RobotController::updateWithMouseKeyboard()
         //     targetPitch += mouseY / 10000.0;
         //     targetYaw -= mouseX / 10000.0;
         // }
-         if(drivers->remote.getMouseL()){
+        if (drivers->remote.getMouseL())
+        {
             shooterController->setIndexer(0.8);
             shooterController->enableShooting();
-        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
+        }
+        else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z))
+        {
             shooterController->disableShooting();
             shooterController->setIndexer(-0.1);
-        } else {
+        }
+        else
+        {
             shooterController->setIndexer(0);
         }
         shooterController->setMotorSpeeds();
@@ -388,13 +407,11 @@ void RobotController::updateWithMouseKeyboard()
         targetPitch += mouseY / 10000.0;
         targetYaw -= mouseX / 10000.0;
 
-
-        if(targetPitch > 0.4) targetPitch=0.4;
-        if(targetPitch < -0.3) targetPitch=-0.3;
+        if (targetPitch > 0.4) targetPitch = 0.4;
+        if (targetPitch < -0.3) targetPitch = -0.3;
         targetYaw = fmod(targetYaw, 2 * PI);
 
-
-        // if(shoot){ 
+        // if(shoot){
         //     shooterController->setIndexer(0.8);
         //     shooterController->enableShooting();
         // } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
@@ -403,11 +420,15 @@ void RobotController::updateWithMouseKeyboard()
         // } else {
         //     shooterController->setIndexer(0);
         // }
-        //shooterController->setMotorSpeeds();
+        // shooterController->setMotorSpeeds();
         // mouse
-        turretController->turretMove(targetYaw, targetPitch - 0.5 * PI, driveTrainRPM, yawAngleRelativeWorld, yawRPM, dt);
-
-        
+        turretController->turretMove(
+            targetYaw,
+            targetPitch - 0.5 * PI,
+            driveTrainRPM,
+            yawAngleRelativeWorld,
+            yawRPM,
+            dt);
     }
-    }
-}  // namespace ThornBots 
+}
+}  // namespace ThornBots
