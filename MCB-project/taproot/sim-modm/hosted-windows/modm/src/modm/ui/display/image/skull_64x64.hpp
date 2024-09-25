@@ -18,17 +18,18 @@
 
 namespace bitmap
 {
-/**
- * \brief	Generated bitmap
- *
- * Generated from file "src/modm/ui/display/image/skull_64x64.pbm".
- *
- * - Width  : 64
- * - Height : 64
- *
- * \ingroup	modm_ui_display_image
- */
-EXTERN_FLASH_STORAGE(uint8_t skull_64x64[]);
-}  // namespace bitmap
+	/**
+	 * \brief	Generated bitmap
+	 *
+	 * Generated from file "src/modm/ui/display/image/skull_64x64.pbm".
+	 *
+	 * - Width  : 64
+	 * - Height : 64
+	 *
+	 * \ingroup	modm_ui_display_image
+	 */
+	EXTERN_FLASH_STORAGE(uint8_t skull_64x64[]);
+}
 
-#endif  // BITMAP_SKULL_64X64_HPP
+#endif // BITMAP_SKULL_64X64_HPP
+

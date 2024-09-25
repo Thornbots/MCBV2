@@ -25,7 +25,7 @@
 #include "interface/clock.hpp"
 #include "interface/delay.hpp"
 #include "interface/memory.hpp"
-#include "interface/peripheral.hpp"
 #include "interface/register.hpp"
+#include "interface/peripheral.hpp"
 
-#endif  // MODM_INTERFACE_HPP
+#endif	// MODM_INTERFACE_HPP

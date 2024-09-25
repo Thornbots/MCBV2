@@ -42,6 +42,7 @@ namespace gpio
 class Pwm
 {
 public:
+
     static constexpr uint32_t DEFAULT_TIMER1_FREQUENCY = 2000;
 
     static constexpr uint32_t DEFAULT_TIMER8_FREQUENCY = 2000;

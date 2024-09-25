@@ -1,8 +1,7 @@
 #pragma once
 
 #include "drivers_singleton.hpp"
-namespace ThornBots
-{
+namespace ThornBots {
 
 struct cord_msg;
 
@@ -30,7 +29,7 @@ public:
     {
         drivers->uart.init<tap::communication::serial::Uart::UartPort::Uart1, 115200>();
     };
-    JetsonCommunication() = default;
+    JetsonCommunication()=default;
 
     ~JetsonCommunication() = default;
 
@@ -47,9 +46,9 @@ public:
         return read_len == 0 ? -1 : read_len;
     };
 
-    cord_msg* getMsg() { return &message; };
+    cord_msg* getMsg(){return &message;};
 
 private:
     cord_msg message;
 };
-}  // namespace ThornBots
+}

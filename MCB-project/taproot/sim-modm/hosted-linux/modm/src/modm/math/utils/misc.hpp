@@ -13,13 +13,12 @@
  */
 // ----------------------------------------------------------------------------
 
-#ifndef MODM_MATH_UTILS_MISC_HPP
-#define MODM_MATH_UTILS_MISC_HPP
+#ifndef	MODM_MATH_UTILS_MISC_HPP
+#define	MODM_MATH_UTILS_MISC_HPP
 
-#include <stdint.h>
-
-#include <cmath>
 #include <cstddef>
+#include <cmath>
+#include <stdint.h>
 #include <type_traits>
 
 #include <modm/architecture/utils.hpp>
@@ -35,7 +34,11 @@ namespace modm
  *
  * Checks only the sign bit for the AVR.
  */
-inline bool isPositive(const float& a) { return !std::signbit(a); }
+inline bool
+isPositive(const float& a)
+{
+	return !std::signbit(a);
+}
 
 // --------------------------------------------------------------------
 /**
@@ -50,9 +53,10 @@ inline bool isPositive(const float& a) { return !std::signbit(a); }
  * constexpr int value = modm::pow(10, 2);
  * @endcode
  */
-constexpr uint32_t pow(uint32_t base, uint8_t exponent)
+constexpr uint32_t
+pow(uint32_t base, uint8_t exponent)
 {
-    return (exponent > 0) ? base * pow(base, exponent - 1) : 1;
+	return (exponent > 0) ? base * pow(base, exponent - 1) : 1;
 }
 
 /**
@@ -66,13 +70,14 @@ constexpr uint32_t pow(uint32_t base, uint8_t exponent)
  * temporary expressions, since they are only evaluated once, unlike a
  * preprocessor macro.
  */
-template <typename T>
-inline const T& min(const T& a, const T& b)
+template<typename T>
+inline const T&
+min(const T& a, const T& b)
 {
-    if (b < a)
-        return b;
-    else
-        return a;
+	if (b < a)
+		return b;
+	else
+		return a;
 }
 
 /**
@@ -86,13 +91,14 @@ inline const T& min(const T& a, const T& b)
  * temporary expressions, since they are only evaluated once, unlike a
  * preprocessor macro.
  */
-template <typename T>
-inline const T& max(const T& a, const T& b)
+template<typename T>
+inline const T&
+max(const T& a, const T& b)
 {
-    if (a < b)
-        return b;
-    else
-        return a;
+	if (a < b)
+		return b;
+	else
+		return a;
 }
 
 /**
@@ -107,10 +113,12 @@ inline const T& max(const T& a, const T& b)
  * temporary expressions, since they are only evaluated once, unlike a
  * preprocessor macro.
  */
-template <typename T>
-constexpr T max(const T a, const T b, const T c)
+template<typename T>
+constexpr T
+max(const T a, const T b, const T c)
 {
-    return (((b > c) ? b : c) > a) ? ((b > c) ? b : c) : a;
+	return ( ( (b > c) ? b : c ) > a ) ?
+	         ( (b > c) ? b : c) : a;
 }
 
 /**
@@ -124,13 +132,14 @@ constexpr T max(const T a, const T b, const T c)
  * This will work on temporary expressions, since they are only evaluated
  * once, unlike a preprocessor macro.
  */
-template <typename T, typename Compare>
-inline const T& min(const T& a, const T& b, Compare compare)
+template<typename T, typename Compare>
+inline const T&
+min(const T& a, const T& b, Compare compare)
 {
-    if (compare(b, a))
-        return b;
-    else
-        return a;
+	if (compare(b, a))
+		return b;
+	else
+		return a;
 }
 
 /**
@@ -144,34 +153,32 @@ inline const T& min(const T& a, const T& b, Compare compare)
  * This will work on temporary expressions, since they are only evaluated
  * once, unlike a preprocessor macro.
  */
-template <typename T, typename Compare>
-inline const T& max(const T& a, const T& b, Compare compare)
+template<typename T, typename Compare>
+inline const T&
+max(const T& a, const T& b, Compare compare)
 {
-    if (compare(a, b))
-        return b;
-    else
-        return a;
+	if (compare(a, b))
+		return b;
+	else
+		return a;
 }
 
 /**
  * @brief constexpr implementation of fabs
  */
 template <typename Float>
-requires std::is_floating_point_v<Float>
+    requires std::is_floating_point_v<Float>
 constexpr Float constexpr_fabs(Float number)
 {
-    if (number >= 0)
-    {
+    if (number >= 0) {
         return number;
-    }
-    else
-    {
+    } else {
         return -number;
     }
 }
 
 /// @}
 
-}  // namespace modm
+}	// namespace modm
 
 #endif

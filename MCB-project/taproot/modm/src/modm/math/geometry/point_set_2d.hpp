@@ -15,74 +15,84 @@
 #define MODM_POINT_SET_2D_HPP
 
 #include <modm/container/dynamic_array.hpp>
-
 #include "vector.hpp"
 
 namespace modm
 {
-/**
- * \brief	Point set
- *
- * Collection of points, represented by their corresponding vectors.
- * Used for example to hold the result of a intersection-operation.
- *
- * Based on the modm::DynamicArray class, therefore grows automatically
- * if more space than currently allocated is needed. But because this
- * is an expensive operation it should be avoid if possible.
- *
- * \author	Fabian Greif
- * \ingroup	modm_math_geometry
- */
-template <typename T>
-class PointSet2D
-{
-public:
-    using SizeType = std::size_t;
-    using PointType = Vector<T, 2>;
+	/**
+	 * \brief	Point set
+	 *
+	 * Collection of points, represented by their corresponding vectors.
+	 * Used for example to hold the result of a intersection-operation.
+	 *
+	 * Based on the modm::DynamicArray class, therefore grows automatically
+	 * if more space than currently allocated is needed. But because this
+	 * is an expensive operation it should be avoid if possible.
+	 *
+	 * \author	Fabian Greif
+	 * \ingroup	modm_math_geometry
+	 */
+	template <typename T>
+	class PointSet2D
+	{
+	public:
+		using SizeType = std::size_t;
+		using PointType = Vector<T, 2>;
 
-public:
-    /**
-     * \brief	Constructs a set capable of holding n points (default = 2)
-     */
-    PointSet2D(SizeType n = 2);
+	public:
+		/**
+		 * \brief	Constructs a set capable of holding n points (default = 2)
+		 */
+		PointSet2D(SizeType n = 2);
 
-    PointSet2D(std::initializer_list<PointType> init);
+		PointSet2D(std::initializer_list<PointType> init);
 
-    PointSet2D(const PointSet2D& other);
+		PointSet2D(const PointSet2D& other);
 
-    PointSet2D& operator=(const PointSet2D& other);
+		PointSet2D&
+		operator = (const PointSet2D& other);
 
-    /// Number of points contained in the set
-    inline SizeType getNumberOfPoints() const;
+		/// Number of points contained in the set
+		inline SizeType
+		getNumberOfPoints() const;
 
-    inline void append(const PointType& point);
 
-    inline PointType& operator[](SizeType index);
+		inline void
+		append(const PointType& point);
 
-    inline const PointType& operator[](SizeType index) const;
+		inline PointType&
+		operator [](SizeType index);
 
-    /**
-     * \brief	Remove all points
-     */
-    inline void removeAll();
+		inline const PointType&
+		operator [](SizeType index) const;
 
-public:
-    typedef typename modm::DynamicArray<PointType>::iterator iterator;
-    typedef typename modm::DynamicArray<PointType>::const_iterator const_iterator;
+		/**
+		 * \brief	Remove all points
+		 */
+		inline void
+		removeAll();
 
-    inline iterator begin();
+	public:
+		typedef typename modm::DynamicArray< PointType >::iterator iterator;
+		typedef typename modm::DynamicArray< PointType >::const_iterator const_iterator;
 
-    inline const_iterator begin() const;
+		inline iterator
+		begin();
 
-    inline iterator end();
+		inline const_iterator
+		begin() const;
 
-    inline const_iterator end() const;
+		inline iterator
+		end();
 
-protected:
-    modm::DynamicArray<PointType> points;
-};
-}  // namespace modm
+		inline const_iterator
+		end() const;
+
+	protected:
+		modm::DynamicArray< PointType > points;
+	};
+}
 
 #include "point_set_2d_impl.hpp"
 
-#endif  // MODM_POINT_SET_2D_HPP
+#endif // MODM_POINT_SET_2D_HPP

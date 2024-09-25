@@ -12,8 +12,8 @@
  */
 // ----------------------------------------------------------------------------
 
-#ifndef MODM_INTERFACE_ATOMIC_LOCK_HPP
-#define MODM_INTERFACE_ATOMIC_LOCK_HPP
+#ifndef	MODM_INTERFACE_ATOMIC_LOCK_HPP
+#define	MODM_INTERFACE_ATOMIC_LOCK_HPP
 
 #ifdef __DOXYGEN__
 
@@ -49,7 +49,8 @@ namespace atomic
 class Lock
 {
 public:
-    modm_always_inline Lock();
+	modm_always_inline
+	Lock();
 };
 
 /**
@@ -65,12 +66,13 @@ public:
 class Unlock
 {
 public:
-    modm_always_inline Unlock();
+	modm_always_inline
+	Unlock();
 };
 
-}  // namespace atomic
+}	// namespace atomic
 
-}  // namespace modm
+}	// namespace modm
 
 #else
 
@@ -80,4 +82,4 @@ public:
 
 #endif
 
-#endif  // MODM_INTERFACE_ATOMIC_LOCK_HPP
+#endif	// MODM_INTERFACE_ATOMIC_LOCK_HPP

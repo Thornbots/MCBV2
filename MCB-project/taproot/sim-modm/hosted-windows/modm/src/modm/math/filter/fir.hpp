@@ -19,64 +19,73 @@
 
 namespace modm
 {
-/**
- * \brief	A finit impulse response (FIR) filter implementation
- *
- * g[n] = SUM(h[k]x[n-k])
- *
- * \todo
- *
- * \author	Kevin Laeufer
- * \ingroup modm_math_filter
- */
-namespace filter
-{
-template <typename T, int N, int BLOCK_SIZE, signed int ScaleFactor = 1>
-class Fir
-{
-public:
-    /**
-     * \param	coeff	array containing the coefficients
-     **/
-    Fir(const float (&coeff)[N]);
+	/**
+	 * \brief	A finit impulse response (FIR) filter implementation
+	 *
+	 * g[n] = SUM(h[k]x[n-k])
+	 *
+	 * \todo
+	 *
+	 * \author	Kevin Laeufer
+	 * \ingroup modm_math_filter
+	 */
+	namespace filter
+	{
+		template<typename T, int N, int BLOCK_SIZE, signed int ScaleFactor = 1>
+		class Fir
+		{
 
-    /**
-     * Reset the coefficients.
-     *
-     * \param	coeff	array containing the coefficients
-     **/
-    void setCoefficients(const float (&coeff)[N]);
+		public:
+			/**
+			 * \param	coeff	array containing the coefficients
+			 **/
+			Fir(const float (&coeff)[N]);
 
-    /**
-     * \brief	Resets the tap buffer
-     */
-    void reset();
+			/**
+			 * Reset the coefficients.
+			 *
+			 * \param	coeff	array containing the coefficients
+			 **/
+			void
+			setCoefficients(const float (&coeff)[N]);
 
-    /**
-     * \brief	Appends new tap
-     */
-    void append(const T& input);
+			/**
+			 * \brief	Resets the tap buffer
+			 */
+			void
+			reset();
 
-    /**
-     * \brief	Calculates g[0]
-     *
-     */
-    void update();
+			/**
+			 * \brief	Appends new tap
+			 */
+			void
+			append(const T& input);
 
-    /**
-     * \brief	Returns g[0].
-     */
-    inline const T& getValue() const { return output; }
+			/**
+			 * \brief	Calculates g[0]
+			 *
+			 */
+			void
+			update();
 
-private:
-    T output;
-    T taps[N + BLOCK_SIZE];
-    T coefficients[N];
-    int taps_index;
-};
-}  // namespace filter
-}  // namespace modm
+			/**
+			 * \brief	Returns g[0].
+			 */
+			inline const T&
+			getValue() const
+			{
+				return output;
+			}
+
+		private:
+			T output;
+			T taps[N+BLOCK_SIZE];
+			T coefficients[N];
+			int taps_index;
+		};
+	}
+}
 
 #include "fir_impl.hpp"
 
-#endif  // MODM_FIR_HPP
+#endif // MODM_FIR_HPP

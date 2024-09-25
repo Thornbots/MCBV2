@@ -18,7 +18,6 @@
 
 /// @cond
 #include <stdint.h>
-
 #include <modm/architecture/utils.hpp>
 
 #define MODM_DELAY_NS_IS_ACCURATE 0
@@ -32,5 +31,5 @@ inline void delay_ns(uint32_t ns) { Sleep(ns / 1000'000ul); }
 inline void delay_us(uint32_t us) { Sleep(us / 1000ul); }
 inline void delay_ms(uint32_t ms) { Sleep(ms); }
 
-}  // namespace modm
-   /// @endcond
+}	// namespace modm
+/// @endcond

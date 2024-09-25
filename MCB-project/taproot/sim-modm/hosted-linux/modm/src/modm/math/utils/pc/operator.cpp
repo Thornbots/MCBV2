@@ -14,7 +14,9 @@
 
 #include "../operator.hpp"
 
-extern "C" uint16_t modm__sqrt32(uint32_t input)
+extern "C"
+uint16_t
+modm__sqrt32(uint32_t input)
 {
-    return round(std::sqrt(static_cast<double>(input)));
+	return round(std::sqrt(static_cast<double>(input)));
 }

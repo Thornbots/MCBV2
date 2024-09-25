@@ -12,8 +12,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include "display/character_display.hpp"
-#include "display/color_graphic_display.hpp"
 #include "display/font.hpp"
 #include "display/image.hpp"
+
+#include "display/character_display.hpp"
+#include "display/color_graphic_display.hpp"
 #include "display/monochrome_graphic_display.hpp"

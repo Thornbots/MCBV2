@@ -10,12 +10,11 @@
  */
 // ----------------------------------------------------------------------------
 
-#ifndef XPCC_RESPONSE_HPP
-#define XPCC_RESPONSE_HPP
-
-#include <modm/processing/resumable.hpp>
+#ifndef	XPCC_RESPONSE_HPP
+#define	XPCC_RESPONSE_HPP
 
 #include "../backend/backend_interface.hpp"
+#include <modm/processing/resumable.hpp>
 
 namespace xpcc
 {
@@ -25,10 +24,11 @@ namespace xpcc
  *
  * @ingroup	modm_communication_xpcc
  */
-enum class Response : bool
+enum class
+Response : bool
 {
-    Negative = false,
-    Positive = true
+	Negative = false,
+	Positive = true
 };
 
 /**
@@ -36,34 +36,44 @@ enum class Response : bool
  *
  * @ingroup	modm_communication_xpcc
  */
-template <typename T = void>
+template< typename T = void>
 class ActionResult
 {
 public:
-    ActionResult() : response(Response::Negative) {}
+	ActionResult()
+	:	response(Response::Negative)
+	{}
 
-    ActionResult(Response response) : response(response) {}
+	ActionResult(Response response)
+	:	response(response)
+	{}
 
-    ActionResult(T data) : response(Response::Positive), data(data) {}
+	ActionResult(T data)
+	:	response(Response::Positive), data(data)
+	{}
 
-    Response response;
-    T data;
+	Response response;
+	T data;
 };
 
-template <>
+template<>
 class ActionResult<void>
 {
 public:
-    ActionResult() : response(Response::Negative) {}
+	ActionResult()
+	:	response(Response::Negative)
+	{}
 
-    ActionResult(Response response) : response(response) {}
+	ActionResult(Response response)
+	:	response(response)
+	{}
 
-    Response response;
+	Response response;
 };
 
-template <typename T>
-using ActionResponse = modm::ResumableResult<xpcc::ActionResult<T> >;
+template < typename T >
+using ActionResponse = modm::ResumableResult< xpcc::ActionResult< T > >;
 
-}  // namespace xpcc
+}	// namespace xpcc
 
-#endif  // XPCC_RESPONSE_HPP
+#endif // XPCC_RESPONSE_HPP

@@ -19,29 +19,33 @@
 #ifndef MODM_COMMUNICATING_VIEW_STACK_HPP
 #define MODM_COMMUNICATING_VIEW_STACK_HPP
 
-#include <modm/communication/xpcc/communicatable.hpp>
 #include <modm/communication/xpcc/communicator.hpp>
+#include <modm/communication/xpcc/communicatable.hpp>
 
 #include "view_stack.hpp"
 
 namespace modm
 {
-/// @ingroup modm_ui_menu
-template <typename Allocator = allocator::Dynamic<IAbstractView> >
-class CommunicatingViewStack : public ViewStack<Allocator>
-{
-public:
-    CommunicatingViewStack(modm::GraphicDisplay* display, xpcc::Communicator* communicator)
-        : ViewStack<Allocator>(display),
-          communicator(communicator)
-    {
-    }
+	/// @ingroup modm_ui_menu
+	template<typename Allocator = allocator::Dynamic<IAbstractView> >
+	class CommunicatingViewStack : public ViewStack<Allocator>
+	{
+	public:
+		CommunicatingViewStack(modm::GraphicDisplay* display, xpcc::Communicator* communicator) :
+			ViewStack<Allocator>(display),
+			communicator(communicator)
+		{
+		}
 
-    inline xpcc::Communicator* getCommunicator() { return communicator; }
+		inline xpcc::Communicator*
+		getCommunicator()
+		{
+			return communicator;
+		}
 
-protected:
-    xpcc::Communicator* communicator;
-};
-}  // namespace modm
+	protected:
+		xpcc::Communicator* communicator;
+	};
+}
 
-#endif  // MODM_COMMUNICATING_VIEW_STACK_HPP
+#endif // MODM_COMMUNICATING_VIEW_STACK_HPP

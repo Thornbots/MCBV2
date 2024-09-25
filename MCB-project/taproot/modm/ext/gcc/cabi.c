@@ -16,5 +16,6 @@
 extern void _exit(int);
 void _exit(int status)
 {
-    modm_assert(false, "libc.exit", "The libc exit(status) function was called!", status);
+	modm_assert(false, "libc.exit",
+			"The libc exit(status) function was called!", status);
 }

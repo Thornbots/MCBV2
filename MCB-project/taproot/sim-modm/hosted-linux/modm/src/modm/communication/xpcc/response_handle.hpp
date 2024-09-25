@@ -13,40 +13,51 @@
  */
 // ----------------------------------------------------------------------------
 
-#ifndef XPCC_RESPONSE_HANDLE_HPP
-#define XPCC_RESPONSE_HANDLE_HPP
+#ifndef	XPCC_RESPONSE_HANDLE_HPP
+#define	XPCC_RESPONSE_HANDLE_HPP
 
 #include "backend/header.hpp"
 
 namespace xpcc
 {
-/**
- * \brief	Response to an action call
- *
- * \ingroup	modm_communication_xpcc
- */
-class ResponseHandle
-{
-    friend class Communicator;
+	/**
+	 * \brief	Response to an action call
+	 *
+	 * \ingroup	modm_communication_xpcc
+	 */
+	class ResponseHandle
+	{
+		friend class Communicator;
 
-public:
-    ResponseHandle() : destination(0) {}
+	public:
+		ResponseHandle() :
+			destination(0)
+		{
+		}
 
-    explicit ResponseHandle(const Header& header)
-        : destination(header.source),
-          packetIdentifier(header.packetIdentifier)
-    {
-    }
+		explicit ResponseHandle(const Header& header) :
+			destination(header.source),
+			packetIdentifier(header.packetIdentifier)
+		{
+		}
 
-public:
-    inline uint8_t getDestination() const { return this->destination; }
+	public:
+		inline uint8_t
+		getDestination() const
+		{
+			return this->destination;
+		}
 
-    inline uint8_t getIdentifier() const { return this->packetIdentifier; }
+		inline uint8_t
+		getIdentifier() const
+		{
+			return this->packetIdentifier;
+		}
 
-protected:
-    uint8_t destination;
-    uint8_t packetIdentifier;
-};
-}  // namespace xpcc
+	protected:
+		uint8_t destination;
+		uint8_t packetIdentifier;
+	};
+}
 
-#endif  // XPCC_RESPONSE_HANDLE_HPP
+#endif // XPCC_RESPONSE_HANDLE_HPP

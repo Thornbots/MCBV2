@@ -13,8 +13,8 @@
  */
 // ----------------------------------------------------------------------------
 
-#ifndef MODM_TASK_HPP
-#define MODM_TASK_HPP
+#ifndef	MODM_TASK_HPP
+#define	MODM_TASK_HPP
 
 namespace modm
 {
@@ -32,17 +32,22 @@ namespace modm
 class Task
 {
 public:
-    virtual ~Task() {}
+	virtual ~Task()
+	{
+	}
 
 #ifdef __DOXYGEN__
-    void start(...);
+	void
+	start(...);
 #endif
 
-    virtual bool isFinished() = 0;
+	virtual bool
+	isFinished() = 0;
 
-    virtual void update() = 0;
+	virtual void
+	update() = 0;
 };
 
-}  // namespace modm
+}	// namespace modm
 
-#endif  // MODM_TASK_HPP
+#endif	// MODM_TASK_HPP

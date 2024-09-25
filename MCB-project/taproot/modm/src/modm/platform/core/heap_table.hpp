@@ -14,7 +14,6 @@
 #include <cstdint>
 #include <iterator>
 #include <tuple>
-
 #include <modm/architecture/interface/memory.hpp>
 
 struct table_pool_t;
@@ -36,40 +35,39 @@ namespace modm::platform
 class HeapTable
 {
 public:
-    class Iterator;
-    Iterator begin();
-    Iterator end();
+	class Iterator;
+	Iterator begin();
+	Iterator end();
 
-    /// Find the largest *continuous* memory section which satisfies *at least*
-    /// the selected memory traits.
-    static bool find_largest(
-        const uint8_t** start,
-        const uint8_t** end,
-        MemoryTraits trait_mask = MemoryDefault);
+	/// Find the largest *continuous* memory section which satisfies *at least*
+	/// the selected memory traits.
+	static bool
+	find_largest(const uint8_t **start,
+				 const uint8_t **end,
+				 MemoryTraits trait_mask = MemoryDefault);
 
-    /// @cond
+	/// @cond
 public:
-    class Iterator
-    {
-        using Type = std::tuple<MemoryTraits, const uint8_t*, const uint8_t*, size_t>;
-        const table_pool_t* table;
+	class Iterator
+	{
+		using Type = std::tuple<MemoryTraits, const uint8_t*, const uint8_t*, size_t>;
+		const table_pool_t* table;
+	public:
+		using iterator_category = std::input_iterator_tag;
+		using value_type = Type;
+		using difference_type = std::ptrdiff_t;
+		using pointer = Type*;
+		using reference = Type&;
 
-    public:
-        using iterator_category = std::input_iterator_tag;
-        using value_type = Type;
-        using difference_type = std::ptrdiff_t;
-        using pointer = Type*;
-        using reference = Type&;
+		explicit Iterator(const table_pool_t* table);
+		Type operator*() const;
+		Iterator& operator++();
+		Iterator operator++(int);
 
-        explicit Iterator(const table_pool_t* table);
-        Type operator*() const;
-        Iterator& operator++();
-        Iterator operator++(int);
-
-        bool operator==(const Iterator& other) const;
-        bool operator!=(const Iterator& other) const;
-    };
-    /// @endcond
+		bool operator==(const Iterator& other) const;
+		bool operator!=(const Iterator& other) const;
+	};
+	/// @endcond
 };
 
-}  // namespace modm::platform
+}

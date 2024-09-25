@@ -13,5 +13,4 @@
 
 #include <modm/debug/logger.hpp>
 
-#warning \
-    "Inclusion of 'modm/debug/logger/imp/std.hpp' is deprecated! Only include 'modm/debug/logger.hpp' and remove '.../imp/std.hpp'."
+#warning "Inclusion of 'modm/debug/logger/imp/std.hpp' is deprecated! Only include 'modm/debug/logger.hpp' and remove '.../imp/std.hpp'."

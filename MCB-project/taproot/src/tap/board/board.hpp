@@ -134,8 +134,9 @@ using LedGreen = GpioOutputH11;
 using LedBlue = GpioOutputH10;
 using LedsPort = SoftwareGpioPort<GpioOutputH12, GpioOutputH11, GpioOutputH10>;
 
-// Initialize PWM pins
 
+// Initialize PWM pins
+        
 using PWMOutPinC1 = GpioE9;
 using PWMOutPinC2 = GpioE11;
 using PWMOutPinC3 = GpioE13;
@@ -145,35 +146,25 @@ using PWMOutPinC6 = GpioI6;
 using PWMOutPinC7 = GpioI7;
 using PWMOutPinBuzzer = GpioD14;
 using PWMOutPinImuHeater = GpioF6;
-
-using PWMOutPins = SoftwareGpioPort<
-    PWMOutPinC1,
-    PWMOutPinC2,
-    PWMOutPinC3,
-    PWMOutPinC4,
-    PWMOutPinC5,
-    PWMOutPinC6,
-    PWMOutPinC7,
-    PWMOutPinBuzzer,
-    PWMOutPinImuHeater>;
+        
+using PWMOutPins = SoftwareGpioPort<PWMOutPinC1, PWMOutPinC2, PWMOutPinC3, PWMOutPinC4, PWMOutPinC5, PWMOutPinC6, PWMOutPinC7, PWMOutPinBuzzer, PWMOutPinImuHeater>;
 
 // Initialize digital input pins
-
+        
 using DigitalInPinPF1 = GpioF1;
 using DigitalInPinPF0 = GpioF0;
 using DigitalInPinB12 = GpioB12;
-
+        
 using DigitalInPins = SoftwareGpioPort<DigitalInPinPF1, DigitalInPinPF0, DigitalInPinB12>;
 
 // Initialize digital output pins
-
+        
 using DigitalOutPinB13 = GpioB13;
 using DigitalOutPinB14 = GpioB14;
 using DigitalOutPinB15 = GpioB15;
 using DigitalOutPinLaser = GpioC8;
-
-using DigitalOutPins =
-    SoftwareGpioPort<DigitalOutPinB13, DigitalOutPinB14, DigitalOutPinB15, DigitalOutPinLaser>;
+        
+using DigitalOutPins = SoftwareGpioPort<DigitalOutPinB13, DigitalOutPinB14, DigitalOutPinB15, DigitalOutPinLaser>;
 
 // gpio pins used for SPI communication to the onboard BMI088 IMU
 

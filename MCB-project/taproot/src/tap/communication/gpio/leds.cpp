@@ -55,10 +55,10 @@ void Leds::set(Leds::LedPin pin, bool isSet)
         case Leds::LedPin::Red:
             LedRed::set(isSet);
             break;
-
+        
         case Leds::LedPin::Blue:
             LedBlue::set(isSet);
-    }
+    } 
 #endif
 }
 }  // namespace gpio
