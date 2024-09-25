@@ -8,35 +8,35 @@ on:
 jobs:
   clang-format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          # Ensure that the workflow has access to the pull request branch
           ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
       - name: Install Clang Format
         run: sudo apt-get install -y clang-format
 
       - name: Run Clang Format
         run: |
-          # Find all C and C++ header + definition files and format them
           find ./MCB-project -name "*.c" -o -name "*.cc" -o -name "*.cpp" \
           -o -name "*.h" -o -name "*.hh" -o -name "*.hpp" |
           xargs clang-format -i
 
       - name: Check for formatting changes
+        id: git-check
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Add any changes made by clang-format
           git add .
+          git diff --cached --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
 
-          # Commit the changes only if formatting corrections were made
-          git diff --cached --exit-code || git commit -m "style: Auto-format code via clang-format"
-  
-      - name: Push changes back to PR branch
-        if: success()
-        run: git push origin ${{ github.head_ref }}
+      - name: Commit and push changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git commit -m "style: Auto-format code via clang-format"
+          git push origin ${{ github.head_ref }}
