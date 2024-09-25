@@ -41,28 +41,32 @@ void Pwm::init()
     Timer1::connect<PWMOutPinC1::Ch1, PWMOutPinC2::Ch2, PWMOutPinC3::Ch3, PWMOutPinC4::Ch4>();
     Timer1::enable();
     Timer1::setMode(Timer1::Mode::UpCounter);
-    timer1CalculatedOverflow = Timer1::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER1_FREQUENCY);
+    timer1CalculatedOverflow =
+        Timer1::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER1_FREQUENCY);
     Timer1::start();
     Timer1::enableOutput();
 
     Timer8::connect<PWMOutPinC5::Ch1, PWMOutPinC6::Ch2, PWMOutPinC7::Ch3>();
     Timer8::enable();
     Timer8::setMode(Timer8::Mode::UpCounter);
-    timer8CalculatedOverflow = Timer8::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER8_FREQUENCY);
+    timer8CalculatedOverflow =
+        Timer8::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER8_FREQUENCY);
     Timer8::start();
     Timer8::enableOutput();
 
     Timer4::connect<PWMOutPinBuzzer::Ch3>();
     Timer4::enable();
     Timer4::setMode(Timer4::Mode::UpCounter);
-    timer4CalculatedOverflow = Timer4::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER4_FREQUENCY);
+    timer4CalculatedOverflow =
+        Timer4::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER4_FREQUENCY);
     Timer4::start();
     Timer4::enableOutput();
 
     Timer10::connect<PWMOutPinImuHeater::Ch1>();
     Timer10::enable();
     Timer10::setMode(Timer10::Mode::UpCounter);
-    timer10CalculatedOverflow = Timer10::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER10_FREQUENCY);
+    timer10CalculatedOverflow =
+        Timer10::setPeriod<Board::SystemClock>(1'000'000 / DEFAULT_TIMER10_FREQUENCY);
     Timer10::start();
     Timer10::enableOutput();
 
@@ -173,7 +177,8 @@ void Pwm::setTimerFrequency(Timer timer, uint32_t frequency)
             timer4CalculatedOverflow = Timer4::setPeriod<Board::SystemClock>(1'000'000 / frequency);
             break;
         case TIMER10:
-            timer10CalculatedOverflow = Timer10::setPeriod<Board::SystemClock>(1'000'000 / frequency);
+            timer10CalculatedOverflow =
+                Timer10::setPeriod<Board::SystemClock>(1'000'000 / frequency);
             break;
     }
 #endif

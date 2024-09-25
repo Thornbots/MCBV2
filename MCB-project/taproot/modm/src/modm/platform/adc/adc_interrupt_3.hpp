@@ -13,10 +13,10 @@
 #ifndef MODM_STM32_ADC_INTERRUPT_3_HPP
 #define MODM_STM32_ADC_INTERRUPT_3_HPP
 
-#include <modm/utils/dummy.hpp>
-#include "adc_3.hpp"
 #include <modm/architecture/interface/adc_interrupt.hpp>
+#include <modm/utils/dummy.hpp>
 
+#include "adc_3.hpp"
 
 namespace modm
 {
@@ -41,17 +41,16 @@ namespace platform
 class AdcInterrupt3 : public Adc3, public modm::AdcInterrupt
 {
 public:
-	static inline void
-	attachInterruptHandler(Handler handler=modm::dummy)
-	{
-		AdcInterrupt3::handler = handler;
-	}
+    static inline void attachInterruptHandler(Handler handler = modm::dummy)
+    {
+        AdcInterrupt3::handler = handler;
+    }
 
     static Handler handler;
 };
 
-}	// namespace platform
+}  // namespace platform
 
-}	// namespace modm
+}  // namespace modm
 
-#endif // MODM_STM32_ADC_INTERRUPT_HPP
+#endif  // MODM_STM32_ADC_INTERRUPT_HPP

@@ -26,18 +26,14 @@ namespace modm
  */
 class Terminal : public IODevice
 {
-public :
-	virtual void
-	write(char c);
+public:
+    virtual void write(char c);
 
-	virtual void
-	write(const char* s);
+    virtual void write(const char* s);
 
-	virtual void
-	flush();
+    virtual void flush();
 
-	virtual bool
-	read(char& value);
+    virtual bool read(char& value);
 };
 
-}
+}  // namespace modm

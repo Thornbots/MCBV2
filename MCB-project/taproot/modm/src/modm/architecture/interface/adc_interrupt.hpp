@@ -49,14 +49,13 @@ namespace modm
 class AdcInterrupt : public modm::Adc
 {
 protected:
-	typedef void (*Handler) ();
+    typedef void (*Handler)();
 #ifdef __DOXYGEN__
 public:
-	static inline void
-	attachInterruptHandler(Handler handler=modm::dummy);
+    static inline void attachInterruptHandler(Handler handler = modm::dummy);
 #endif
 };
 
-}	// namespace modm
+}  // namespace modm
 
-#endif // MODM_INTERFACE_ADC_INTERRUPT_HPP
+#endif  // MODM_INTERFACE_ADC_INTERRUPT_HPP
