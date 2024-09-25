@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          # Ensure that the workflow has access to the pull request branch
+          ref: ${{ github.head_ref }}
 
       - name: Install Clang Format
         run: sudo apt-get install -y clang-format
@@ -25,5 +28,15 @@ jobs:
 
       - name: Check for formatting changes
         run: |
-          # If there are any differences after formatting, this will fail
-          git diff --exit-code
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add any changes made by clang-format
+          git add .
+
+          # Commit the changes only if formatting corrections were made
+          git diff --cached --exit-code || git commit -m "style: Auto-format code via clang-format"
+  
+      - name: Push changes back to PR branch
+        if: success()
+        run: git push origin ${{ github.head_ref }}
