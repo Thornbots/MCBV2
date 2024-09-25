@@ -17,8 +17,8 @@
 
 #ifdef __AVR__
 // include faster implementations written in assembler
-#include "saturated__avr_u8_impl.hpp"
 #include "saturated__avr_s8_impl.hpp"
+#include "saturated__avr_u8_impl.hpp"
 #endif
 
 namespace modm

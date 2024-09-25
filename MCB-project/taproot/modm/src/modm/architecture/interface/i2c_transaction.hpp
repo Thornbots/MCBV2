@@ -192,8 +192,8 @@ public:
      * be detached. The I2cMaster will not be free until this method returns.
      *
      * @param	cause	specifies whether the detachment was expected (`NormalStop`),
-     * 					or a error occurred (`ErrorCondition`), which can, but does not
-     * need to be reacted upon.
+     * 					or a error occurred (`ErrorCondition`), which can, but does
+     * not need to be reacted upon.
      */
     virtual void detaching(DetachCause cause)
     {

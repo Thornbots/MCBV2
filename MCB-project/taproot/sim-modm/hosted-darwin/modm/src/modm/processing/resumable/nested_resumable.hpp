@@ -26,8 +26,8 @@ namespace modm
  * @ingroup	modm_processing_resumable
  * @author	Niklas Hauser
  * @tparam	Levels	maximum number of nesting levels (should be <128):
- * 					max(number of resumable functions that are called within resumable
- * functions) + 1
+ * 					max(number of resumable functions that are called within
+ * resumable functions) + 1
  */
 template <uint8_t Levels = 1>
 class NestedResumable

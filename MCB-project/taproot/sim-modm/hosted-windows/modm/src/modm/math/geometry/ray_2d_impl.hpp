@@ -190,12 +190,13 @@ bool modm::Ray2D<T>::intersects(const LineSegment2D<T>& line) const
 //		if (0.f <= t2 and t2 <= 1.f)
 //		{
 //			FloatType t1 =
-//static_cast<FloatType>(otherDirectionVector.cross(connectionVector)) / 					   static_cast<FloatType>(d);
+// static_cast<FloatType>(otherDirectionVector.cross(connectionVector)) /
+// static_cast<FloatType>(d);
 //
 //			if (0.f <= t1 and t1 <= 1.f)
 //			{
 //				intersectionPoints.append(this->startPoint + ownDirectionVector *
-//t1); 				return true;
+// t1); 				return true;
 //			}
 //		}
 //	}
@@ -218,7 +219,7 @@ bool modm::Ray2D<T>::intersects(const LineSegment2D<T>& line) const
 //	WideType b = 2 * circleToLine.dot(directionVector);
 //	WideType c = circleToLine.dot(circleToLine) -
 //			static_cast<WideType>(circle.radius) *
-//static_cast<WideType>(circle.radius);;
+// static_cast<WideType>(circle.radius);;
 //
 //	WideType discriminant = (b * b - 4 * a * c);
 //
