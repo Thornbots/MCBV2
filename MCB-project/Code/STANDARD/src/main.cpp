@@ -12,8 +12,9 @@ int main() {
     ThornBots::DrivetrainSubsystem *drivetrainSubsystem = new ThornBots::DrivetrainSubsystem(drivers);
     ThornBots::GimbalSubsystem *gimbalSubsystem = new ThornBots::GimbalSubsystem(drivers);
     ThornBots::ShooterSubsystem *shooterSubsystem = new ThornBots::ShooterSubsystem(drivers);
+    ThornBots::UI *ui = new ThornBots::UI(drivers);
 
-    ThornBots::Robot *robot = new ThornBots::Robot(drivers, drivetrainSubsystem, gimbalSubsystem, shooterSubsystem);
+    ThornBots::Robot *robot = new ThornBots::Robot(drivers, drivetrainSubsystem, gimbalSubsystem, shooterSubsystem, ui);
 
     robot->initialize();
     while (1) {
