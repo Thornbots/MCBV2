@@ -12,6 +12,7 @@
 #include "modm/processing/protothread.hpp"
 #include "modm/processing/resumable.hpp"
 #include "tap/drivers.hpp"
+#include "tap/communication/serial/ref_serial_transmitter.hpp"
 
 using namespace tap::control;
 
@@ -43,6 +44,7 @@ namespace ThornBots {
         GimbalSubsystem* gimbalSubsystem;
         ShooterSubsystem* shooterSubsystem;
         ThornBots::UI* ui;
+        RefSerialTransmitter refSerialTransmitter;
         double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
         double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
         double wheelValue = 0;
@@ -61,7 +63,7 @@ namespace ThornBots {
 
     public:  // Public Methods
         Robot(tap::Drivers* driver, DrivetrainSubsystem* driveTrainController, GimbalSubsystem* turretController,
-              ShooterSubsystem* shooterController, UI* ui);
+              ShooterSubsystem* shooterController, UI* ui) : refSerialTransmitter(drivers) {};
 
         void initialize();
 

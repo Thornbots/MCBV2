@@ -41,7 +41,7 @@ namespace ThornBots {
 
         PT_WAIT_UNTIL(drivers->refSerial.getRefSerialReceivingData());
 
-        PT_CALL(ui->update());
+        PT_CALL(refSerialTransmitter.sendGraphic);
         PT_YIELD();
         PT_END();
     }
