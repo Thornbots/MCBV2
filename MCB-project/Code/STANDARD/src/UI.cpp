@@ -1,11 +1,17 @@
 #include "UI.h"
-
+using namespace tap::communication::serial;
+using namespace tap::control;
 namespace ThornBots {
-    UI::UI(tap::Drivers* driver) { this->drivers = driver; }
+    UI::UI(tap::Drivers* drivers) {
+        // roughly from tamu
+        this->drivers = drivers;
+        this->commandScheduler = &drivers->commandScheduler;
+        this->refSerialTransmitter = new tap::communication::serial::RefSerialTransmitter(drivers); //this isn't close to what tamu had
+    }
 
     bool UI::initialize() {
         // Nothing needs to be done to drivers
-        refSerialTransmitter = new tap::communication::serial::RefSerialTransmitter(drivers);
+        // refSerialTransmitter = new tap::communication::serial::RefSerialTransmitter(drivers);
 
         // if (!this->isRunning())
         // {
@@ -18,14 +24,16 @@ namespace ThornBots {
         // PT_BEGIN();
 
         // PT_WAIT_UNTIL(drivers->refSerial.getRefSerialReceivingData());
+        // PT_CALL(update());
+        // //PT_CALL(update());
+        //  //this->ptState = 27; __attribute__((fallthrough)); case 27: auto rfResult = (sendInitial()); if (rfResult.getState() > modm::rf::NestingError) { return true; } rfResult.getResult(); 
 
-        // PT_CALL(sendInitial());
-
+        
         // PT_END();
 
         // We cannot reset the thread from here because there might be locked
         // resources that we need to finish first.
-        restarting = true;
+       // restarting = true;
     }
 
     void UI::restartHud() {
@@ -79,7 +87,7 @@ namespace ThornBots {
     }
 
     modm::ResumableResult<bool> UI::sendInitial() {
-        // RF_BEGIN(0);  //aruw uses this, but this errs when RF_CALL is used, it also won't build
+        //RF_BEGIN(0);  //aruw uses this, but this errs when RF_CALL is used, it also won't build
 
         //  Example code:
         // Graphic1Message msg;
@@ -98,17 +106,16 @@ namespace ThornBots {
         tap::communication::serial::RefSerialTransmitter::Tx::Graphic1Message* msg =
             new tap::communication::serial::RefSerialTransmitter::Tx::Graphic1Message();
 
-        refSerialTransmitter->configGraphicGenerics(&msg->graphicData, graphicName,
-                                                    tap::communication::serial::RefSerialTransmitter::Tx::GRAPHIC_ADD, 1,
-                                                    tap::communication::serial::RefSerialTransmitter::Tx::GraphicColor::ORANGE);
+        refSerialTransmitter->configGraphicGenerics(&msg->graphicData, graphicName, tap::communication::serial::RefSerialTransmitter::Tx::GRAPHIC_ADD,
+                                                    1, tap::communication::serial::RefSerialTransmitter::Tx::GraphicColor::ORANGE);
 
         refSerialTransmitter->configLine(50, 0, 0, 1920, 1080, &msg->graphicData);
         // refSerialTransmitter->configLine(50, 0, 200, 300, 400, &msg->graphicData);
 
-        // RF_CALL(refSerialTransmitter->sendGraphic(msg));
-        refSerialTransmitter->sendGraphic(msg);
+        //RF_CALL(refSerialTransmitter->sendGraphic(msg));
+        // refSerialTransmitter->sendGraphic(msg);
 
-        // RF_END();
+       // RF_END();
     }
 
     modm::ResumableResult<bool> UI::update() {
@@ -118,7 +125,7 @@ namespace ThornBots {
 
     bool UI::getUnusedGraphicName(uint8_t graphicName[3]) {
         if (currGraphicName > 0xffffff) return false;
-        
+
         graphicName[0] = static_cast<uint8_t>((currGraphicName >> 16) & 0xff);
         graphicName[1] = static_cast<uint8_t>((currGraphicName >> 8) & 0xff);
         graphicName[2] = static_cast<uint8_t>(currGraphicName & 0xff);

@@ -9,6 +9,11 @@
 #include "ShooterSubsystem.h"
 #include "UI.h"
 #include "drivers_singleton.hpp"
+#include "modm/processing/protothread.hpp"
+#include "modm/processing/resumable.hpp"
+#include "tap/drivers.hpp"
+
+using namespace tap::control;
 
 namespace ThornBots {
     using namespace tap::communication::serial;
@@ -17,7 +22,7 @@ namespace ThornBots {
     static tap::arch::PeriodicMilliTimer motorsTimer(2);
     static tap::arch::PeriodicMilliTimer IMUTimer(2);
     static tap::arch::PeriodicMilliTimer updateInputTimer(2);
-    class Robot {
+    class Robot : ::modm::pt::Protothread {
     public:  // Public Variables
         // static constexpr double PI = 3.14159;
         //  static constexpr double MAX_SPEED = 7000; //controller //7000
@@ -61,6 +66,8 @@ namespace ThornBots {
         void initialize();
 
         void update();
+
+        bool update2();
 
         inline void stopRobot() {
             drivetrainSubsystem->stopMotors();

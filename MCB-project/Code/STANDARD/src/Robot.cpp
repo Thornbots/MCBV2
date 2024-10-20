@@ -1,7 +1,6 @@
 #include "Robot.h"
 
 #include <cmath>
-
 namespace ThornBots {
 
     double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
@@ -15,6 +14,7 @@ namespace ThornBots {
         this->drivetrainSubsystem = driveTrainSubsystem;
         this->gimbalSubsystem = gimbalSubsystem;
         this->shooterSubsystem = shooterSubsystem;
+        this->ui = ui;
     }
 
     void Robot::initialize() {
@@ -36,7 +36,18 @@ namespace ThornBots {
         targetYawAngleWorld += yawAngleRelativeWorld;
     }
 
+    bool Robot::update2(){
+        PT_BEGIN();
+
+        PT_WAIT_UNTIL(drivers->refSerial.getRefSerialReceivingData());
+
+        PT_CALL(ui->update());
+        PT_YIELD();
+        PT_END();
+    }
     void Robot::update() {
+        update2();
+        
         drivers->canRxHandler.pollCanData();
         drivers->refSerial.updateSerial();
 

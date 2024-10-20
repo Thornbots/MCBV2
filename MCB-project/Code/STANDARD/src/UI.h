@@ -24,18 +24,19 @@ namespace ThornBots {
 
     // the class UI extends Resumable, and any public stuff in Resumable becomes protected here
     // it also extends RefSerialData
-    class UI : protected modm::Resumable<2>, protected tap::communication::serial::RefSerialData, ::modm::pt::Protothread {
+    class UI : protected modm::Resumable<2> { //protected tap::communication::serial::RefSerialData,
     public:  // Public Variables
-        tap::communication::serial::RefSerialTransmitter* refSerialTransmitter;
 
     private:  // Private Variables
         tap::Drivers* drivers;
+        tap::control::CommandScheduler* commandScheduler;
+        tap::communication::serial::RefSerialTransmitter* refSerialTransmitter;
         bool restarting;
         int nextName = 0;
         uint32_t currGraphicName;
 
     public:  // Public Methods
-        UI(tap::Drivers* driver);
+        UI(tap::Drivers* drivers);
         ~UI() {}  // Intentionally left blank
 
         /*
