@@ -1,3 +1,7 @@
+# NOT IN USE ANY MORE
+
+NEW REPO [MCBv3](https://github.com/Thornbots/MCBV3)
+
 # MCBV2
 Rose-Hulman Robomasters' (ThornBots) controls repository. Uses Taproot
 
